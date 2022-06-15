@@ -121,9 +121,11 @@ public:
 
 
     bool loopStartCallback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res){
+        ROS_INFO("loop is on");
         LOOP = true;
     }
     bool loopStopCallback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res){
+        ROS_INFO("loop is off");
         LOOP = false;
     }
 
