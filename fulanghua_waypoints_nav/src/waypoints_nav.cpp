@@ -110,9 +110,21 @@ public:
         suspend_server_ = nh.advertiseService("suspend_wp_pose", &WaypointsNavigation::suspendPoseCallback, this);
         resume_server_ = nh.advertiseService("resume_wp_pose", &WaypointsNavigation::resumePoseCallback, this);
         search_server_ = nh.advertiseService("near_wp_nav",&WaypointsNavigation::searchPoseCallback, this);
-        cmd_vel_sub_ = nh.subscribe("icart_mini/cmd_vel", 1, &WaypointsNavigation::cmdVelCallback, this);
+        cmd_vel_sub_ = nh.subscribe("cmd_vel", 1, &WaypointsNavigation::cmdVelCallback, this);
         wp_pub_ = nh.advertise<geometry_msgs::PoseArray>("waypoints", 10);
         clear_costmaps_srv_ = nh.serviceClient<std_srvs::Empty>("/move_base/clear_costmaps");
+
+        //added below
+        loop_start_server = nh.advertiseService("loop_start_wp_nav", &WaypointsNavigation::loopStartCallback, this);
+        loop_stop_server = nh.advertiseService("loop_stop_wp_nav", &WaypointsNavigation::loopStopCallback, this);
+    }
+
+
+    bool loopStartCallback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res){
+        LOOP = true;
+    }
+    bool loopStopCallback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res){
+        LOOP = false;
     }
 
     bool startNavigationCallback(std_srvs::Trigger::Request &request, std_srvs::Trigger::Response &response) {
@@ -463,10 +475,13 @@ public:
                     }
 
                     current_waypoint_++;
-                    if(current_waypoint_ == finish_pose_) {
+                    if(current_waypoint_ == finish_pose_ && !LOOP) {
                         startNavigationGL(*current_waypoint_);
                         while(!navigationFinished() && ros::ok()) sleep();
                         has_activate_ = false;
+                    }else if (current_waypoint_ == finish_pose_ && LOOP){
+                        startNavigationGL(*current_waypoint_);
+                        current_waypoint_ = waypoints_.poses.begin();
                     }
                 }
             } catch(const SwitchRunningStatus &e) {
@@ -488,12 +503,12 @@ private:
     std::string robot_frame_, world_frame_;
     tf::TransformListener tf_listener_;
     ros::Rate rate_;
-    ros::ServiceServer start_server_, pause_server_, unpause_server_, stop_server_, suspend_server_, resume_server_ ,search_server_;
+    ros::ServiceServer start_server_, pause_server_, unpause_server_, stop_server_, suspend_server_, resume_server_ ,search_server_, loop_server;
     ros::Subscriber cmd_vel_sub_;
     ros::Publisher wp_pub_;
     ros::ServiceClient clear_costmaps_srv_;
     double last_moved_time_, dist_err_;
-
+    bool LOOP = false;
 };
 
 int main(int argc, char *argv[]){
