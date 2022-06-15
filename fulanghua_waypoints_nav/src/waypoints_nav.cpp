@@ -483,6 +483,7 @@ public:
                         has_activate_ = false;
                     }else if (current_waypoint_ == finish_pose_ && LOOP){
                         startNavigationGL(*current_waypoint_);
+                        while(!navigationFinished() && ros::ok()) sleep();
                         current_waypoint_ = waypoints_.poses.begin();
                     }
                 }
