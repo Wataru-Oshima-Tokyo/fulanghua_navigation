@@ -503,7 +503,7 @@ private:
     std::string robot_frame_, world_frame_;
     tf::TransformListener tf_listener_;
     ros::Rate rate_;
-    ros::ServiceServer start_server_, pause_server_, unpause_server_, stop_server_, suspend_server_, resume_server_ ,search_server_, loop_server;
+    ros::ServiceServer start_server_, pause_server_, unpause_server_, stop_server_, suspend_server_, resume_server_ ,search_server_, loop_start_server, loop_stop_server;
     ros::Subscriber cmd_vel_sub_;
     ros::Publisher wp_pub_;
     ros::ServiceClient clear_costmaps_srv_;
