@@ -318,8 +318,8 @@ public:
                     (*wp_node)[i]["point"]["x"] >> pose.position.x;
                     (*wp_node)[i]["point"]["y"] >> pose.position.y;
                     (*wp_node)[i]["point"]["z"] >> pose.position.z;
-                    (*wp_node)[i]["point"]["a"] >> pose.position.a;
-                    (*wp_node)[i]["point"]["z"] >> pose.position.d;
+                    (*wp_node)[i]["point"]["a"] >> pose.position.action;
+                    (*wp_node)[i]["point"]["z"] >> pose.position.duration;
 
                     waypoints_.poses.push_back(pose);
 
@@ -432,7 +432,9 @@ public:
         move_base_msgs::MoveBaseGoal move_base_goal;
         move_base_goal.target_pose.header.stamp = ros::Time::now();
         move_base_goal.target_pose.header.frame_id = world_frame_;
-        move_base_goal.target_pose.pose.position = dest.position;
+        move_base_goal.target_pose.pose.position.x = dest.position.x;
+        move_base_goal.target_pose.pose.position.y = dest.position.y;
+        move_base_goal.target_pose.pose.position.z = dest.position.z;
         move_base_goal.target_pose.pose.orientation = dest.orientation;
         
         move_base_action_.sendGoal(move_base_goal);
