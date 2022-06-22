@@ -421,7 +421,7 @@ public:
         publishPoseArray();
     }
 
-    void startNavigationGL(const geometry_msgs::Point &dest){
+    void startNavigationGL(const orne_waypoints_editor::Waypoint &dest){
         orne_waypoints_editor::Pose pose;
         pose.position = dest;
         pose.orientation = tf::createQuaternionMsgFromYaw(0.0);
