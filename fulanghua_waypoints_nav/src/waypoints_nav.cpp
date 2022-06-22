@@ -36,6 +36,7 @@
 #include <geometry_msgs/Twist.h>
 #include "orne_waypoints_editor/Waypoint.h"
 #include "orne_waypoints_editor/WaypointArray.h"
+#include "std_msgs/Bool.h"
 #include <move_base_msgs/MoveBaseAction.h>
 #include <actionlib/client/simple_action_client.h>
 #include <tf/tf.h>
@@ -434,7 +435,7 @@ public:
         rate_.sleep();
         ROS_INFO_STREAM("Executing");
         while(!action_finished){
-            ROS_INFO_STREAM(".")
+            ROS_INFO_STREAM(".");
         }
         ROS_INFO_STREAM("Finished");
 
@@ -503,7 +504,7 @@ public:
                     }
                     //do the action here
                     //call the function that calls service with action code
-                    actionServiceCall(*current_waypoint_->action, *current_waypoint_->duration)
+                    actionServiceCall(*current_waypoint_->position.action, *current_waypoint_->position.duration)
 
 
                     current_waypoint_++;
