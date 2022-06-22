@@ -504,7 +504,7 @@ public:
                     }
                     //do the action here
                     //call the function that calls service with action code
-                    actionServiceCall(*current_waypoint_->position.action, *current_waypoint_->position.duration)
+                    actionServiceCall(current_waypoint_.position.action, current_waypoint_.position.duration)
 
 
                     current_waypoint_++;
