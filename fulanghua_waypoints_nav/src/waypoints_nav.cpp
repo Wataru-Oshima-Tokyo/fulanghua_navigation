@@ -329,7 +329,7 @@ public:
                     (*wp_node)[i]["point"]["y"] >> pose.position.y;
                     (*wp_node)[i]["point"]["z"] >> pose.position.z;
                     (*wp_node)[i]["point"]["a"] >> pose.position.action;
-                    (*wp_node)[i]["point"]["z"] >> pose.position.duration;
+                    (*wp_node)[i]["point"]["d"] >> pose.position.duration;
 
                     waypoints_.poses.push_back(pose);
 
