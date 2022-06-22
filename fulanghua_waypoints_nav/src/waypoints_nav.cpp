@@ -83,6 +83,7 @@ public:
         ros::NodeHandle private_nh("~");
         private_nh.param("robot_frame", robot_frame_, std::string("base_link"));
         private_nh.param("world_frame", world_frame_, std::string("map"));
+        private_nh.param("cmd_vel", cmd_vel_, std::string("cmd_vel"));
         
         double max_update_rate;
         private_nh.param("max_update_rate", max_update_rate, 10.0);
@@ -113,7 +114,8 @@ public:
         suspend_server_ = nh.advertiseService("suspend_wp_pose", &WaypointsNavigation::suspendPoseCallback, this);
         resume_server_ = nh.advertiseService("resume_wp_pose", &WaypointsNavigation::resumePoseCallback, this);
         search_server_ = nh.advertiseService("near_wp_nav",&WaypointsNavigation::searchPoseCallback, this);
-        cmd_vel_sub_ = nh.subscribe("cmd_vel", 1, &WaypointsNavigation::cmdVelCallback, this);
+        cmd_vel_sub_ = nh.subscribe(cmd_vel_, 1, &WaypointsNavigation::cmdVelCallback, this);
+        cmd_vel_pub_ = nh.advertise<geometry_msgs::Twist>(cmd_vel_,1000);
         action_exe_sub = nh.subscribe("cmd_vel_executing", 1000, &WaypointsNavigation::actionExeCallback, this);
         wp_pub_ = nh.advertise<orne_waypoints_editor::WaypointArray>("waypoints", 10);
         clear_costmaps_srv_ = nh.serviceClient<std_srvs::Empty>("/move_base/clear_costmaps");
@@ -141,6 +143,7 @@ public:
         ros::NodeHandle private_nh("~");
         private_nh.param("robot_frame", robot_frame_, std::string("base_link"));
         private_nh.param("world_frame", world_frame_, std::string("map"));
+        private_nh.param("cmd_vel", cmd_vel_, std::string("cmd_vel"));
         std::string filename = "";
         private_nh.param("filename", filename, filename);
         if(filename != ""){
@@ -434,6 +437,7 @@ public:
     
     void actionServiceCall(const orne_waypoints_editor::Pose &dest){
         unitree_a1::actions _action;
+        geometry_msgs::Twist zero_cmd;
         _action.request.action = dest.position.action;
         _action.request.duration = dest.position.duration;
         action_cmd_srv.call(_action);
@@ -441,6 +445,7 @@ public:
         ROS_INFO_STREAM("Executing");
         while(!action_finished){
             ROS_INFO_STREAM(".");
+            cmd_vel_pub_.publish(zero_cmd);
         }
         ROS_INFO_STREAM("Finished");
 
@@ -540,12 +545,12 @@ private:
     std::vector<orne_waypoints_editor::Pose>::iterator last_waypoint_;
     std::vector<orne_waypoints_editor::Pose>::iterator finish_pose_;
     bool has_activate_;
-    std::string robot_frame_, world_frame_;
+    std::string robot_frame_, world_frame_, cmd_vel_;
     tf::TransformListener tf_listener_;
     ros::Rate rate_;
     ros::ServiceServer start_server_, pause_server_, unpause_server_, stop_server_, suspend_server_, resume_server_ ,search_server_, loop_start_server, loop_stop_server;
     ros::Subscriber cmd_vel_sub_, action_exe_sub;
-    ros::Publisher wp_pub_;
+    ros::Publisher wp_pub_, cmd_vel_pub_;
     ros::ServiceClient clear_costmaps_srv_, action_cmd_srv;
     double last_moved_time_, dist_err_;
     bool LOOP = false;
