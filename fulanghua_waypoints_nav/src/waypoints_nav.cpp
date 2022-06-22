@@ -42,7 +42,7 @@
 #include <tf/transform_listener.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <fulanghua_srvs/Pose.h>
-
+#include "unitree_a1/actions.h"
 #include <yaml-cpp/yaml.h>
 
 #include <vector>
@@ -113,9 +113,10 @@ public:
         resume_server_ = nh.advertiseService("resume_wp_pose", &WaypointsNavigation::resumePoseCallback, this);
         search_server_ = nh.advertiseService("near_wp_nav",&WaypointsNavigation::searchPoseCallback, this);
         cmd_vel_sub_ = nh.subscribe("cmd_vel", 1, &WaypointsNavigation::cmdVelCallback, this);
+        action_exe_sub = nh.subscribe("cmd_vel_executing", 1000, &WaypointsNavigation::actionExeCallback, this);
         wp_pub_ = nh.advertise<orne_waypoints_editor::WaypointArray>("waypoints", 10);
         clear_costmaps_srv_ = nh.serviceClient<std_srvs::Empty>("/move_base/clear_costmaps");
-
+        action_cmd_srv = nh.serviceClient<unitree_a1::actions>("/action/start");
         //added below
         loop_start_server = nh.advertiseService("loop_start_wp_nav", &WaypointsNavigation::loopStartCallback, this);
         loop_stop_server = nh.advertiseService("loop_stop_wp_nav", &WaypointsNavigation::loopStopCallback, this);
@@ -286,6 +287,14 @@ public:
         }
     }
 
+    void actionExeCallback(const std_msgs::Bool &msg){
+        if(msg.data){
+            action_finished = false;
+        }else{
+            action_finished = true;
+        }
+    }
+
     bool readFile(const std::string &filename){
         waypoints_.poses.clear();
         try{
@@ -420,6 +429,16 @@ public:
         ros::spinOnce();
         publishPoseArray();
     }
+    void actionServiceCall(std::string &action, int &duration){
+        action_cmd_srv.call(action, duration);
+        rate_.sleep();
+        ROS_INFO_STREAM("Executing");
+        while(!action_finished){
+            ROS_INFO_STREAM(".")
+        }
+        ROS_INFO_STREAM("Finished");
+
+    }
 
     void startNavigationGL(const orne_waypoints_editor::Waypoint &dest){
         orne_waypoints_editor::Pose pose;
@@ -482,6 +501,10 @@ public:
                         }
                         sleep();
                     }
+                    //do the action here
+                    //call the function that calls service with action code
+                    actionServiceCall(*current_waypoint_->action, *current_waypoint_->duration)
+
 
                     current_waypoint_++;
                     if(current_waypoint_ == finish_pose_ && !LOOP) {
@@ -515,11 +538,12 @@ private:
     tf::TransformListener tf_listener_;
     ros::Rate rate_;
     ros::ServiceServer start_server_, pause_server_, unpause_server_, stop_server_, suspend_server_, resume_server_ ,search_server_, loop_start_server, loop_stop_server;
-    ros::Subscriber cmd_vel_sub_;
+    ros::Subscriber cmd_vel_sub_, action_exe_sub;
     ros::Publisher wp_pub_;
-    ros::ServiceClient clear_costmaps_srv_;
+    ros::ServiceClient clear_costmaps_srv_, action_cmd_srv;
     double last_moved_time_, dist_err_;
     bool LOOP = false;
+    bool action_finished = true;
 };
 
 int main(int argc, char *argv[]){
