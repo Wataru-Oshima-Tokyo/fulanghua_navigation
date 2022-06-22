@@ -392,7 +392,7 @@ public:
         return move_base_action_.getState() == actionlib::SimpleClientGoalState::SUCCEEDED;
     }
 
-    bool onNavigationPoint(const geometry_msgs::Point &dest, double dist_err = 0.8){
+    bool onNavigationPoint(const orne_waypoints_editor::Waypoint &dest, double dist_err = 0.8){
         tf::StampedTransform robot_gl = getRobotPosGL();
 
         const double wx = dest.x;
