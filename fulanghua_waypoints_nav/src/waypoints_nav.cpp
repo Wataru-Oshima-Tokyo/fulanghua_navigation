@@ -434,8 +434,8 @@ public:
     
     void actionServiceCall(const orne_waypoints_editor::Pose &dest){
         unitree_a1::actions _action;
-        _action.actions.action = dest.position.action;
-        _action.actions.duration = dest.position.duration
+        _action.request.action = dest.position.action;
+        _action.request.duration = dest.position.duration;
         action_cmd_srv.call(_action);
         rate_.sleep();
         ROS_INFO_STREAM("Executing");
