@@ -506,7 +506,7 @@ public:
                     }
                     //do the action here
                     //call the function that calls service with action code
-                    actionServiceCall(*current_waypoint_)
+                    actionServiceCall(*current_waypoint_);
 
 
                     current_waypoint_++;
