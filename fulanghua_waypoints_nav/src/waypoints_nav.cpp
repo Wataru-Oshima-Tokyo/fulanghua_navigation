@@ -113,7 +113,7 @@ public:
         resume_server_ = nh.advertiseService("resume_wp_pose", &WaypointsNavigation::resumePoseCallback, this);
         search_server_ = nh.advertiseService("near_wp_nav",&WaypointsNavigation::searchPoseCallback, this);
         cmd_vel_sub_ = nh.subscribe("cmd_vel", 1, &WaypointsNavigation::cmdVelCallback, this);
-        wp_pub_ = nh.advertise<geometry_msgs::PoseArray>("waypoints", 10);
+        wp_pub_ = nh.advertise<orne_waypoints_editor::WaypointArray>("waypoints", 10);
         clear_costmaps_srv_ = nh.serviceClient<std_srvs::Empty>("/move_base/clear_costmaps");
 
         //added below
@@ -499,7 +499,8 @@ public:
 
 private:
     actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> move_base_action_;
-    geometry_msgs::PoseArray waypoints_;
+    // geometry_msgs::PoseArray waypoints_;
+    orne_waypoints_editor::WaypointArray waypoints_;
     visualization_msgs::MarkerArray marker_;
     std::vector<geometry_msgs::Pose>::iterator current_waypoint_;
     std::vector<geometry_msgs::Pose>::iterator last_waypoint_;
