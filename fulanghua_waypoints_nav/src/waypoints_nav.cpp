@@ -430,8 +430,10 @@ public:
         ros::spinOnce();
         publishPoseArray();
     }
-    void actionServiceCall(std::string &action, int &duration){
-        action_cmd_srv.call(action, duration);
+    
+    
+    void actionServiceCall(const orne_waypoints_editor::Pose &dest){
+        action_cmd_srv.call(dest.position.action, dest.position.duration);
         rate_.sleep();
         ROS_INFO_STREAM("Executing");
         while(!action_finished){
@@ -504,7 +506,7 @@ public:
                     }
                     //do the action here
                     //call the function that calls service with action code
-                    actionServiceCall(current_waypoint_.position.action, current_waypoint_.position.duration)
+                    actionServiceCall(*current_waypoint_)
 
 
                     current_waypoint_++;
