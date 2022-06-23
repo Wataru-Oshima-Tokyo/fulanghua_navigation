@@ -442,13 +442,6 @@ public:
         _action.request.duration = dest.position.duration;
         action_cmd_srv.call(_action);
         rate_.sleep();
-        ROS_INFO_STREAM("Executing");
-        while(!action_finished){
-            ROS_INFO_STREAM(".");
-            cmd_vel_pub_.publish(zero_cmd);
-        }
-        ROS_INFO_STREAM("Finished");
-
     }
 
     void startNavigationGL(const orne_waypoints_editor::Waypoint &dest){
@@ -514,8 +507,15 @@ public:
                     }
                     //do the action here
                     //call the function that calls service with action code
-                    actionServiceCall(*current_waypoint_);
-
+                    
+                    if(!(current_waypoint_.position.action == "passthrough")){
+                        while(!navigationFinished() && ros::ok()) sleep();
+                        has_activate_ = false;
+                        actionServiceCall(*current_waypoint_);
+                        has_activate_ = true;
+                    }
+                    
+                    
 
                     current_waypoint_++;
                     if(current_waypoint_ == finish_pose_ && !LOOP) {
