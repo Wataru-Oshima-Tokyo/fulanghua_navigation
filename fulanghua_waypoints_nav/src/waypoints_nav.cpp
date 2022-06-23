@@ -510,7 +510,7 @@ public:
                     //do the action here
                     //call the function that calls service with action code
                     
-                    if(!actionConfirm(*current_waypoint_)){
+                    if(actionConfirm(*current_waypoint_)){
                         while(!navigationFinished() && ros::ok()) sleep();
                         has_activate_ = false;
                         actionServiceCall(*current_waypoint_);
