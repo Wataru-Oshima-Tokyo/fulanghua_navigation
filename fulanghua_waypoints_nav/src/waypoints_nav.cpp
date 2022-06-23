@@ -333,7 +333,6 @@ public:
                     (*wp_node)[i]["point"]["z"] >> pose.position.z;
                     (*wp_node)[i]["point"]["a"] >> pose.position.action;
                     (*wp_node)[i]["point"]["d"] >> pose.position.duration;
-
                     waypoints_.poses.push_back(pose);
 
                 }
@@ -510,6 +509,7 @@ public:
                     //do the action here
                     //call the function that calls service with action code
                     
+
                     if(actionConfirm(*current_waypoint_)){
                         while(!navigationFinished() && ros::ok()) sleep();
                         has_activate_ = false;
