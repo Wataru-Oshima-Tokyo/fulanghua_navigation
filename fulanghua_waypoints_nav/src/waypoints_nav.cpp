@@ -437,7 +437,6 @@ public:
     
     void actionServiceCall(const orne_waypoints_editor::Pose &dest){
         unitree_a1::actions _action;
-        geometry_msgs::Twist zero_cmd;
         _action.request.action = dest.position.action;
         _action.request.duration = dest.position.duration;
         action_cmd_srv.call(_action);
@@ -508,7 +507,7 @@ public:
                     //do the action here
                     //call the function that calls service with action code
                     
-                    if(!(current_waypoint_.position.action == "passthrough")){
+                    if(!(*current_waypoint_.position.action == "passthrough")){
                         while(!navigationFinished() && ros::ok()) sleep();
                         has_activate_ = false;
                         actionServiceCall(*current_waypoint_);
