@@ -462,7 +462,10 @@ public:
         move_base_action_.sendGoal(move_base_goal);
     }
 
-    
+    bool actionConfirm(const orne_waypoints_editor::Pose &dest){
+        if(dest.position.action == "passthrough") return false;
+        return true;
+    }
     void publishPoseArray(){
         waypoints_.header.stamp = ros::Time::now();
         wp_pub_.publish(waypoints_);
@@ -507,7 +510,7 @@ public:
                     //do the action here
                     //call the function that calls service with action code
                     
-                    if(!(*current_waypoint_.position.action == "passthrough")){
+                    if(!actionConfirm(*current_waypoint_)){
                         while(!navigationFinished() && ros::ok()) sleep();
                         has_activate_ = false;
                         actionServiceCall(*current_waypoint_);
