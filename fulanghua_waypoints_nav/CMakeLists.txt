@@ -23,7 +23,7 @@ endif()
 
 catkin_package(
   #INCLUDE_DIRS include
-  LIBRsARIES ${PROJECT_NAME}
+  LIBRARIES ${PROJECT_NAME}
 )
 
 
