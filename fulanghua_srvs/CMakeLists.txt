@@ -20,7 +20,7 @@ generate_messages(
 )
 
 catkin_package(
-  LIBRARIES ${PROJECT_NAME}
+  LIBRARIES ${PROJECT_NAME}/fulanghua_srvs
 )
 
 include_directories(
