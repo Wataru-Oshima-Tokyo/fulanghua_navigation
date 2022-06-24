@@ -523,7 +523,7 @@ public:
                     }
                     //do the action here
                     //call the function that calls service with action code
-                    if(CHARGE){
+                    if(CHARGE && charging_waypoint_!=NULL ){
                         startNavigationGL(*charging_waypoint_);
                         while(!navigationFinished() && ros::ok()) sleep();
                         has_activate_ = false;
