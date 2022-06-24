@@ -84,7 +84,7 @@ public:
         private_nh.param("robot_frame", robot_frame_, std::string("base_link"));
         private_nh.param("world_frame", world_frame_, std::string("map"));
         private_nh.param("cmd_vel", cmd_vel_, std::string("cmd_vel"));
-        private_nh.param("charge_topic", charge_topic, std::string("charge"));
+        private_nh.param("charge_topic", CHARGE_TOPIC, std::string("charge"));
         
         double max_update_rate;
         private_nh.param("max_update_rate", max_update_rate, 10.0);
@@ -118,7 +118,7 @@ public:
         cmd_vel_sub_ = nh.subscribe(cmd_vel_, 1, &WaypointsNavigation::cmdVelCallback, this);
         cmd_vel_pub_ = nh.advertise<geometry_msgs::Twist>(cmd_vel_,1000);
         action_exe_sub = nh.subscribe("cmd_vel_executing", 1000, &WaypointsNavigation::actionExeCallback, this);
-        charge_sub = nh.subscribe()
+        charge_sub = nh.subscribe(CHARGE_TOPIC, 1000, &WaypointsNavigation::needChargeCallback, this);
         wp_pub_ = nh.advertise<orne_waypoints_editor::WaypointArray>("waypoints", 10);
         clear_costmaps_srv_ = nh.serviceClient<std_srvs::Empty>("/move_base/clear_costmaps");
         action_cmd_srv = nh.serviceClient<unitree_a1::actions>("/action/start");
@@ -128,6 +128,7 @@ public:
         
     }
 
+    
 
     bool loopStartCallback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res){
         ROS_INFO("loop is on");
@@ -302,6 +303,9 @@ public:
         }
     }
 
+    void needChargeCallback(const std_msgs::Bool &msg){
+        ROS_INFO_STREAM("example");
+    }
     bool readFile(const std::string &filename){
         waypoints_.poses.clear();
         try{
@@ -550,7 +554,7 @@ private:
     std::vector<orne_waypoints_editor::Pose>::iterator last_waypoint_;
     std::vector<orne_waypoints_editor::Pose>::iterator finish_pose_;
     bool has_activate_;
-    std::string robot_frame_, world_frame_, cmd_vel_;
+    std::string robot_frame_, world_frame_, cmd_vel_, CHARGE_TOPIC;
     tf::TransformListener tf_listener_;
     ros::Rate rate_;
     ros::ServiceServer start_server_, pause_server_, unpause_server_, stop_server_, suspend_server_, resume_server_ ,search_server_, loop_start_server, loop_stop_server;
