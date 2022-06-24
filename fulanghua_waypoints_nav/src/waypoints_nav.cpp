@@ -84,6 +84,7 @@ public:
         private_nh.param("robot_frame", robot_frame_, std::string("base_link"));
         private_nh.param("world_frame", world_frame_, std::string("map"));
         private_nh.param("cmd_vel", cmd_vel_, std::string("cmd_vel"));
+        private_nh.param("charge_topic", charge_topic, std::string("charge"));
         
         double max_update_rate;
         private_nh.param("max_update_rate", max_update_rate, 10.0);
@@ -117,12 +118,14 @@ public:
         cmd_vel_sub_ = nh.subscribe(cmd_vel_, 1, &WaypointsNavigation::cmdVelCallback, this);
         cmd_vel_pub_ = nh.advertise<geometry_msgs::Twist>(cmd_vel_,1000);
         action_exe_sub = nh.subscribe("cmd_vel_executing", 1000, &WaypointsNavigation::actionExeCallback, this);
+        charge_sub = nh.subscribe()
         wp_pub_ = nh.advertise<orne_waypoints_editor::WaypointArray>("waypoints", 10);
         clear_costmaps_srv_ = nh.serviceClient<std_srvs::Empty>("/move_base/clear_costmaps");
         action_cmd_srv = nh.serviceClient<unitree_a1::actions>("/action/start");
         //added below
         loop_start_server = nh.advertiseService("loop_start_wp_nav", &WaypointsNavigation::loopStartCallback, this);
         loop_stop_server = nh.advertiseService("loop_stop_wp_nav", &WaypointsNavigation::loopStopCallback, this);
+        
     }
 
 
@@ -551,12 +554,13 @@ private:
     tf::TransformListener tf_listener_;
     ros::Rate rate_;
     ros::ServiceServer start_server_, pause_server_, unpause_server_, stop_server_, suspend_server_, resume_server_ ,search_server_, loop_start_server, loop_stop_server;
-    ros::Subscriber cmd_vel_sub_, action_exe_sub;
+    ros::Subscriber cmd_vel_sub_, action_exe_sub, charge_sub;
     ros::Publisher wp_pub_, cmd_vel_pub_;
     ros::ServiceClient clear_costmaps_srv_, action_cmd_srv;
     double last_moved_time_, dist_err_;
     bool LOOP = false;
     bool action_finished = true;
+    bool CHARGE =false;
 };
 
 int main(int argc, char *argv[]){
