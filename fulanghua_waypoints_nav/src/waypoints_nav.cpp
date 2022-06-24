@@ -381,10 +381,15 @@ public:
     }
 
    void computeWpOrientation(){
+        int counter=0;
         for(std::vector<orne_waypoints_editor::Pose>::iterator it = waypoints_.poses.begin(); it != finish_pose_; it++) {
             double goal_direction = atan2((it+1)->position.y - (it)->position.y,
                                           (it+1)->position.x - (it)->position.x);
             (it)->orientation = tf::createQuaternionMsgFromYaw(goal_direction);
+            if(it->position.action=="charge"){
+                CHARGING_STATION_SPOT = counter;
+            }
+            counter++;
         }
         waypoints_.header.frame_id = world_frame_;
     }
@@ -565,6 +570,7 @@ private:
     bool LOOP = false;
     bool action_finished = true;
     bool CHARGE =false;
+    int CHARGING_STATION_SPOT =-1;
 };
 
 int main(int argc, char *argv[]){
