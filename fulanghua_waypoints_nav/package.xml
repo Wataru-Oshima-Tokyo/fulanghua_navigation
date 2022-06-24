@@ -21,7 +21,7 @@
   <build_depend>tf</build_depend>
   <build_depend>std_srvs</build_depend>
   <build_depend>orne_waypoints_editor</build_depend>
-  <!-- <build_depend>fulanghua_srvs</build_depend> -->
+  <build_depend>fulanghua_srvs</build_depend>
   <build_depend>uitree_a1</build_depend>
   <run_depend>move_base</run_depend>
   <run_depend>yaml-cpp</run_depend>

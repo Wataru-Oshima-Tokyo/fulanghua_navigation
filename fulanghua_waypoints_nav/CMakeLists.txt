@@ -10,7 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib
   tf
   std_srvs
-  # fulanghua_srvs
+  fulanghua_srvs
   orne_waypoints_editor
   unitree_a1
 )
