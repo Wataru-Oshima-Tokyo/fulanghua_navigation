@@ -203,7 +203,7 @@ public:
         move_base_action_.cancelAllGoals();
     }
 
-    bool resumePoseCallback(fulanghua_srvs::Pose::Request &request, fulanghua_srvs::Pose::Response &response) {
+    bool resumePoseCallback(fulanghua_srvs::_Pose::Request &request, fulanghua_srvs::_Pose::Response &response) {
         if(has_activate_) {
             response.status = false;
             return false;
@@ -229,7 +229,7 @@ public:
         return true;
     }
 
-    bool suspendPoseCallback(fulanghua_srvs::Pose::Request &request, fulanghua_srvs::Pose::Response &response) {
+    bool suspendPoseCallback(fulanghua_srvs::_Pose::Request &request, fulanghua_srvs::_Pose::Response &response) {
         if(!has_activate_) {
             response.status = false;
             return false;
