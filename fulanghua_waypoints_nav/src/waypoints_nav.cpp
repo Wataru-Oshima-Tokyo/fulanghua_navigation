@@ -490,6 +490,8 @@ public:
         while(ros::ok()){
             try {
                 if(has_activate_) {
+                    if(current_waypoint_->position.action=="charge")
+                        current_waypoint_++;
                     if(current_waypoint_ == last_waypoint_) {
                         ROS_INFO("prepare finish pose");
                     } else {
@@ -538,13 +540,7 @@ public:
                         }
                     }
 
-
-                    
-                    
-
                     current_waypoint_++;
-                    if(current_waypoint_->position.action=="charge")
-                        current_waypoint_++;
                     if(current_waypoint_ == finish_pose_ && !LOOP) {
                         startNavigationGL(*current_waypoint_);
                         while(!navigationFinished() && ros::ok()) sleep();
