@@ -304,8 +304,9 @@ public:
     }
 
     void needChargeCallback(const std_msgs::Bool &msg){
-        ROS_INFO_STREAM("example");
+        CHARGE = msg.data;
     }
+
     bool readFile(const std::string &filename){
         waypoints_.poses.clear();
         try{
@@ -381,15 +382,13 @@ public:
     }
 
    void computeWpOrientation(){
-        int counter=0;
         for(std::vector<orne_waypoints_editor::Pose>::iterator it = waypoints_.poses.begin(); it != finish_pose_; it++) {
             double goal_direction = atan2((it+1)->position.y - (it)->position.y,
                                           (it+1)->position.x - (it)->position.x);
             (it)->orientation = tf::createQuaternionMsgFromYaw(goal_direction);
             if(it->position.action=="charge"){
-                CHARGING_STATION_SPOT = counter;
+                charging_waypoint_ = it;
             }
-            counter++;
         }
         waypoints_.header.frame_id = world_frame_;
     }
@@ -414,6 +413,10 @@ public:
 
     bool navigationFinished(){
         return move_base_action_.getState() == actionlib::SimpleClientGoalState::SUCCEEDED;
+    }
+
+    bool chargingFinished(){
+        return !CHARGE;
     }
 
     bool onNavigationPoint(const orne_waypoints_editor::Waypoint &dest, double dist_err = 0.8){
@@ -520,14 +523,21 @@ public:
                     }
                     //do the action here
                     //call the function that calls service with action code
-                    
-
-                    if(actionConfirm(*current_waypoint_)){
+                    if(CHARGE){
+                        startNavigationGL(*charging_waypoint_);
                         while(!navigationFinished() && ros::ok()) sleep();
                         has_activate_ = false;
-                        actionServiceCall(*current_waypoint_);
-                        has_activate_ = true;
+                        while(!chargingFinished() && ros::ok()) sleep();
+                    }else{
+                        if(actionConfirm(*current_waypoint_)){
+                            while(!navigationFinished() && ros::ok()) sleep();
+                            has_activate_ = false;
+                            actionServiceCall(*current_waypoint_);
+                            has_activate_ = true;
+                        }
                     }
+
+
                     
                     
 
@@ -556,6 +566,7 @@ private:
     orne_waypoints_editor::WaypointArray waypoints_;
     visualization_msgs::MarkerArray marker_;
     std::vector<orne_waypoints_editor::Pose>::iterator current_waypoint_;
+    std::vector<orne_waypoints_editor::Pose>::iterator charging_waypoint_;
     std::vector<orne_waypoints_editor::Pose>::iterator last_waypoint_;
     std::vector<orne_waypoints_editor::Pose>::iterator finish_pose_;
     bool has_activate_;
@@ -570,7 +581,6 @@ private:
     bool LOOP = false;
     bool action_finished = true;
     bool CHARGE =false;
-    int CHARGING_STATION_SPOT =-1;
 };
 
 int main(int argc, char *argv[]){
