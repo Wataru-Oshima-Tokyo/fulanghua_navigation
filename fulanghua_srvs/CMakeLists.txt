@@ -10,7 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate services in the 'srv' folder
 add_service_files(
     FILES
-    ${PROJECT_NAME}/Pose.srv
+    Pose.srv
 )
 
 ## Generate added messages and services with any dependencies listed here
@@ -19,7 +19,9 @@ generate_messages(
     orne_waypoints_editor
 )
 
-catkin_package()
+catkin_package(
+  LIBRARIES ${PROJECT_NAME}
+)
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
