@@ -42,7 +42,7 @@
 #include <tf/tf.h>
 #include <tf/transform_listener.h>
 #include <visualization_msgs/MarkerArray.h>
-#include <fulanghua_srvs/Pose.h>
+#include <fulanghua_srvs/_Pose.h>
 #include "unitree_a1/actions.h"
 #include <yaml-cpp/yaml.h>
 
