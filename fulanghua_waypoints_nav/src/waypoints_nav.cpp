@@ -388,6 +388,7 @@ public:
             (it)->orientation = tf::createQuaternionMsgFromYaw(goal_direction);
             if(it->position.action=="charge"){
                 charging_waypoint_ = it;
+                CHARGING_STATION =true;
             }
         }
         waypoints_.header.frame_id = world_frame_;
@@ -523,7 +524,7 @@ public:
                     }
                     //do the action here
                     //call the function that calls service with action code
-                    if(CHARGE && charging_waypoint_!=NULL ){
+                    if(CHARGE && CHARGING_STATION ){
                         startNavigationGL(*charging_waypoint_);
                         while(!navigationFinished() && ros::ok()) sleep();
                         has_activate_ = false;
@@ -542,6 +543,8 @@ public:
                     
 
                     current_waypoint_++;
+                    if(current_waypoint_->position.action=="charge")
+                        current_waypoint_++;
                     if(current_waypoint_ == finish_pose_ && !LOOP) {
                         startNavigationGL(*current_waypoint_);
                         while(!navigationFinished() && ros::ok()) sleep();
@@ -581,6 +584,7 @@ private:
     bool LOOP = false;
     bool action_finished = true;
     bool CHARGE =false;
+    bool CHARGING_STATION=false;
 };
 
 int main(int argc, char *argv[]){
