@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_srvs
   fulanghua_srvs
   orne_waypoints_editor
+  unitree_a1
 )
 
 find_package(PkgConfig)
