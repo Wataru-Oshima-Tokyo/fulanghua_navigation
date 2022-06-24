@@ -11,6 +11,8 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   std_srvs
   fulanghua_srvs
+  orne_waypoints_editor
+  unitree_a1
 )
 
 find_package(PkgConfig)
@@ -24,6 +26,7 @@ catkin_package(
   #INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
 )
+
 
 include_directories(
   #include 
