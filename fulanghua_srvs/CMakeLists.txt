@@ -10,7 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate services in the 'srv' folder
 add_service_files(
     FILES
-    Pose.srv
+    _Pose.srv
 )
 
 ## Generate added messages and services with any dependencies listed here
