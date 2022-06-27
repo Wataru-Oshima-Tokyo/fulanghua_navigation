@@ -591,6 +591,7 @@ public:
                         startNavigationGL(*current_waypoint_);
                         while(!navigationFinished() && ros::ok()) sleep();
                         has_activate_ = false;
+                        _reached=true;
                     }else if (current_waypoint_ == finish_pose_ && REVERSE){
                         startNavigationGL(*current_waypoint_);
                         while(!navigationFinished() && ros::ok()) sleep();
