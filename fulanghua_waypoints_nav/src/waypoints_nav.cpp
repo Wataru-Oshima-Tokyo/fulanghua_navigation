@@ -96,6 +96,11 @@ public:
             if(!readFile(filename)) {
                 ROS_ERROR("Failed loading waypoints file");
             } else {
+                while(first)
+                first_waypoint_ =  waypoints_.poses.begin();
+                while(first_waypoint_->position.action=="charge"){
+                    first_waypoint_++;
+                }
                 last_waypoint_ = waypoints_.poses.end()-2;
                 finish_pose_ = waypoints_.poses.end()-1;
                 computeWpOrientation();
@@ -125,15 +130,27 @@ public:
         //added below
         loop_start_server = nh.advertiseService("loop_start_wp_nav", &WaypointsNavigation::loopStartCallback, this);
         loop_stop_server = nh.advertiseService("loop_stop_wp_nav", &WaypointsNavigation::loopStopCallback, this);
-        
+        roundtrip_on_server_ = nh.advertiseService("roundtrip_on_nav", &WaypointsNavigation::roundTripOnCallback, this);
+        roundtrip_off_server_ = nh.advertiseService("roundtrip_off_nav", &WaypointsNavigation::roundTripOffCallback, this);
     }
 
     
+    bool roundTripOnCallback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res){
+        ROS_INFO("roundtrip is on");
+        REVERSE = true;
+    }
+
+    bool roundTripOnCallback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res){
+        ROS_INFO("roundtrip is off");
+        REVERSE = false;
+    }
+
 
     bool loopStartCallback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res){
         ROS_INFO("loop is on");
         LOOP = true;
     }
+
     bool loopStopCallback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res){
         ROS_INFO("loop is off");
         LOOP = false;
@@ -155,6 +172,10 @@ public:
             if(!readFile(filename)) {
                 ROS_ERROR("Failed loading waypoints file");
             } else {
+                first_waypoint_ = waypoints_.poses.begin();
+                while(first_waypoint_->position.action=="charge"){
+                    first_waypoint_++;
+                }
                 last_waypoint_ = waypoints_.poses.end()-2;
                 finish_pose_ = waypoints_.poses.end()-1;
                 computeWpOrientation();
@@ -487,17 +508,29 @@ public:
     }
 
     void run(){
+        bool _reached = false;
         while(ros::ok()){
             try {
                 if(has_activate_) {
-                    if(current_waypoint_->position.action=="charge")
-                        current_waypoint_++;
-                    if(current_waypoint_ == last_waypoint_) {
+                    if(current_waypoint_->position.action=="charge"){
+                        if(_reached && REVERSE){
+                            current_waypoint_--;
+                        }else{
+                            current_waypoint_++;
+                        }
+                    }
+                    if(current_waypoint_ == last_waypoint_ && !REVERSE) {
                         ROS_INFO("prepare finish pose");
-                    } else {
+                    } else if (current_waypoint_ == first_waypoint_+1 && REVERSE && _reached){
+                        ROS_INFO("prepare finish pose");
+                    }else {
                         ROS_INFO("calculate waypoint direction");
                         ROS_INFO_STREAM("goal_direction = " << current_waypoint_->orientation);
-                        ROS_INFO_STREAM("current_waypoint_+1 " << (current_waypoint_+1)->position.y);
+                        if(REVERSE && _reached){
+                            ROS_INFO_STREAM("current_waypoint_+1 " << (current_waypoint_-1)->position.y);
+                        }else{
+                            ROS_INFO_STREAM("current_waypoint_+1 " << (current_waypoint_+1)->position.y);
+                        }
                         ROS_INFO_STREAM("current_waypoint_" << current_waypoint_->position.y);
                     }
 
@@ -539,17 +572,32 @@ public:
                             has_activate_ = true;
                         }
                     }
-
-                    current_waypoint_++;
-                    if(current_waypoint_ == finish_pose_ && !LOOP) {
+                    
+                    if(_reached && REVERSE){
+                        current_waypoint_--;
+                    }else{
+                        current_waypoint_++;
+                    }
+                    if(current_waypoint_ == finish_pose_ && !REVERSE) {
                         startNavigationGL(*current_waypoint_);
                         while(!navigationFinished() && ros::ok()) sleep();
                         has_activate_ = false;
-                    }else if (current_waypoint_ == finish_pose_ && LOOP){
+                    }else if (current_waypoint_ == finish_pose_ && REVERSE){
                         startNavigationGL(*current_waypoint_);
                         while(!navigationFinished() && ros::ok()) sleep();
-                        current_waypoint_ = waypoints_.poses.begin();
+                        current_waypoint_ = waypoints_.poses.end()-2;
+                        _reached = true
                     }
+                    if(_reached && LOOP && current_waypoint_ == first_waypoint_){
+                        has_activate_ = true;
+                        current_waypoint_ = waypoints_.poses.begin();
+                        _reached = false;
+                    }else if(_reached && !LOOP && current_waypoint_ == first_waypoint_ ){
+                        startNavigationGL(*current_waypoint_);
+                        while(!navigationFinished() && ros::ok()) sleep();
+                        has_activate_ = false;
+                    }
+                    
                 }
             } catch(const SwitchRunningStatus &e) {
                 ROS_INFO_STREAM("running status switched");
@@ -567,17 +615,20 @@ private:
     std::vector<orne_waypoints_editor::Pose>::iterator current_waypoint_;
     std::vector<orne_waypoints_editor::Pose>::iterator charging_waypoint_;
     std::vector<orne_waypoints_editor::Pose>::iterator last_waypoint_;
+    std::vector<orne_waypoints_editor::Pose>::iterator first_waypoint_;
     std::vector<orne_waypoints_editor::Pose>::iterator finish_pose_;
     bool has_activate_;
     std::string robot_frame_, world_frame_, cmd_vel_, CHARGE_TOPIC;
     tf::TransformListener tf_listener_;
     ros::Rate rate_;
-    ros::ServiceServer start_server_, pause_server_, unpause_server_, stop_server_, suspend_server_, resume_server_ ,search_server_, loop_start_server, loop_stop_server;
+    ros::ServiceServer start_server_, pause_server_, unpause_server_, stop_server_, suspend_server_, 
+    resume_server_ ,search_server_, loop_start_server, loop_stop_server, roundtrip_on_server_, roundtrip_off_server_;
     ros::Subscriber cmd_vel_sub_, action_exe_sub, charge_sub;
     ros::Publisher wp_pub_, cmd_vel_pub_;
     ros::ServiceClient clear_costmaps_srv_, action_cmd_srv;
     double last_moved_time_, dist_err_;
     bool LOOP = false;
+    bool REVERSE = false;
     bool action_finished = true;
     bool CHARGE =false;
     bool CHARGING_STATION=false;
