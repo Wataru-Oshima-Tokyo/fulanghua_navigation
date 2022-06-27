@@ -4,7 +4,7 @@ project(fulanghua_srvs)
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   message_generation
-  orne_waypoints_editor
+  orne_waypoints_msgs
 )
 
 ## Generate services in the 'srv' folder
@@ -16,7 +16,7 @@ add_service_files(
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
     DEPENDENCIES
-    orne_waypoints_editor
+    orne_waypoints_msgs
 )
 
 catkin_package(

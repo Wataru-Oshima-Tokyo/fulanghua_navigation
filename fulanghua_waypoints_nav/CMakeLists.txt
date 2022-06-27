@@ -11,7 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   std_srvs
   fulanghua_srvs
-  orne_waypoints_editor
+  orne_waypoints_msgs
   unitree_a1
 )
 
