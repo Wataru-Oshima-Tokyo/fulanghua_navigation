@@ -598,6 +598,7 @@ public:
                     }else if (current_waypoint_ == finish_pose_ && REVERSE){
                         // startNavigationGL(*current_waypoint_);
                         // while(!navigationFinished() && ros::ok()) sleep();
+                        ROS_INFO_STREAM("REVERSE start!");
                         current_waypoint_--;
                         _reached = true;
                     }
