@@ -511,7 +511,7 @@ public:
         while(ros::ok()){
             try {
                 if(has_activate_) {
-                    if(current_waypoint_==charging_waypoint_){
+                    if(current_waypoint_==charging_waypoint_ && CHARGING_STATION){
                         if(_reached && REVERSE){
                             current_waypoint_--;
                         }else{
@@ -605,7 +605,7 @@ public:
                         has_activate_ = true;
                         startNavigationGL(*current_waypoint_);
                         while(!navigationFinished() && ros::ok()) sleep();
-                        current_waypoint_ = waypoints_.poses.begin();
+                        current_waypoint_++;
                         _reached = false;
                     }else if(_reached && !LOOP && current_waypoint_ == first_waypoint_ ){
                         startNavigationGL(*current_waypoint_);
