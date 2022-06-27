@@ -96,7 +96,6 @@ public:
             if(!readFile(filename)) {
                 ROS_ERROR("Failed loading waypoints file");
             } else {
-                while(first)
                 first_waypoint_ =  waypoints_.poses.begin();
                 while(first_waypoint_->position.action=="charge"){
                     first_waypoint_++;
