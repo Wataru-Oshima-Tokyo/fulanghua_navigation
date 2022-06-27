@@ -596,8 +596,8 @@ public:
                             current_waypoint_ = waypoints_.poses.begin();
                         }
                     }else if (current_waypoint_ == finish_pose_ && REVERSE){
-                        startNavigationGL(*current_waypoint_);
-                        while(!navigationFinished() && ros::ok()) sleep();
+                        // startNavigationGL(*current_waypoint_);
+                        // while(!navigationFinished() && ros::ok()) sleep();
                         current_waypoint_--;
                         _reached = true;
                     }
