@@ -511,7 +511,7 @@ public:
         while(ros::ok()){
             try {
                 if(has_activate_) {
-                    if(current_waypoint_->position.action=="charge"){
+                    if(current_waypoint_==charging_waypoint_){
                         if(_reached && REVERSE){
                             current_waypoint_--;
                         }else{
@@ -549,7 +549,10 @@ public:
                             resend_goal++;
                             if(resend_goal == 3) {
                                 ROS_WARN("Skip waypoint.");
-                                current_waypoint_++;
+                                if(REVERSE && _reached)
+                                    current_waypoint_--;
+                                else
+                                    current_waypoint_++;
                                 startNavigationGL(*current_waypoint_);
                             }
                             start_nav_time = time;
@@ -584,7 +587,7 @@ public:
                     }else if (current_waypoint_ == finish_pose_ && REVERSE){
                         startNavigationGL(*current_waypoint_);
                         while(!navigationFinished() && ros::ok()) sleep();
-                        current_waypoint_ = waypoints_.poses.end()-2;
+                        current_waypoint_ = last_waypoint_;
                         _reached = true;
                     }
                     if(_reached && LOOP && current_waypoint_ == first_waypoint_){
