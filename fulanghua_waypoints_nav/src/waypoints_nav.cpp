@@ -591,7 +591,10 @@ public:
                         startNavigationGL(*current_waypoint_);
                         while(!navigationFinished() && ros::ok()) sleep();
                         has_activate_ = false;
-                        _reached=true;
+                        if(LOOP){
+                            has_activate_ = true;
+                            current_waypoint_ = waypoints_.poses.begin();
+                        }
                     }else if (current_waypoint_ == finish_pose_ && REVERSE){
                         startNavigationGL(*current_waypoint_);
                         while(!navigationFinished() && ros::ok()) sleep();
@@ -600,6 +603,8 @@ public:
                     }
                     if(_reached && LOOP && current_waypoint_ == first_waypoint_){
                         has_activate_ = true;
+                        startNavigationGL(*current_waypoint_);
+                        while(!navigationFinished() && ros::ok()) sleep();
                         current_waypoint_ = waypoints_.poses.begin();
                         _reached = false;
                     }else if(_reached && !LOOP && current_waypoint_ == first_waypoint_ ){
