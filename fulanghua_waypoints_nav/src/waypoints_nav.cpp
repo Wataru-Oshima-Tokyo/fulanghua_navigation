@@ -553,6 +553,13 @@ public:
                                     current_waypoint_--;
                                 else
                                     current_waypoint_++;
+                                if(current_waypoint_==charging_waypoint_){
+                                    if(_reached && REVERSE){
+                                        current_waypoint_--;
+                                    }else{
+                                        current_waypoint_++;
+                                    }
+                                }
                                 startNavigationGL(*current_waypoint_);
                             }
                             start_nav_time = time;
