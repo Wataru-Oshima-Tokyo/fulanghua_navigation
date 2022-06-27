@@ -34,8 +34,8 @@
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/PoseArray.h>
 #include <geometry_msgs/Twist.h>
-#include "orne_waypoints_editor/Waypoint.h"
-#include "orne_waypoints_editor/WaypointArray.h"
+#include "orne_waypoints_msgs/Waypoint.h"
+#include "orne_waypoints_msgs/WaypointArray.h"
 #include "std_msgs/Bool.h"
 #include <move_base_msgs/MoveBaseAction.h>
 #include <actionlib/client/simple_action_client.h>
@@ -123,7 +123,7 @@ public:
         cmd_vel_pub_ = nh.advertise<geometry_msgs::Twist>(cmd_vel_,1000);
         action_exe_sub = nh.subscribe("cmd_vel_executing", 1000, &WaypointsNavigation::actionExeCallback, this);
         charge_sub = nh.subscribe(CHARGE_TOPIC, 1000, &WaypointsNavigation::needChargeCallback, this);
-        wp_pub_ = nh.advertise<orne_waypoints_editor::WaypointArray>("waypoints", 10);
+        wp_pub_ = nh.advertise<orne_waypoints_msgs::WaypointArray>("waypoints", 10);
         clear_costmaps_srv_ = nh.serviceClient<std_srvs::Empty>("/move_base/clear_costmaps");
         action_cmd_srv = nh.serviceClient<unitree_a1::actions>("/action/start");
         //added below
@@ -236,7 +236,7 @@ public:
         
         ///< @todo calculating metric with request orientation
         double min_dist = std::numeric_limits<double>::max();
-        for(std::vector<orne_waypoints_editor::Pose>::iterator it = current_waypoint_; it != finish_pose_; it++) {
+        for(std::vector<orne_waypoints_msgs::Pose>::iterator it = current_waypoint_; it != finish_pose_; it++) {
             double dist = hypot(it->position.x - request.pose.position.x, it->position.y - request.pose.position.y);
             if(dist < min_dist) {
                 min_dist = dist;
@@ -287,7 +287,7 @@ public:
         clear_costmaps_srv_.call(empty);
 
         double min_dist = std::numeric_limits<double>::max();
-        for(std::vector<orne_waypoints_editor::Pose>::iterator it = current_waypoint_; it != finish_pose_; it++) {
+        for(std::vector<orne_waypoints_msgs::Pose>::iterator it = current_waypoint_; it != finish_pose_; it++) {
             double dist = hypot(it->position.x - robot_gl.getOrigin().x(), it->position.y - robot_gl.getOrigin().y());
             if(dist < min_dist) {
                 min_dist = dist;
@@ -351,7 +351,7 @@ public:
                 const YAML::Node *wp_node = node.FindValue("waypoints");
             #endif
 
-            orne_waypoints_editor::Pose pose;
+            orne_waypoints_msgs::Pose pose;
 
             if(wp_node != NULL){
                 for(int i=0; i < wp_node->size(); i++){
@@ -402,7 +402,7 @@ public:
     }
 
    void computeWpOrientation(){
-        for(std::vector<orne_waypoints_editor::Pose>::iterator it = waypoints_.poses.begin(); it != finish_pose_; it++) {
+        for(std::vector<orne_waypoints_msgs::Pose>::iterator it = waypoints_.poses.begin(); it != finish_pose_; it++) {
             double goal_direction = atan2((it+1)->position.y - (it)->position.y,
                                           (it+1)->position.x - (it)->position.x);
             (it)->orientation = tf::createQuaternionMsgFromYaw(goal_direction);
@@ -440,7 +440,7 @@ public:
         return !CHARGE;
     }
 
-    bool onNavigationPoint(const orne_waypoints_editor::Waypoint &dest, double dist_err = 0.8){
+    bool onNavigationPoint(const orne_waypoints_msgs::Waypoint &dest, double dist_err = 0.8){
         tf::StampedTransform robot_gl = getRobotPosGL();
 
         const double wx = dest.x;
@@ -470,7 +470,7 @@ public:
     }
     
     
-    void actionServiceCall(const orne_waypoints_editor::Pose &dest){
+    void actionServiceCall(const orne_waypoints_msgs::Pose &dest){
         unitree_a1::actions _action;
         _action.request.action = dest.position.action;
         _action.request.duration = dest.position.duration;
@@ -478,14 +478,14 @@ public:
         rate_.sleep();
     }
 
-    void startNavigationGL(const orne_waypoints_editor::Waypoint &dest){
-        orne_waypoints_editor::Pose pose;
+    void startNavigationGL(const orne_waypoints_msgs::Waypoint &dest){
+        orne_waypoints_msgs::Pose pose;
         pose.position = dest;
         pose.orientation = tf::createQuaternionMsgFromYaw(0.0);
         startNavigationGL(pose);
     }
 
-    void startNavigationGL(const orne_waypoints_editor::Pose &dest){
+    void startNavigationGL(const orne_waypoints_msgs::Pose &dest){
         move_base_msgs::MoveBaseGoal move_base_goal;
         move_base_goal.target_pose.header.stamp = ros::Time::now();
         move_base_goal.target_pose.header.frame_id = world_frame_;
@@ -497,7 +497,7 @@ public:
         move_base_action_.sendGoal(move_base_goal);
     }
 
-    bool actionConfirm(const orne_waypoints_editor::Pose &dest){
+    bool actionConfirm(const orne_waypoints_msgs::Pose &dest){
         if(dest.position.action == "passthrough") return false;
         return true;
     }
@@ -609,13 +609,13 @@ public:
 private:
     actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> move_base_action_;
     // geometry_msgs::PoseArray waypoints_;
-    orne_waypoints_editor::WaypointArray waypoints_;
+    orne_waypoints_msgs::WaypointArray waypoints_;
     visualization_msgs::MarkerArray marker_;
-    std::vector<orne_waypoints_editor::Pose>::iterator current_waypoint_;
-    std::vector<orne_waypoints_editor::Pose>::iterator charging_waypoint_;
-    std::vector<orne_waypoints_editor::Pose>::iterator last_waypoint_;
-    std::vector<orne_waypoints_editor::Pose>::iterator first_waypoint_;
-    std::vector<orne_waypoints_editor::Pose>::iterator finish_pose_;
+    std::vector<orne_waypoints_msgs::Pose>::iterator current_waypoint_;
+    std::vector<orne_waypoints_msgs::Pose>::iterator charging_waypoint_;
+    std::vector<orne_waypoints_msgs::Pose>::iterator last_waypoint_;
+    std::vector<orne_waypoints_msgs::Pose>::iterator first_waypoint_;
+    std::vector<orne_waypoints_msgs::Pose>::iterator finish_pose_;
     bool has_activate_;
     std::string robot_frame_, world_frame_, cmd_vel_, CHARGE_TOPIC;
     tf::TransformListener tf_listener_;
