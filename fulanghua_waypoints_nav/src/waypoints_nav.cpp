@@ -481,7 +481,7 @@ public:
     void startNavigationGL(const orne_waypoints_msgs::Waypoint &dest){
         orne_waypoints_msgs::Pose pose;
         pose.position = dest;
-        pose.orientation = tf::createQuaternionMsgFromYaw(1.0);
+        pose.orientation = tf::createQuaternionMsgFromYaw(0.0);
         startNavigationGL(pose);
     }
 
@@ -598,7 +598,7 @@ public:
                     }else if (current_waypoint_ == finish_pose_ && REVERSE){
                         startNavigationGL(*current_waypoint_);
                         while(!navigationFinished() && ros::ok()) sleep();
-                        current_waypoint_ = last_waypoint_;
+                        current_waypoint_--;
                         _reached = true;
                     }
                     if(_reached && LOOP && current_waypoint_ == first_waypoint_){
