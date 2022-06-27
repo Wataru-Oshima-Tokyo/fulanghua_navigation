@@ -140,7 +140,7 @@ public:
         REVERSE = true;
     }
 
-    bool roundTripOnCallback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res){
+    bool roundTripOffCallback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res){
         ROS_INFO("roundtrip is off");
         REVERSE = false;
     }
