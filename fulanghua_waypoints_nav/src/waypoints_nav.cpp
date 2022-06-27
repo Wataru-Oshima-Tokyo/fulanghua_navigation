@@ -481,7 +481,7 @@ public:
     void startNavigationGL(const orne_waypoints_msgs::Waypoint &dest){
         orne_waypoints_msgs::Pose pose;
         pose.position = dest;
-        pose.orientation = tf::createQuaternionMsgFromYaw(0.0);
+        pose.orientation = tf::createQuaternionMsgFromYaw(1.0);
         startNavigationGL(pose);
     }
 
