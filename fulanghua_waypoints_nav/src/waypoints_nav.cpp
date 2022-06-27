@@ -585,7 +585,7 @@ public:
                         startNavigationGL(*current_waypoint_);
                         while(!navigationFinished() && ros::ok()) sleep();
                         current_waypoint_ = waypoints_.poses.end()-2;
-                        _reached = true
+                        _reached = true;
                     }
                     if(_reached && LOOP && current_waypoint_ == first_waypoint_){
                         has_activate_ = true;
