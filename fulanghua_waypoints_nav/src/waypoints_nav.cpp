@@ -219,9 +219,10 @@ public:
         return true;
     }
 
-    void stopNavigationCallback(std_srvs::Empty::Request &request, std_srvs::Empty::Response &response){
+    bool stopNavigationCallback(std_srvs::Trigger::Request &request, std_srvs::Trigger::Response &response){
         has_activate_ = false;
         move_base_action_.cancelAllGoals();
+        return true;
     }
 
     bool resumePoseCallback(fulanghua_srvs::_Pose::Request &request, fulanghua_srvs::_Pose::Response &response) {
