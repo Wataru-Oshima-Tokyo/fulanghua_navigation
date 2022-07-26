@@ -43,7 +43,7 @@
 #include <tf/transform_listener.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <fulanghua_srvs/_Pose.h>
-#include "unitree_go1/actions.h"
+#include "fulanghua_srvs/actions.h"
 #include <yaml-cpp/yaml.h>
 
 #include <vector>
@@ -125,7 +125,7 @@ public:
         charge_sub = nh.subscribe(CHARGE_TOPIC, 1000, &WaypointsNavigation::needChargeCallback, this);
         wp_pub_ = nh.advertise<orne_waypoints_msgs::WaypointArray>("waypoints", 10);
         clear_costmaps_srv_ = nh.serviceClient<std_srvs::Empty>("/move_base/clear_costmaps");
-        action_cmd_srv = nh.serviceClient<unitree_go1::actions>("/action/start");
+        action_cmd_srv = nh.serviceClient<fulanghua_srvs::actions>("/action/start");
         //added below
         loop_start_server = nh.advertiseService("loop_start_wp_nav", &WaypointsNavigation::loopStartCallback, this);
         loop_stop_server = nh.advertiseService("loop_stop_wp_nav", &WaypointsNavigation::loopStopCallback, this);
@@ -472,7 +472,7 @@ public:
     
     
     void actionServiceCall(const orne_waypoints_msgs::Pose &dest){
-        unitree_go1::actions _action;
+        fulanghua_srvs::actions _action;
         _action.request.action = dest.position.action;
         _action.request.duration = dest.position.duration;
         action_cmd_srv.call(_action);
