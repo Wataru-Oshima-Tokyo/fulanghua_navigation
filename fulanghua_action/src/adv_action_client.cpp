@@ -50,7 +50,7 @@ int main(int argc, char** argv)
       char c = getchar();
       if (c == 'a')
       {
-        fulanghua_action::TaskGoal goal;
+        fulanghua_action::testGoal goal;
         goal.task_id = task_id;
         task_id++;
         goal.duration = 1.0;
@@ -60,7 +60,7 @@ int main(int argc, char** argv)
       }
       else if (c == 's')
       {
-        fulanghua_action::TaskGoal goal;
+        fulanghua_action::testGoal goal;
         goal.task_id = task_id;
         task_id++;
         goal.duration = 5.0;
