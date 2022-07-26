@@ -13,7 +13,7 @@ int main(int argc, char** argv)
 
   ros::Time start_time;
   ros::Rate loop_rate(2);
-  ros_lecture_msgs::TaskGoalConstPtr current_goal;
+  fulanghua_action::TaskGoalConstPtr current_goal;
   while (ros::ok())
   {
     if (server.isNewGoalAvailable())
@@ -39,7 +39,7 @@ int main(int argc, char** argv)
         }
         else
         {
-          ros_lecture_msgs::TaskFeedback feedback;
+          fulanghua_action::TaskFeedback feedback;
           feedback.rate = (ros::Time::now() - start_time).toSec() / current_goal->duration;
           server.publishFeedback(feedback);
           printf("Active: publish feedback id:%i\n", current_goal->task_id);
