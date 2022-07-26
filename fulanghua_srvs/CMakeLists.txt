@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_service_files(
     FILES
     _Pose.srv
+    actions.srv
 )
 
 ## Generate added messages and services with any dependencies listed here
