@@ -516,11 +516,11 @@ public:
     std::vector<orne_waypoints_msgs::Pose>::iterator nearestChargingStation(const std::vector<orne_waypoints_msgs::Pose>::iterator &current_waypoint_){
         //calculate the distance from the current position to each charging station
         std::vector<orne_waypoints_msgs::Pose>::iterator _charging_waypoint = charging_waypoints_.poses.begin();
-        double nearest = std::sqrt(std::pow(std::abs(current_waypoint_.position.x - _charging_waypoint.position.x),2) + std::pow(std::abs(current_waypoint_.position.y - _charging_waypoint.position.y),2));
+        double nearest = std::sqrt(std::pow(std::abs(current_waypoint_->position.x - _charging_waypoint->position.x),2) + std::pow(std::abs(current_waypoint_->position.y - _charging_waypoint->position.y),2));
         for(std::vector<orne_waypoints_msgs::Pose>::iterator it = charging_waypoints_.poses.begin(); it != charging_waypoints_.end(); it++) {
-            double distance = std::sqrt(std::pow(std::abs(current_waypoint_.position.x - it.position.x),2) + std::pow(std::abs(current_waypoint_.position.y - it.position.y),2));
+            double distance = std::sqrt(std::pow(std::abs(current_waypoint_->position.x - it->position.x),2) + std::pow(std::abs(current_waypoint_->position.y - it->position.y),2));
             if(distance < nearest){
-                nearest = disntance;
+                nearest = distance;
                 _charging_waypoint = it;
             }
         }
