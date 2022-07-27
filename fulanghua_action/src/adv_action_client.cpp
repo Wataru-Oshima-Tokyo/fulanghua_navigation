@@ -49,7 +49,7 @@ int main(int argc, char** argv)
   int task_id = 0;
   bool initial_goal = false;
   ros::Rate loop_rate(2);
-  int c=0;
+  std::string c;
   while (ros::ok())
   {
     if (client.isServerConnected())

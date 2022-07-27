@@ -1,7 +1,7 @@
 #Define the goal
 uint32 task_id  # Specify which dishwasher we want to use
 float64 duration
-char command
+string command
 ---
 # Define the result
 bool done
