@@ -53,7 +53,7 @@ int main(int argc, char** argv)
   {
     if (client.isServerConnected())
     {
-      c = getchar();
+      char c = getchar();
       if (c == 'c')
       {
         client.cancelGoal();
@@ -70,7 +70,7 @@ int main(int argc, char** argv)
         task_id++;
         goal.duration = INT_MAX;
         client.sendGoal(goal);
-        printf("publish goal id:%i, duration:%f\n", goal.task_id, goal.duration);
+        printf("publish command: %s, publish goal id:%i, duration:%f\n", goal.command, goal.task_id, goal.duration);
         initial_goal = true;
       }
       if (initial_goal)
