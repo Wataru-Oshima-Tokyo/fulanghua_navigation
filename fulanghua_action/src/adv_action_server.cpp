@@ -76,7 +76,7 @@ int main(int argc, char** argv)
             printf(" watch video\n");
           }
           printf("cmd_x_vel = %f\n", twist.linear.x);
-          printf("cmd_z_vel = %f\n", twist.angular.z = 0);
+          printf("cmd_z_vel = %f\n", twist.angular.z);
           twist_pub.publish(twist);
         }
       }
