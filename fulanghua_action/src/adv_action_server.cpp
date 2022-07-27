@@ -12,7 +12,7 @@ int main(int argc, char** argv)
   Server server(nh, "task", false);
   server.start();
   ros::Publisher twist_pub;
-  twist_pub = nh.advertise("/cmd_vel_posture_",1000);
+  twist_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel_posture_",1000);
   ros::Time start_time;
   ros::Rate loop_rate(20);
   fulanghua_action::testGoalConstPtr current_goal;
