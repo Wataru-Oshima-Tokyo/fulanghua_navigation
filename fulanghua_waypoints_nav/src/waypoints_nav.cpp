@@ -515,7 +515,7 @@ public:
         while(ros::ok()){
             try {
                 if(has_activate_) {
-                    charging_waypoint_ = charging_waypoints_poses.begin();
+                    charging_waypoint_ = charging_waypoints_.poses.begin();
                     if(current_waypoint_== charging_waypoint_ && CHARGING_STATION){
                         if(_reached && REVERSE){
                             current_waypoint_--;
