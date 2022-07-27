@@ -55,12 +55,12 @@ int main(int argc, char** argv)
     if (client.isServerConnected())
     {
       c = getchar();
-      if (c == 'c')
+      if (c == "c")
       {
         client.cancelGoal();
         printf("publish cancel\n");
       }
-      else if (c == 'q')
+      else if (c == "q")
       {
         break;
       }
