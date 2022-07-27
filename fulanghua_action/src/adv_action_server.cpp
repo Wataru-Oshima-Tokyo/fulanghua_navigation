@@ -37,6 +37,7 @@ int main(int argc, char** argv)
         {
           server.setSucceeded();
           // server.setAborted();
+          std::cout << "received command: " << current_goal->command <<std::endl;
           printf("Active: publish result id:%i\n", current_goal->task_id);
           if(current_goal->command =="i"){
               printf("look up\n");
