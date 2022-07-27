@@ -5,6 +5,7 @@
 #include <termios.h>
 #include <fcntl.h>
 #include <time.h>
+#include <regex>
 
 struct termios save_settings;
 void set_input_interactive(void)
@@ -63,7 +64,7 @@ int main(int argc, char** argv)
       {
         break;
       }
-      else if(c =='\w+') {
+      else if(regex_match('c',regex("[a-z]"))) {
         fulanghua_action::testGoal goal;
         goal.task_id = task_id;
         goal.command = c;
