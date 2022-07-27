@@ -54,7 +54,7 @@ int main(int argc, char** argv)
   {
     if (client.isServerConnected())
     {
-      std::cin >> c;
+      getline (cin, c);
       if (c == "c")
       {
         client.cancelGoal();
