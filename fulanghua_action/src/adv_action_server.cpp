@@ -38,31 +38,26 @@ int main(int argc, char** argv)
           server.setSucceeded();
           // server.setAborted();
           printf("Active: publish result id:%i\n", current_goal->task_id);
-          switch (current_goal->command)
-          {
-          case "i":
-            printf("look up\n");
-            break;
-          case ",":
-            printf("look down\n");
-            break;
-          case "j":
-            printf("look left\n");
-            break;
-          case "l":
+          if(current_goal->command =="i"){
+              printf("look up\n");
+          }
+          else if f(current_goal->command ==","){
+              printf("look down\n");
+          }
+          else if f(current_goal->command =="j"){
+              printf("look left\n");
+          }
+          else if f(current_goal->command =="l"){
             printf("look right\n");
-            break;
-          case "k":
+          }
+          else if f(current_goal->command =="k"){
             printf("return normal\n");
-            break;
-          case "t":
-            printf("take photo\n");
-            break;
-          case "w":
+          }
+          else if f(current_goal->command =="t"){
+             printf("take photo\n");
+          }
+          else if f(current_goal->command =="w"){
             printf(" watch video\n");
-            break;
-          default:
-            break;
           }
         }
         else
