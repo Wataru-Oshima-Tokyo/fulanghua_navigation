@@ -513,7 +513,7 @@ public:
         wp_pub_.publish(waypoints_);
     }
 
-    orne_waypoints_msgs::Pose nearestChargingStation(const std::vector<orne_waypoints_msgs::Pose>::iterator &current_waypoint_){
+    orne_waypoints_msgs::Pose nearestChargingStation(const std::vector<orne_waypoints_msgs::Pose>::iterator current_waypoint_){
         return charging_waypoints_.poses[0];
     }
     void run(){
