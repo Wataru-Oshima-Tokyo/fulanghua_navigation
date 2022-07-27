@@ -54,7 +54,7 @@ int main(int argc, char** argv)
   {
     if (client.isServerConnected())
     {
-      c = getchar();
+      c = geline();
       if (c == "c")
       {
         client.cancelGoal();
