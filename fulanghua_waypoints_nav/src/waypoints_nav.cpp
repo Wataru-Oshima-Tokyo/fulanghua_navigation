@@ -514,7 +514,7 @@ public:
     }
 
     std::vector<orne_waypoints_msgs::Pose>::iterator nearestChargingStation(const std::vector<orne_waypoints_msgs::Pose>::iterator &current_waypoint_){
-        return charging_waypoints_.poses[0];
+        return charging_waypoints_.poses.begin();
     }
     void run(){
         bool _reached = false;
