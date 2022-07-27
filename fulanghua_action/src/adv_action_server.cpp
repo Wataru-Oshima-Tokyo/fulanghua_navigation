@@ -13,7 +13,7 @@ int main(int argc, char** argv)
   server.start();
 
   ros::Time start_time;
-  ros::Rate loop_rate(2);
+  ros::Rate loop_rate(20);
   fulanghua_action::testGoalConstPtr current_goal;
   while (ros::ok())
   {
