@@ -411,7 +411,7 @@ public:
                                           (it+1)->position.x - (it)->position.x);
             (it)->orientation = tf::createQuaternionMsgFromYaw(goal_direction);
             if(it->position.action=="charge"){
-                charging_waypoints_.pose.pushback(it);
+                charging_waypoints_.poses.pushback(it);
                 CHARGING_STATION =true;
             }
         }
@@ -515,7 +515,7 @@ public:
         while(ros::ok()){
             try {
                 if(has_activate_) {
-                    charging_waypoint_ = charging_waypoints[0];
+                    charging_waypoint_ = charging_waypoints_[0];
                     if(current_waypoint_== charging_waypoint_ && CHARGING_STATION){
                         if(_reached && REVERSE){
                             current_waypoint_--;
