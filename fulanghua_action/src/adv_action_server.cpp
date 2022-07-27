@@ -41,22 +41,22 @@ int main(int argc, char** argv)
           if(current_goal->command =="i"){
               printf("look up\n");
           }
-          else if f(current_goal->command ==","){
+          else if (current_goal->command ==","){
               printf("look down\n");
           }
-          else if f(current_goal->command =="j"){
+          else if (current_goal->command =="j"){
               printf("look left\n");
           }
-          else if f(current_goal->command =="l"){
+          else if (current_goal->command =="l"){
             printf("look right\n");
           }
-          else if f(current_goal->command =="k"){
+          else if (current_goal->command =="k"){
             printf("return normal\n");
           }
-          else if f(current_goal->command =="t"){
+          else if (current_goal->command =="t"){
              printf("take photo\n");
           }
-          else if f(current_goal->command =="w"){
+          else if (current_goal->command =="w"){
             printf(" watch video\n");
           }
         }
