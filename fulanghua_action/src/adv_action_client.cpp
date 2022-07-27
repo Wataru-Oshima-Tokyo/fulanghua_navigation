@@ -49,12 +49,12 @@ int main(int argc, char** argv)
   int task_id = 0;
   bool initial_goal = false;
   ros::Rate loop_rate(2);
-  std::string c;
   while (ros::ok())
   {
     if (client.isServerConnected())
     {
-      getline (std::cin, c);
+      char _c = getchar();
+      std::string c = std::string(_c);
       if (c == "c")
       {
         client.cancelGoal();
