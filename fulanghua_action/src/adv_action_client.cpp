@@ -64,7 +64,7 @@ int main(int argc, char** argv)
       {
         break;
       }
-      else if(regex_match('c',regex("[a-z]"))) {
+      else if(std::regex_match('c',std::regex("[a-z]"))) {
         fulanghua_action::testGoal goal;
         goal.task_id = task_id;
         goal.command = c;
