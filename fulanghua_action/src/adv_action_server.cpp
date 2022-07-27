@@ -2,6 +2,7 @@
 #include <fulanghua_action/testAction.h>
 #include <actionlib/server/simple_action_server.h>
 #include <geometry_msgs/Twist.h>
+
 typedef actionlib::SimpleActionServer<fulanghua_action::testAction> Server;
 
 int main(int argc, char** argv)
