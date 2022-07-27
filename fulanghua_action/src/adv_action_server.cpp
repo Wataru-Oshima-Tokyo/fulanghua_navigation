@@ -75,6 +75,8 @@ int main(int argc, char** argv)
           else if (current_goal->command =="w"){
             printf(" watch video\n");
           }
+          printf("cmd_x_vel = %f\n", twist.linear.x);
+          printf("cmd_z_vel = %f\n", twist.angular.z = 0);
           twist_pub.publish(twist);
         }
       }
