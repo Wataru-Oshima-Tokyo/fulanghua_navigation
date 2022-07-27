@@ -356,12 +356,15 @@ public:
 
             if(wp_node != NULL){
                 for(int i=0; i < wp_node->size(); i++){
-
-                    (*wp_node)[i]["point"]["x"] >> pose.position.x;
-                    (*wp_node)[i]["point"]["y"] >> pose.position.y;
-                    (*wp_node)[i]["point"]["z"] >> pose.position.z;
-                    (*wp_node)[i]["point"]["a"] >> pose.position.action;
-                    (*wp_node)[i]["point"]["d"] >> pose.position.duration;
+                    (*wp_node)[i]["point"]["pose"]["x"] >> pose.position.x;
+                    (*wp_node)[i]["point"]["pose"]["y"] >> pose.position.y;
+                    (*wp_node)[i]["point"]["pose"]["z"] >> pose.position.z;
+                    (*wp_node)[i]["point"]["action"]["a"] >> pose.position.action;
+                    (*wp_node)[i]["point"]["action"]["d"] >> pose.position.duration;
+                    (*wp_node)[i]["point"]["orientation"]["x"] >> pose.orientation.x;
+                    (*wp_node)[i]["point"]["orientation"]["y"] >> pose.orientation.y;
+                    (*wp_node)[i]["point"]["orientation"]["z"] >> pose.orientation.z;
+                    (*wp_node)[i]["point"]["orientation"]["w"] >> pose.orientation.w;
                     waypoints_.poses.push_back(pose);
 
                 }
@@ -408,7 +411,7 @@ public:
                                           (it+1)->position.x - (it)->position.x);
             (it)->orientation = tf::createQuaternionMsgFromYaw(goal_direction);
             if(it->position.action=="charge"){
-                charging_waypoint_ = it;
+                charging_waypoints_.pose.pushback(it);
                 CHARGING_STATION =true;
             }
         }
@@ -512,6 +515,7 @@ public:
         while(ros::ok()){
             try {
                 if(has_activate_) {
+                    charging_waypoint_ = charging_waypoints[0];
                     if(current_waypoint_== charging_waypoint_ && CHARGING_STATION){
                         if(_reached && REVERSE){
                             current_waypoint_--;
@@ -627,7 +631,7 @@ public:
 private:
     actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> move_base_action_;
     // geometry_msgs::PoseArray waypoints_;
-    orne_waypoints_msgs::WaypointArray waypoints_;
+    orne_waypoints_msgs::WaypointArray waypoints_, charging_waypoints_ ;
     visualization_msgs::MarkerArray marker_;
     std::vector<orne_waypoints_msgs::Pose>::iterator current_waypoint_;
     std::vector<orne_waypoints_msgs::Pose>::iterator charging_waypoint_;
