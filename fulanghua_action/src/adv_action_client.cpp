@@ -63,7 +63,7 @@ int main(int argc, char** argv)
       {
         break;
       }
-      else if(c !='o') {
+      else if(c !=255) {
         fulanghua_action::testGoal goal;
         goal.task_id = task_id;
         goal.command = c;
