@@ -531,7 +531,6 @@ public:
         while(ros::ok()){
             try {
                 if(has_activate_) {
-                    charging_waypoint_ = nearestChargingStation(current_waypoint_);
                     if(current_waypoint_== charging_waypoint_ && CHARGING_STATION){
                         if(_reached && REVERSE){
                             current_waypoint_--;
@@ -590,6 +589,7 @@ public:
                     //do the action here
                     //call the function that calls service with action code
                     if(CHARGE && CHARGING_STATION ){
+                        charging_waypoint_ = nearestChargingStation(current_waypoint_);
                         startNavigationGL(*charging_waypoint_);
                         while(!navigationFinished() && ros::ok()) sleep();
                         has_activate_ = false;
