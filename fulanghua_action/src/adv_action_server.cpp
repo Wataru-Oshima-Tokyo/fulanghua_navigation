@@ -11,7 +11,8 @@ int main(int argc, char** argv)
   ros::NodeHandle nh;
   Server server(nh, "task", false);
   server.start();
-
+  ros::Publisher twist_pub;
+  twist_pub = nh.advertise("/cmd_vel_posture_",1000);
   ros::Time start_time;
   ros::Rate loop_rate(20);
   fulanghua_action::testGoalConstPtr current_goal;
@@ -49,18 +50,24 @@ int main(int argc, char** argv)
           printf("Active: publish result id:%i\n", current_goal->task_id);
           if(current_goal->command =="i"){
               printf("look up\n");
+              twist.linear.x = 1;
           }
           else if (current_goal->command ==","){
               printf("look down\n");
+              twist.linear.x = -1;
           }
           else if (current_goal->command =="j"){
               printf("look left\n");
+              twist.angular.z = 1;
           }
           else if (current_goal->command =="l"){
             printf("look right\n");
+            twist.angular.z = -1;
           }
           else if (current_goal->command =="k"){
             printf("return normal\n");
+            twist.linear.x = 0;
+            twist.angular.z = 0;
           }
           else if (current_goal->command =="t"){
              printf("take photo\n");
@@ -68,6 +75,7 @@ int main(int argc, char** argv)
           else if (current_goal->command =="w"){
             printf(" watch video\n");
           }
+          twist_pub.publish(twist);
         }
       }
     }
