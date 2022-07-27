@@ -411,11 +411,14 @@ public:
                                           (it+1)->position.x - (it)->position.x);
             (it)->orientation = tf::createQuaternionMsgFromYaw(goal_direction);
             if(it->position.action=="charge"){
-                charging_waypoints_.poses.push_back(it);
+                
+                charging_waypoints_.poses.push_back(*it);
                 CHARGING_STATION =true;
             }
         }
         waypoints_.header.frame_id = world_frame_;
+        if(CHARGING_STATION)
+             charging_waypoints_.header.frame_id = world_frame_;
     }
 
     bool shouldSendGoal(){
