@@ -37,6 +37,14 @@ int main(int argc, char** argv)
         {
           server.setSucceeded();
           // server.setAborted();
+          
+        }
+        else
+        {
+          fulanghua_action::testFeedback feedback;
+          feedback.rate = (ros::Time::now() - start_time).toSec() / current_goal->duration;
+          server.publishFeedback(feedback);
+          printf("Active: publish feedback id:%i\n", current_goal->task_id);
           std::cout << "received command: " << current_goal->command <<std::endl;
           printf("Active: publish result id:%i\n", current_goal->task_id);
           if(current_goal->command =="i"){
@@ -60,13 +68,6 @@ int main(int argc, char** argv)
           else if (current_goal->command =="w"){
             printf(" watch video\n");
           }
-        }
-        else
-        {
-          fulanghua_action::testFeedback feedback;
-          feedback.rate = (ros::Time::now() - start_time).toSec() / current_goal->duration;
-          server.publishFeedback(feedback);
-          printf("Active: publish feedback id:%i\n", current_goal->task_id);
         }
       }
     }
