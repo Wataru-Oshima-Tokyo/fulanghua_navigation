@@ -514,7 +514,17 @@ public:
     }
 
     std::vector<orne_waypoints_msgs::Pose>::iterator nearestChargingStation(const std::vector<orne_waypoints_msgs::Pose>::iterator &current_waypoint_){
-        //calculate the distance from the current position to each charging station
+        /*calculate the distance from the current position to each charging station
+            this is kind of like the simplest way to decide which station is the nearest by Pythagorean theorem
+            but idealy, I think we should use the A stat algorithm to find the nearest path to reach the station since there is a possibility that the robot cannot 
+            reach the goal in the shortest way due to some obstacles.
+            Therefore if I find the below conditions, I will change the way
+            1. get the entiere map
+            2. every cell can be cateogorized as 0 or 1 0 for empty and 1 for obstacles.
+            3. get the minimun number of cells needed to make the robot pass through 
+
+            If these requiremnets are satisfied, then the most reliable way to find the nearest chaging station will be made.
+        */
         std::vector<orne_waypoints_msgs::Pose>::iterator _charging_waypoint = charging_waypoints_.poses.begin();
         double nearest = std::sqrt(std::pow(std::abs(current_waypoint_->position.x - _charging_waypoint->position.x),2) + std::pow(std::abs(current_waypoint_->position.y - _charging_waypoint->position.y),2));
         for(std::vector<orne_waypoints_msgs::Pose>::iterator it = charging_waypoints_.poses.begin(); it != charging_waypoints_.poses.end(); it++) {
