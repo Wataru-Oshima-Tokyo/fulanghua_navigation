@@ -48,12 +48,12 @@ int main(int argc, char** argv)
   int task_id = 0;
   bool initial_goal = false;
   ros::Rate loop_rate(2);
-  char c ='o';
+  int c=0;
   while (ros::ok())
   {
     if (client.isServerConnected())
     {
-      char c = getchar();
+      c = getchar();
       if (c == 'c')
       {
         client.cancelGoal();
@@ -63,7 +63,7 @@ int main(int argc, char** argv)
       {
         break;
       }
-      else if(c >=255) {
+      else if(c !=0) {
         fulanghua_action::testGoal goal;
         goal.task_id = task_id;
         goal.command = c;
