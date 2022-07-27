@@ -37,7 +37,7 @@ int main(int argc, char** argv)
           server.setSucceeded();
           // server.setAborted();
           printf("Active: publish result id:%i\n", current_goal->task_id);
-          switch (current->goal)
+          switch (current_goal->command)
           {
           case 'i':
             printf("look up\n");
