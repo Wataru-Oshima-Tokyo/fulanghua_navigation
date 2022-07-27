@@ -40,25 +40,25 @@ int main(int argc, char** argv)
           printf("Active: publish result id:%i\n", current_goal->task_id);
           switch (current_goal->command)
           {
-          case 'i':
+          case "i":
             printf("look up\n");
             break;
-          case ',':
+          case ",":
             printf("look down\n");
             break;
-          case 'j':
+          case "j":
             printf("look left\n");
             break;
-          case 'l':
+          case "l":
             printf("look right\n");
             break;
-          case 'k':
+          case "k":
             printf("return normal\n");
             break;
-          case 't':
+          case "t":
             printf("take photo\n");
             break;
-          case 'w':
+          case "w":
             printf(" watch video\n");
             break;
           default:
