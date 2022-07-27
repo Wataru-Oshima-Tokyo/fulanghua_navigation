@@ -35,8 +35,13 @@ int main(int argc, char** argv)
 
   Client client("task", true);
 
-  printf("a: send goal (in 1s)\n");
-  printf("s: send goal (in 5s)\n");
+  printf("i: look up\n");
+  printf(",: look down\n");
+  printf("j: look left\n");
+  printf("j: look right\n");
+  printf("t: take photo\n");
+  printf("v: watch video\n");
+  printf("k: return normal\n");
   printf("c: cancel goal\n");
   printf("q: quit\n");
 
@@ -48,27 +53,7 @@ int main(int argc, char** argv)
     if (client.isServerConnected())
     {
       char c = getchar();
-      if (c == 'a')
-      {
-        fulanghua_action::testGoal goal;
-        goal.task_id = task_id;
-        task_id++;
-        goal.duration = 1.0;
-        client.sendGoal(goal);
-        printf("publish goal id:%i, duration:%f\n", goal.task_id, goal.duration);
-        initial_goal = true;
-      }
-      else if (c == 's')
-      {
-        fulanghua_action::testGoal goal;
-        goal.task_id = task_id;
-        task_id++;
-        goal.duration = 5.0;
-        client.sendGoal(goal);
-        printf("publish goal id:%i, duration:%f\n", goal.task_id, goal.duration);
-        initial_goal = true;
-      }
-      else if (c == 'c')
+      if (c == 'c')
       {
         client.cancelGoal();
         printf("publish cancel\n");
@@ -76,6 +61,16 @@ int main(int argc, char** argv)
       else if (c == 'q')
       {
         break;
+      }
+      else {
+        fulanghua_action::testGoal goal;
+        goal.task_id = task_id;
+        goal.command = c;
+        task_id++;
+        goal.duration = INT_MAX;
+        client.sendGoal(goal);
+        printf("publish goal id:%i, duration:%f\n", goal.task_id, goal.duration);
+        initial_goal = true;
       }
       if (initial_goal)
         printf("Current State: %s\n", client.getState().toString().c_str());

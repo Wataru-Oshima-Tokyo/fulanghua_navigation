@@ -1,7 +1,7 @@
 #include <ros/ros.h>
 #include <fulanghua_action/testAction.h>
 #include <actionlib/server/simple_action_server.h>
-
+#include <geometry_msgs/Twist.h>
 typedef actionlib::SimpleActionServer<fulanghua_action::testAction> Server;
 
 int main(int argc, char** argv)
@@ -31,11 +31,38 @@ int main(int argc, char** argv)
       }
       else
       {
+        geometry_msgs::Twist twist;
         if (start_time + ros::Duration(current_goal->duration) < ros::Time::now())
         {
           server.setSucceeded();
           // server.setAborted();
           printf("Active: publish result id:%i\n", current_goal->task_id);
+          switch (current->goal)
+          {
+          case 'i':
+            printf("look up\n");
+            break;
+          case ',':
+            printf("look down\n");
+            break;
+          case 'j':
+            printf("look left\n");
+            break;
+          case 'l':
+            printf("look right\n");
+            break;
+          case 'k':
+            printf("return normal\n");
+            break;
+          case 't':
+            printf("take photo\n");
+            break;
+          case 'w':
+            printf(" watch video\n");
+            break;
+          default:
+            break;
+          }
         }
         else
         {
