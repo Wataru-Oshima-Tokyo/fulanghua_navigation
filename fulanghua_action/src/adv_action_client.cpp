@@ -64,7 +64,7 @@ int main(int argc, char** argv)
       {
         break;
       }
-      else if(!c.empty()) {
+      else if(std::regex_match(c,std::regex("."))) {
         // else if(c=="i") {
         fulanghua_action::testGoal goal;
         goal.task_id = task_id;
