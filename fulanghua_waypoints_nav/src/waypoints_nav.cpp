@@ -512,13 +512,15 @@ public:
         waypoints_.header.stamp = ros::Time::now();
         wp_pub_.publish(waypoints_);
     }
-
+    orne_waypoints_msgs::Pose nearestChargingStation(const orne_waypoints_msgs::WaypointArray &charging_stations){
+        return charging_stations.poses.begin();
+    }
     void run(){
         bool _reached = false;
         while(ros::ok()){
             try {
                 if(has_activate_) {
-                    charging_waypoint_ = charging_waypoints_.poses.begin();
+                    charging_waypoint_ = nearestChargingStation(charging_waypoints_);
                     if(current_waypoint_== charging_waypoint_ && CHARGING_STATION){
                         if(_reached && REVERSE){
                             current_waypoint_--;
