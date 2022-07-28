@@ -486,12 +486,12 @@ public:
         rate_.sleep();
     }
 
-    void startNavigationGL(const orne_waypoints_msgs::Waypoint &dest){
-        orne_waypoints_msgs::Pose pose;
-        pose.position = dest;
-        pose.orientation = tf::createQuaternionMsgFromYaw(0.0);
-        startNavigationGL(pose);
-    }
+    // void startNavigationGL(const orne_waypoints_msgs::Waypoint &dest){
+    //     orne_waypoints_msgs::Pose pose;
+    //     pose.position = dest;
+    //     pose.orientation = tf::createQuaternionMsgFromYaw(0.0);
+    //     startNavigationGL(pose);
+    // }
 
     void startNavigationGL(const orne_waypoints_msgs::Pose &dest){
         move_base_msgs::MoveBaseGoal move_base_goal;
