@@ -123,7 +123,7 @@ public:
         search_server_ = nh.advertiseService("near_wp_nav",&WaypointsNavigation::searchPoseCallback, this);
         cmd_vel_sub_ = nh.subscribe(cmd_vel_, 1, &WaypointsNavigation::cmdVelCallback, this);
         cmd_vel_pub_ = nh.advertise<geometry_msgs::Twist>(cmd_vel_,1000);
-        robot_coordinate_pub = nh.advertise<geometry_msgs::Point>("robot_coordniate",1000);
+        robot_coordinate_pub = nh.advertise<geometry_msgs::Point>("robot_coordinate",1000);
         // action_exe_sub = nh.subscribe("cmd_vel_executing", 1000, &WaypointsNavigation::actionExeCallback, this);
         charge_sub = nh.subscribe(CHARGE_TOPIC, 1000, &WaypointsNavigation::needChargeCallback, this);
         wp_pub_ = nh.advertise<orne_waypoints_msgs::WaypointArray>("waypoints", 10);
