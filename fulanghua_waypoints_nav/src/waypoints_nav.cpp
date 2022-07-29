@@ -542,7 +542,7 @@ public:
         while(ros::ok()){
             try {
                 if(has_activate_) {
-                    if(current_waypoint_== charging_waypoint_ && CHARGING_STATION){
+                    if(current_waypoint_->position.action == "charge" && CHARGING_STATION){
                         if(_reached && REVERSE){
                             current_waypoint_--;
                         }else{
@@ -584,7 +584,7 @@ public:
                                     current_waypoint_--;
                                 else
                                     current_waypoint_++;
-                                if(current_waypoint_==charging_waypoint_){
+                                if(current_waypoint_->position.action == "charge"){
                                     if(_reached && REVERSE){
                                         current_waypoint_--;
                                     }else{
