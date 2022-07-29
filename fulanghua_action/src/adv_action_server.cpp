@@ -39,7 +39,7 @@ class SpecialMove{
         }catch(tf::TransformException &e){
             ROS_WARN_STREAM("tf::TransformException: " << e.what());
         }
-
+        robot_coordinate.publish(robot_gl);
         return robot_gl;
     }
 
@@ -47,6 +47,7 @@ class SpecialMove{
     tf::TransformListener tf_listener_;
     std::string robot_frame_, world_frame_,cmd_vel_;
     ros::Publisher twist_pub =nh.advertise<geometry_msgs::Twist>(cmd_vel_,1000);
+    ros::Publisher robot_coordinate = nh.advertise<tf::StampedTransform>("robot_coordniate",1000);
 };
 
 
