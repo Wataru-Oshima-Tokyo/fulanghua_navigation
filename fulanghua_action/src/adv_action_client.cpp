@@ -6,6 +6,7 @@
 #include <fcntl.h>
 #include <time.h>
 #include <regex>
+#include <fulanghua_srvs/actions.h>
 #include <std_srvs/Trigger.h>
 std::string c;
 struct termios save_settings;
@@ -26,8 +27,8 @@ void reset_input(void)
 {
   tcsetattr(0, TCSANOW, &save_settings);
 }
-bool command_callback(std_srvs::Trigger::Request &request, std_srvs::Trigger::Response &response){
-  std::cout <<request.message <<std::endl;
+bool command_callback(fulanghua_srvs::actions::Request &request, std_srvs::Trigger::Response &response){
+  std::cout <<request.action <<std::endl;
 }
 
 typedef actionlib::SimpleActionClient<fulanghua_action::testAction> Client;
