@@ -37,7 +37,7 @@ class SpecialMove{
     tf::TransformListener tf_listener_;
     std::string cmd_vel_, _dist_err;
     ros::Publisher twist_pub; 
-    ros::Subscribe robot_coordinate_sub;
+    ros::Subscriber robot_coordinate_sub;
     double rx, ry;
 };
 
