@@ -328,6 +328,7 @@ public:
     // }
 
     bool action_service_stop_callback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& re){
+        ROS_INFO("Finshing action");
         action_client.cancelGoal();
         // re.success = true;
     }
@@ -505,8 +506,8 @@ public:
             actionlib::SimpleClientGoalState state = action_client.getState();
             while(state !=actionlib::SimpleClientGoalState::PREEMPTED){
                 state = action_client.getState();
-                if (initial_goal)
-                    printf("Current State: %s\n", action_client.getState().toString().c_str());
+                // if (initial_goal)
+                //     printf("Current State: %s\n", action_client.getState().toString().c_str());
                 sleep();
             }
         }   
