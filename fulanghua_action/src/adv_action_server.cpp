@@ -69,7 +69,7 @@ int main(int argc, char** argv)
   SpecialMove SpM;
   ros::Time start_time;
   ros::Rate loop_rate(20);
-  Server server;
+  // Server server;
   SpM.twist_postgure_pub = SpM.nh.advertise<geometry_msgs::Twist>(SpM.cmd_vel_posture,1000);
   SpM.twist_move_pub = SpM.nh.advertise<geometry_msgs::Twist>(SpM.cmd_vel_,1000);
   SpM.robot_coordinate_sub = SpM.nh.subscribe("robot_coordniate", 1000, &SpecialMove::coordinate_callback, &SpM);
