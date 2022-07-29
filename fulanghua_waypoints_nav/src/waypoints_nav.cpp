@@ -329,6 +329,7 @@ public:
 
     bool action_service_stop_callback(std_srvs::Trigger::Request &request, std_srvs::Trigger::Response &response){
         action_client.cancelGoal();
+        response.success = true;
     }
 
     void needChargeCallback(const std_msgs::Bool &msg){
@@ -503,9 +504,10 @@ public:
             initial_goal = true;
             actionlib::SimpleClientGoalState state = action_client.getState();
             while(state !=actionlib::SimpleClientGoalState::PREEMPTED){
-            if (initial_goal)
-                printf("Current State: %s\n", action_client.getState().toString().c_str());
-            sleep();
+                state = action_client.getState();
+                if (initial_goal)
+                    printf("Current State: %s\n", action_client.getState().toString().c_str());
+                sleep();
             }
         }   
         rate_.sleep();
