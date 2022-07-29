@@ -6,7 +6,7 @@
 #include <fcntl.h>
 #include <time.h>
 #include <regex>
-
+std::string c;
 struct termios save_settings;
 void set_input_interactive(void)
 {
@@ -25,6 +25,9 @@ void reset_input(void)
 {
   tcsetattr(0, TCSANOW, &save_settings);
 }
+bool command_callback(std_srvs::Trigger::Request &request, std_srvs::Trigger::Response &response){
+  c = request.meeseage;
+}
 
 typedef actionlib::SimpleActionClient<fulanghua_action::testAction> Client;
 
@@ -32,6 +35,8 @@ int main(int argc, char** argv)
 {
   ros::init(argc, argv, "task_client");
   ros::NodeHandle nh;
+  ros::ServiceServer command_server;
+  command_server = nh.advertiseService("command_send", command_callback);
   set_input_interactive();
 
   Client client("task", true);
@@ -54,7 +59,7 @@ int main(int argc, char** argv)
     if (client.isServerConnected())
     {
       char _c = getchar();
-      std::string c{_c};
+      c{_c};
       if (c == "c")
       {
         client.cancelGoal();
