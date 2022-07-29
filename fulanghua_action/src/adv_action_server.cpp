@@ -15,15 +15,17 @@ class SpecialMove{
           private_nh.param("cmd_vel_posture", cmd_vel_, std::string("cmd_vel_posture_"));
           private_nh.param("dist_err", _dist_err, std::string("0.8"));
     }
-    void chargingFunction(){
-          printf("charging action here\n");
-    }
-
 
     void coordinate_callback(const geometry_msgs::Point& point){
         double rx = point.x;
         double ry = point.x;
     }
+
+    void chargingFunction(){
+          printf("charging action here\n");
+    }
+
+
 
     bool onNavigationPoint(const orne_waypoints_msgs::Waypoint &dest, double dist_err = 0.8){
         const double wx = dest.x;

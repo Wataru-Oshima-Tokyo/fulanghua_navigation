@@ -573,6 +573,7 @@ public:
     void run(){
         bool _reached = false;
         while(ros::ok()){
+            getRobotPosGL();
             try {
                 if(has_activate_) {
                     if(current_waypoint_->position.action == "charge" && CHARGING_STATION){
