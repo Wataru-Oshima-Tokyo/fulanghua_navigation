@@ -4,14 +4,17 @@
 #include <geometry_msgs/Twist.h>
 #include <tf/tf.h>
 #include <tf/transform_listener.h>
-
+#include "orne_waypoints_msgs/Waypoint.h"
 
 class SpecialMove{
   public:
 
 
     SpecialMove(){
+          ros::NodeHandle private_nh("~");
           private_nh.param("cmd_vel_posture", cmd_vel_, std::string("cmd_vel_posture_"));
+          private_nh.param("robot_frame", robot_frame_, std::string("base_link"));
+          private_nh.param("world_frame", world_frame_, std::string("map"));
     }
     void chargingFunction(){
           printf("charging action here\n");
@@ -41,11 +44,11 @@ class SpecialMove{
     }
 
     ros::NodeHandle nh;
-    ros::NodeHandle private_nh("~");
-    std::string cmd_vel_;
+    tf::TransformListener tf_listener_;
+    std::string robot_frame_, world_frame_,cmd_vel_;
     ros::Publisher twist_pub;
     twist_pub = nh.advertise<geometry_msgs::Twist>(cmd_vel_,1000);
-}
+};
 
 
 
@@ -58,8 +61,6 @@ int main(int argc, char** argv)
   SpecialMove SpM;
   Server server(nh, "action", false);
   server.start();
-  
-  
   ros::Time start_time;
   ros::Rate loop_rate(20);
   fulanghua_action::testGoalConstPtr current_goal;
@@ -127,7 +128,7 @@ int main(int argc, char** argv)
           }
           printf("cmd_x_vel = %f\n", twist.linear.x);
           printf("cmd_z_vel = %f\n", twist.angular.z);
-          twist_pub.publish(twist);
+          SpM.twist_pub.publish(twist);
         }
       }
     }
