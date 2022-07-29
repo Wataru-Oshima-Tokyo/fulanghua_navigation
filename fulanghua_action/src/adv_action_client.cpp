@@ -6,6 +6,7 @@
 #include <fcntl.h>
 #include <time.h>
 #include <regex>
+#include <std_srvs/Trigger.h>
 std::string c;
 struct termios save_settings;
 void set_input_interactive(void)
