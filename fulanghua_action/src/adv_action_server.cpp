@@ -46,8 +46,7 @@ class SpecialMove{
     ros::NodeHandle nh;
     tf::TransformListener tf_listener_;
     std::string robot_frame_, world_frame_,cmd_vel_;
-    ros::Publisher twist_pub;
-    twist_pub = nh.advertise<geometry_msgs::Twist>(cmd_vel_,1000);
+    ros::Publisher twist_pub =nh.advertise<geometry_msgs::Twist>(cmd_vel_,1000);
 };
 
 
