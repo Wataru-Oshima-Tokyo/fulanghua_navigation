@@ -19,11 +19,6 @@ class SpecialMove{
           printf("charging action here\n");
     }
 
-    bool onNavigationPoint(const orne_waypoints_msgs::Waypoint &dest, ){
-
-
-       
-    }
 
     void  coordinate_callback(const geometry_msgs::Point& point){
       
@@ -56,7 +51,7 @@ int main(int argc, char** argv)
   ros::Time start_time;
   ros::Rate loop_rate(20);
   SpM.twist_pub = SpM.nh.advertise<geometry_msgs::Twist>(SpM.cmd_vel_,1000);
-  SpM.robot_coordinate_sub = nh.subscribe("robot_coordniate", 1000 &SpecialMove::coordinate_callback, &SpM);
+  SpM.robot_coordinate_sub = SpM.nh.subscribe("robot_coordniate", 1000 &SpecialMove::coordinate_callback, &SpM);
   fulanghua_action::testGoalConstPtr current_goal;
   while (ros::ok())
   {
