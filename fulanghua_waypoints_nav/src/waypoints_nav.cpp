@@ -123,6 +123,7 @@ public:
         search_server_ = nh.advertiseService("near_wp_nav",&WaypointsNavigation::searchPoseCallback, this);
         cmd_vel_sub_ = nh.subscribe(cmd_vel_, 1, &WaypointsNavigation::cmdVelCallback, this);
         cmd_vel_pub_ = nh.advertise<geometry_msgs::Twist>(cmd_vel_,1000);
+        nh.advertise<geometry_msgs::Point>("robot_coordniate",1000);
         // action_exe_sub = nh.subscribe("cmd_vel_executing", 1000, &WaypointsNavigation::actionExeCallback, this);
         charge_sub = nh.subscribe(CHARGE_TOPIC, 1000, &WaypointsNavigation::needChargeCallback, this);
         wp_pub_ = nh.advertise<orne_waypoints_msgs::WaypointArray>("waypoints", 10);
@@ -471,8 +472,12 @@ public:
 
     tf::StampedTransform getRobotPosGL(){
         tf::StampedTransform robot_gl;
+        geometry_msgs::Point pt;
         try{
             tf_listener_.lookupTransform(world_frame_, robot_frame_, ros::Time(0.0), robot_gl);
+            pt.x = robot_gl.getOrigin().x();
+            pt.y = robot_gl.getOrigin().y();
+            robot_coordinate.publish(pt);
         }catch(tf::TransformException &e){
             ROS_WARN_STREAM("tf::TransformException: " << e.what());
         }
@@ -702,7 +707,7 @@ private:
     ros::ServiceServer start_server_, pause_server_, unpause_server_, stop_server_, suspend_server_, 
     resume_server_ ,search_server_, loop_start_server, loop_stop_server, roundtrip_on_server_, roundtrip_off_server_, command_server;
     ros::Subscriber cmd_vel_sub_, charge_sub;
-    ros::Publisher wp_pub_, cmd_vel_pub_;
+    ros::Publisher wp_pub_, cmd_vel_pub_, robot_coordinate;
     ros::ServiceClient clear_costmaps_srv_, action_cmd_srv;
     double last_moved_time_, dist_err_;
     bool LOOP = false;

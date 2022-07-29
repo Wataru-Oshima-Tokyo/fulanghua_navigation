@@ -33,27 +33,16 @@ class SpecialMove{
         return dist < dist_err;
     }
 
-    tf::StampedTransform getRobotPosGL(){
-        tf::StampedTransform robot_gl;
-        geometry_msgs::Point pt;
-        try{
-            tf_listener_.lookupTransform(world_frame_, robot_frame_, ros::Time(0.0), robot_gl);
-            pt.x = robot_gl.getOrigin().x();
-            pt.y = robot_gl.getOrigin().y();
-            robot_coordinate.publish(pt);
-        }catch(tf::TransformException &e){
-            ROS_WARN_STREAM("tf::TransformException: " << e.what());
-        }
-        return robot_gl;
+    void  coordinate_callback(const geometry_msgs::Point& point){
+      
     }
 
     ros::NodeHandle nh;
     tf::TransformListener tf_listener_;
     std::string robot_frame_, world_frame_,cmd_vel_;
-    ros::Publisher twist_pub =nh.advertise<geometry_msgs::Twist>(cmd_vel_,1000);
-    ros::Publisher robot_coordinate = nh.advertise<geometry_msgs::Point>("robot_coordniate",1000);
+    ros::Publisher twist_pub; =
+    ros::Subscrive robot_coordinate_sub;
 };
-
 
 
 
@@ -67,6 +56,8 @@ int main(int argc, char** argv)
   server.start();
   ros::Time start_time;
   ros::Rate loop_rate(20);
+  SpM.twist_pub = SpM.nh.advertise<geometry_msgs::Twist>(SpM.cmd_vel_,1000);
+  SpM.robot_coordinate_sub = nh.subscribe("robot_coordniate", 1000 &SpecialMove::coordinate_callback, &SpM);
   fulanghua_action::testGoalConstPtr current_goal;
   while (ros::ok())
   {
