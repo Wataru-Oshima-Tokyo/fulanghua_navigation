@@ -329,7 +329,7 @@ public:
 
     bool action_service_stop_callback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& re){
         action_client.cancelGoal();
-        re.success = true;
+        // re.success = true;
     }
 
     void needChargeCallback(const std_msgs::Bool &msg){
