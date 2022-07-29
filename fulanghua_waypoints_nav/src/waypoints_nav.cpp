@@ -133,7 +133,7 @@ public:
         loop_stop_server = nh.advertiseService("loop_stop_wp_nav", &WaypointsNavigation::loopStopCallback, this);
         roundtrip_on_server_ = nh.advertiseService("roundtrip_on_nav", &WaypointsNavigation::roundTripOnCallback, this);
         roundtrip_off_server_ = nh.advertiseService("roundtrip_off_nav", &WaypointsNavigation::roundTripOffCallback, this);
-        command_server = nh.advertiseService("command_send", &WaypointsNavigation::action_service_stop_callback, this);
+        command_server = nh.advertiseService("finish_action", &WaypointsNavigation::action_service_stop_callback, this);
     }
 
     
@@ -328,7 +328,7 @@ public:
     // }
 
     void action_service_stop_callback(std_srvs::Trigger::Request &request, std_srvs::Trigger::Response &response){
-        action_client.cancel();
+        action_client.cancelGoal();
     }
 
     void needChargeCallback(const std_msgs::Bool &msg){
@@ -490,6 +490,7 @@ public:
         _action.request.action = dest.position.action;
         _action.request.duration = dest.position.duration;
         // action_cmd_srv.call(_action);
+        bool initial_goal = false;
         if (action_client.isServerConnected())
         {
             fulanghua_action::testGoal goal;
@@ -502,9 +503,9 @@ public:
             initial_goal = true;
             actionlib::SimpleClientGoalState state = action_client.getState();
             while(state !=actionlib::SimpleClientGoalState::PREEMPTED){
-                if (initial_goal)
-                    printf("Current State: %s\n", client.getState().toString().c_str());
-                sleep();
+            if (initial_goal)
+                printf("Current State: %s\n", action_client.getState().toString().c_str());
+            sleep();
             }
         }   
         rate_.sleep();
