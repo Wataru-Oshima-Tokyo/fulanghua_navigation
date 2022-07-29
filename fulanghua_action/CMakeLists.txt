@@ -139,7 +139,7 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/fulanghua_action_node.cpp)
 
-add_executable(adv_action_client src/adv_action_client.cpp)
+# add_executable(adv_action_client src/adv_action_client.cpp)
 add_executable(adv_action_server src/adv_action_server.cpp)
 
 ## Rename C++ executable without prefix
@@ -151,15 +151,15 @@ add_executable(adv_action_server src/adv_action_server.cpp)
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(adv_action_client ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(adv_action_client ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(adv_action_server ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
-target_link_libraries(adv_action_client
-  ${catkin_LIBRARIES}
-)
+# target_link_libraries(adv_action_client
+#   ${catkin_LIBRARIES}
+# )
 target_link_libraries(adv_action_server
   ${catkin_LIBRARIES}
 )
