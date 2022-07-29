@@ -59,7 +59,7 @@ int main(int argc, char** argv)
 {
   ros::init(argc, argv, "task_server");
   SpecialMove SpM;
-  Server server(nh, "action", false);
+  Server server(SpM.nh, "action", false);
   server.start();
   ros::Time start_time;
   ros::Rate loop_rate(20);
@@ -118,7 +118,7 @@ int main(int argc, char** argv)
             twist.angular.z = 0;
           }
           else if (current_goal->command =="charge"){
-            chargingFunction();  
+            SpM.chargingFunction();  
           }
           else if (current_goal->command =="takephoto"){
              printf("take photo\n");
