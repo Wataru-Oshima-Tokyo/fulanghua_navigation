@@ -54,9 +54,9 @@ int main(int argc, char** argv)
           fulanghua_action::testFeedback feedback;
           feedback.rate = (ros::Time::now() - start_time).toSec() / current_goal->duration;
           server.publishFeedback(feedback);
-          printf("Active: publish feedback id:%i\n", current_goal->task_id);
+          // printf("Active: publish feedback id:%i\n", current_goal->task_id);
           std::cout << "received command: " << current_goal->command <<std::endl;
-          printf("Active: publish result id:%i\n", current_goal->task_id);
+          // printf("Active: publish result id:%i\n", current_goal->task_id);
           if(current_goal->command =="lookup"){
               printf("look up\n");
               twist.linear.x = 1;
