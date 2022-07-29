@@ -5,7 +5,7 @@
 #include <geometry_msgs/Point.h>
 #include <tf/tf.h>
 #include <tf/transform_listener.h>
-
+#include "orne_waypoints_msgs/Waypoint.h"
 class SpecialMove{
   public:
 
