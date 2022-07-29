@@ -327,7 +327,7 @@ public:
     //     }
     // }
 
-    void action_service_stop_callback(std_srvs::Trigger::Request &request, std_srvs::Trigger::Response &response){
+    bool action_service_stop_callback(std_srvs::Trigger::Request &request, std_srvs::Trigger::Response &response){
         action_client.cancelGoal();
     }
 
