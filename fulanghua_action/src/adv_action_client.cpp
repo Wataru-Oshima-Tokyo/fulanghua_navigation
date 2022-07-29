@@ -85,7 +85,7 @@ int main(int argc, char** argv)
       }
       if (initial_goal)
         printf("Current State: %s\n", client.getState().toString().c_str());
-      if(!c.mepty())
+      if(!c.empty())
         c ="";
     }
     fflush(stdout);
