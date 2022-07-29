@@ -26,8 +26,6 @@ class SpecialMove{
     }
 
     bool onNavigationPoint(const orne_waypoints_msgs::Waypoint &dest, double dist_err = 0.8){
-        tf::StampedTransform robot_gl = getRobotPosGL();
-
         const double wx = dest.x;
         const double wy = dest.y;
         const double dist = std::sqrt(std::pow(wx - rx, 2) + std::pow(wy - ry, 2));
@@ -39,7 +37,7 @@ class SpecialMove{
     tf::TransformListener tf_listener_;
     std::string cmd_vel_, _dist_err;
     ros::Publisher twist_pub; 
-    ros::Subscrive robot_coordinate_sub;
+    ros::Subscribe robot_coordinate_sub;
     double rx, ry;
 };
 
