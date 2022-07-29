@@ -426,7 +426,7 @@ public:
         bool ret = true;
         actionlib::SimpleClientGoalState state = move_base_action_.getState();
         if((state != actionlib::SimpleClientGoalState::ACTIVE) &&
-           (state != actionlib::SimpleClientGoalState::PENDING) && 
+           (state != actionlib::SimpleClientGoalState::PENDING) &&  
            (state != actionlib::SimpleClientGoalState::RECALLED) &&
            (state != actionlib::SimpleClientGoalState::PREEMPTED))
         {
