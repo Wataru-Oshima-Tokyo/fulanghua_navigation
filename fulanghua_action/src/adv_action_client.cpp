@@ -27,7 +27,7 @@ void reset_input(void)
   tcsetattr(0, TCSANOW, &save_settings);
 }
 bool command_callback(std_srvs::Trigger::Request &request, std_srvs::Trigger::Response &response){
-  c = request.meseage;
+  c = request.message;
 }
 
 typedef actionlib::SimpleActionClient<fulanghua_action::testAction> Client;
