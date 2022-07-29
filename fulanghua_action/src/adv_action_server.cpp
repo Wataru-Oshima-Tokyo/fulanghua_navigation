@@ -10,7 +10,9 @@ class SpecialMove{
   public:
 
 
-    SpecialMove(){
+    SpecialMove():
+      server(nh, "action", false)  
+    {
           ros::NodeHandle private_nh("~");
           private_nh.param("cmd_vel_posture", cmd_vel_posture, std::string("cmd_vel_posture_"));
           private_nh.param("cmd_vel_", cmd_vel_posture, std::string("cmd_vel"));
@@ -27,8 +29,8 @@ class SpecialMove{
           printf("charging action here\n");
     }
 
-    void P2P_move(){
-      if (!onNavigationPoint){
+    void P2P_move(const orne_waypoints_msgs::Waypoint &dest){
+      if (!onNavigationPoint(dest)){
           twist.linear.x = 1;
           twist_move_pub.publish(twist);
       }else{
@@ -50,7 +52,7 @@ class SpecialMove{
     ros::Publisher twist_move_pub, twist_postgure_pub; 
     ros::Subscriber robot_coordinate_sub;
     geometry_msgs::Twist twist;
-    Server server(SpM.nh, "action", false);
+    Server server;
     double rx, ry;
 };
 
@@ -68,6 +70,7 @@ int main(int argc, char** argv)
   SpM.twist_move_pub = SpM.nh.advertise<geometry_msgs::Twist>(SpM.cmd_vel_,1000);
   SpM.robot_coordinate_sub = SpM.nh.subscribe("robot_coordniate", 1000, &SpecialMove::coordinate_callback, &SpM);
   fulanghua_action::testGoalConstPtr current_goal;
+  orne_waypoints_msgs::Waypoint dest;
   while (ros::ok())
   {
     if (SpM.server.isNewGoalAvailable())
@@ -125,7 +128,7 @@ int main(int argc, char** argv)
             SpM.chargingFunction();  
           }
           else if (current_goal->command =="p2p"){
-            SpM.P2P_move();  
+            SpM.P2P_move(dest);  
           }
           else if (current_goal->command =="takephoto"){
              printf("take photo\n");
@@ -133,9 +136,9 @@ int main(int argc, char** argv)
           else if (current_goal->command =="videostream"){
             printf(" watch video\n");
           }
-          printf("cmd_x_vel = %f\n", twist.linear.x);
-          printf("cmd_z_vel = %f\n", twist.angular.z);
-          SpM.twist_pub.publish(twist);
+          // printf("cmd_x_vel = %f\n", twist.linear.x);
+          // printf("cmd_z_vel = %f\n", twist.angular.z);
+          // SpM.twist_pub.publish(twist);
         }
       }
     }
