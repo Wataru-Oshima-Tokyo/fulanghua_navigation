@@ -27,7 +27,7 @@ void reset_input(void)
 {
   tcsetattr(0, TCSANOW, &save_settings);
 }
-bool command_callback(fulanghua_srvs::actions::Request &request, std_srvs::Trigger::Response &response){
+bool command_callback(fulanghua_srvs::actions::Request &request,fulanghua_srvs::actions::Response &response){
   c = request.action;
 }
 
