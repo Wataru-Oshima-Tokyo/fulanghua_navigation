@@ -13,29 +13,34 @@ class SpecialMove{
     SpecialMove(){
           ros::NodeHandle private_nh("~");
           private_nh.param("cmd_vel_posture", cmd_vel_, std::string("cmd_vel_posture_"));
-          private_nh.param("dist_err", dist_err, std::string("0.8"));
+          private_nh.param("dist_err", _dist_err, std::string("0.8"));
     }
     void chargingFunction(){
           printf("charging action here\n");
     }
 
 
-    void  coordinate_callback(const geometry_msgs::Point& point){
-      
+    void coordinate_callback(const geometry_msgs::Point& point){
+        double rx = point.x;
+        double ry = point.x;
+    }
+
+    bool onNavigationPoint(const orne_waypoints_msgs::Waypoint &dest, double dist_err = 0.8){
+        tf::StampedTransform robot_gl = getRobotPosGL();
+
         const double wx = dest.x;
         const double wy = dest.y;
-        const double rx = point.x;
-        const double ry = point.x;
         const double dist = std::sqrt(std::pow(wx - rx, 2) + std::pow(wy - ry, 2));
-        // dist < stof(dist_err);
+
+        return dist < dist_err;
     }
 
     ros::NodeHandle nh;
     tf::TransformListener tf_listener_;
-    std::string cmd_vel_,dist_err;
+    std::string cmd_vel_, _dist_err;
     ros::Publisher twist_pub; 
     ros::Subscrive robot_coordinate_sub;
-
+    double rx, ry;
 };
 
 
@@ -51,7 +56,7 @@ int main(int argc, char** argv)
   ros::Time start_time;
   ros::Rate loop_rate(20);
   SpM.twist_pub = SpM.nh.advertise<geometry_msgs::Twist>(SpM.cmd_vel_,1000);
-  SpM.robot_coordinate_sub = SpM.nh.subscribe("robot_coordniate", 1000 &SpecialMove::coordinate_callback, &SpM);
+  SpM.robot_coordinate_sub = SpM.nh.subscribe("robot_coordniate", 1000, &SpecialMove::coordinate_callback, &SpM);
   fulanghua_action::testGoalConstPtr current_goal;
   while (ros::ok())
   {
