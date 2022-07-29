@@ -5,7 +5,6 @@
 #include <geometry_msgs/Point.h>
 #include <tf/tf.h>
 #include <tf/transform_listener.h>
-#include "orne_waypoints_msgs/Waypoint.h"
 
 class SpecialMove{
   public:
@@ -14,34 +13,34 @@ class SpecialMove{
     SpecialMove(){
           ros::NodeHandle private_nh("~");
           private_nh.param("cmd_vel_posture", cmd_vel_, std::string("cmd_vel_posture_"));
-          private_nh.param("robot_frame", robot_frame_, std::string("base_link"));
-          private_nh.param("world_frame", world_frame_, std::string("map"));
+          private_nh.param("dist_err", dist_err, std::string("0.8"));
     }
     void chargingFunction(){
           printf("charging action here\n");
     }
 
-    bool onNavigationPoint(const orne_waypoints_msgs::Waypoint &dest, double dist_err = 0.8){
-        tf::StampedTransform robot_gl = getRobotPosGL();
+    bool onNavigationPoint(const orne_waypoints_msgs::Waypoint &dest, ){
 
-        const double wx = dest.x;
-        const double wy = dest.y;
-        const double rx = robot_gl.getOrigin().x();
-        const double ry = robot_gl.getOrigin().y();
-        const double dist = std::sqrt(std::pow(wx - rx, 2) + std::pow(wy - ry, 2));
 
-        return dist < dist_err;
+       
     }
 
     void  coordinate_callback(const geometry_msgs::Point& point){
       
+        const double wx = dest.x;
+        const double wy = dest.y;
+        const double rx = point.x;
+        const double ry = point.x;
+        const double dist = std::sqrt(std::pow(wx - rx, 2) + std::pow(wy - ry, 2));
+        // dist < stof(dist_err);
     }
 
     ros::NodeHandle nh;
     tf::TransformListener tf_listener_;
-    std::string robot_frame_, world_frame_,cmd_vel_;
-    ros::Publisher twist_pub; =
+    std::string cmd_vel_,dist_err;
+    ros::Publisher twist_pub; 
     ros::Subscrive robot_coordinate_sub;
+
 };
 
 
