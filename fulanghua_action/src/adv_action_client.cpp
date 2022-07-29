@@ -27,7 +27,7 @@ void reset_input(void)
   tcsetattr(0, TCSANOW, &save_settings);
 }
 bool command_callback(std_srvs::Trigger::Request &request, std_srvs::Trigger::Response &response){
-  c = request.meeseage;
+  c = request.meseage;
 }
 
 typedef actionlib::SimpleActionClient<fulanghua_action::testAction> Client;
@@ -59,8 +59,8 @@ int main(int argc, char** argv)
   {
     if (client.isServerConnected())
     {
-      char _c = getchar();
-      c{_c};
+      // char _c = getchar();
+      // c{_c};
       if (c == "c")
       {
         client.cancelGoal();
