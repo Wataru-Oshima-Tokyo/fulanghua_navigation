@@ -2,6 +2,7 @@
 #include <fulanghua_action/testAction.h>
 #include <actionlib/server/simple_action_server.h>
 #include <geometry_msgs/Twist.h>
+#include <geometry_msgs/Point.h>
 #include <tf/tf.h>
 #include <tf/transform_listener.h>
 #include "orne_waypoints_msgs/Waypoint.h"
@@ -34,12 +35,15 @@ class SpecialMove{
 
     tf::StampedTransform getRobotPosGL(){
         tf::StampedTransform robot_gl;
+        geometry_msgs::Point pt;
         try{
             tf_listener_.lookupTransform(world_frame_, robot_frame_, ros::Time(0.0), robot_gl);
+            pt.x = robot_gl.getOrigin().x();
+            pt.y = robot_gl.getOrigin().y();
+            robot_coordinate.publish(pt);
         }catch(tf::TransformException &e){
             ROS_WARN_STREAM("tf::TransformException: " << e.what());
         }
-        robot_coordinate.publish(robot_gl);
         return robot_gl;
     }
 
@@ -47,7 +51,7 @@ class SpecialMove{
     tf::TransformListener tf_listener_;
     std::string robot_frame_, world_frame_,cmd_vel_;
     ros::Publisher twist_pub =nh.advertise<geometry_msgs::Twist>(cmd_vel_,1000);
-    ros::Publisher robot_coordinate = nh.advertise<tf::StampedTransform>("robot_coordniate",1000);
+    ros::Publisher robot_coordinate = nh.advertise<geometry_msgs::Point>("robot_coordniate",1000);
 };
 
 
