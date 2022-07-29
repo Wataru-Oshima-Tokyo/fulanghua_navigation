@@ -9,6 +9,7 @@
 #include <fulanghua_srvs/actions.h>
 #include <std_srvs/Trigger.h>
 std::string c;
+bool STOP_ACTION = false;
 struct termios save_settings;
 void set_input_interactive(void)
 {
@@ -27,8 +28,8 @@ void reset_input(void)
 {
   tcsetattr(0, TCSANOW, &save_settings);
 }
-bool command_callback(fulanghua_srvs::actions::Request &request,fulanghua_srvs::actions::Response &response){
-  c = request.action;
+void action_service_stop_callback(fulanghua_srvs::actions::Request &request,fulanghua_srvs::actions::Response &response){
+  
 }
 
 typedef actionlib::SimpleActionClient<fulanghua_action::testAction> Client;
@@ -38,7 +39,7 @@ int main(int argc, char** argv)
   ros::init(argc, argv, "task_client");
   ros::NodeHandle nh;
   ros::ServiceServer command_server;
-  command_server = nh.advertiseService("command_send", command_callback);
+  command_server = nh.advertiseService("command_send", action_stop_callback);
   set_input_interactive();
 
   Client client("task", true);

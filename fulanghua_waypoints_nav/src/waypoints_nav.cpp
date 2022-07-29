@@ -44,6 +44,7 @@
 #include <visualization_msgs/MarkerArray.h>
 #include <fulanghua_srvs/_Pose.h>
 #include <fulanghua_srvs/actions.h>
+#include <fulanghua_action/testAction.h>
 #include <yaml-cpp/yaml.h>
 
 #include <vector>
@@ -71,6 +72,7 @@ public:
     WaypointsNavigation() :
         has_activate_(false),
         move_base_action_("move_base", true),
+        action_client("action", true),
         rate_(10),
         last_moved_time_(0),
         dist_err_(0.8)
@@ -121,7 +123,7 @@ public:
         search_server_ = nh.advertiseService("near_wp_nav",&WaypointsNavigation::searchPoseCallback, this);
         cmd_vel_sub_ = nh.subscribe(cmd_vel_, 1, &WaypointsNavigation::cmdVelCallback, this);
         cmd_vel_pub_ = nh.advertise<geometry_msgs::Twist>(cmd_vel_,1000);
-        action_exe_sub = nh.subscribe("cmd_vel_executing", 1000, &WaypointsNavigation::actionExeCallback, this);
+        // action_exe_sub = nh.subscribe("cmd_vel_executing", 1000, &WaypointsNavigation::actionExeCallback, this);
         charge_sub = nh.subscribe(CHARGE_TOPIC, 1000, &WaypointsNavigation::needChargeCallback, this);
         wp_pub_ = nh.advertise<orne_waypoints_msgs::WaypointArray>("waypoints", 10);
         clear_costmaps_srv_ = nh.serviceClient<std_srvs::Empty>("/move_base/clear_costmaps");
@@ -131,6 +133,7 @@ public:
         loop_stop_server = nh.advertiseService("loop_stop_wp_nav", &WaypointsNavigation::loopStopCallback, this);
         roundtrip_on_server_ = nh.advertiseService("roundtrip_on_nav", &WaypointsNavigation::roundTripOnCallback, this);
         roundtrip_off_server_ = nh.advertiseService("roundtrip_off_nav", &WaypointsNavigation::roundTripOffCallback, this);
+        command_server = nh.advertiseService("command_send", &WaypointsNavigation::action_service_stop_callback, this);
     }
 
     
@@ -316,12 +319,16 @@ public:
         }
     }
 
-    void actionExeCallback(const std_msgs::Bool &msg){
-        if(msg.data){
-            action_finished = false;
-        }else{
-            action_finished = true;
-        }
+    // void actionExeCallback(const std_msgs::Bool &msg){
+    //     if(msg.data){
+            
+    //     }else{
+    //         action_finished = ;
+    //     }
+    // }
+
+    void action_service_stop_callback(std_srvs::Trigger::Request &request, std_srvs::Trigger::Response &response){
+        action_client.cancel();
     }
 
     void needChargeCallback(const std_msgs::Bool &msg){
@@ -482,7 +489,24 @@ public:
         fulanghua_srvs::actions _action;
         _action.request.action = dest.position.action;
         _action.request.duration = dest.position.duration;
-        action_cmd_srv.call(_action);
+        // action_cmd_srv.call(_action);
+        if (action_client.isServerConnected())
+        {
+            fulanghua_action::testGoal goal;
+            // goal.task_id = task_id;
+            goal.command = dest.position.action;
+            // task_id++;
+            goal.duration = dest.position.duration;
+            action_client.sendGoal(goal);
+            std::cout <<"publish command:" << goal.command;
+            initial_goal = true;
+            actionlib::SimpleClientGoalState state = action_client.getState();
+            while(state !=actionlib::SimpleClientGoalState::PREEMPTED){
+                if (initial_goal)
+                    printf("Current State: %s\n", client.getState().toString().c_str());
+                sleep();
+            }
+        }   
         rate_.sleep();
     }
 
@@ -657,6 +681,8 @@ public:
 
 private:
     actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> move_base_action_;
+    actionlib::SimpleActionClient<fulanghua_action::testAction> action_client;
+    
     // geometry_msgs::PoseArray waypoints_;
     orne_waypoints_msgs::WaypointArray waypoints_, charging_waypoints_ ;
     visualization_msgs::MarkerArray marker_;
@@ -670,14 +696,14 @@ private:
     tf::TransformListener tf_listener_;
     ros::Rate rate_;
     ros::ServiceServer start_server_, pause_server_, unpause_server_, stop_server_, suspend_server_, 
-    resume_server_ ,search_server_, loop_start_server, loop_stop_server, roundtrip_on_server_, roundtrip_off_server_;
-    ros::Subscriber cmd_vel_sub_, action_exe_sub, charge_sub;
+    resume_server_ ,search_server_, loop_start_server, loop_stop_server, roundtrip_on_server_, roundtrip_off_server_, command_server;
+    ros::Subscriber cmd_vel_sub_, charge_sub;
     ros::Publisher wp_pub_, cmd_vel_pub_;
     ros::ServiceClient clear_costmaps_srv_, action_cmd_srv;
     double last_moved_time_, dist_err_;
     bool LOOP = false;
     bool REVERSE = false;
-    bool action_finished = true;
+    bool action_finished = false;
     bool CHARGE =false;
     bool CHARGING_STATION=false;
 };
