@@ -61,8 +61,8 @@ class SpecialMove{
     actionlib::SimpleActionServer<fulanghua_action::special_moveAction> server;
     double rx, ry;
   private:
-    double Kp = 1.0;
-    double Kv = 0.5;
+    double Kp = 0.1;
+    double Kv = 0.005;
     
 };
 
