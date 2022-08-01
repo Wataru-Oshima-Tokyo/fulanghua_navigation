@@ -44,7 +44,7 @@
 #include <visualization_msgs/MarkerArray.h>
 #include <fulanghua_srvs/_Pose.h>
 #include <fulanghua_srvs/actions.h>
-#include <fulanghua_action/testAction.h>
+#include <fulanghua_action/special_moveAction.h>
 #include <yaml-cpp/yaml.h>
 
 #include <vector>
@@ -692,7 +692,7 @@ public:
 
 private:
     actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> move_base_action_;
-    actionlib::SimpleActionClient<fulanghua_action::testAction> action_client;
+    actionlib::SimpleActionClient<fulanghua_action::special_moveAction> action_client;
     
     // geometry_msgs::PoseArray waypoints_;
     orne_waypoints_msgs::WaypointArray waypoints_, charging_waypoints_ ;
