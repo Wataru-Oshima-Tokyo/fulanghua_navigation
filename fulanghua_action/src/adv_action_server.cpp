@@ -44,11 +44,15 @@ class SpecialMove{
         const double wx = dest.position.x;
         const double wy = dest.position.y;
         const double dist = std::sqrt(std::pow(wx - rx, 2) + std::pow(wy - ry, 2));
+        //get the angle the target from the current position
+        const double angle = std::acos(dsit/(wx-rx));
+
         //rn I only consider the x coordinate for determing the velocity
         velocity_x = Kp* std::abs(wx-rx) - Kv * std::abs(wx-rx) /0.05;
         // twist.linear.x = velocity_x;
         twist.linear.x = 0.1;
         printf("cmd_vel_x = %f\n", velocity_x);
+        printf("angle = %f\n", angle);
         return dist < dist_err;
     }
 
