@@ -18,7 +18,7 @@ class SpecialMove{
     {
           ros::NodeHandle private_nh("~");
           private_nh.param("cmd_vel_posture", cmd_vel_posture, std::string("cmd_vel_posture_"));
-          private_nh.param("cmd_vel_", cmd_vel_posture, std::string("cmd_vel"));
+          private_nh.param("cmd_vel_", cmd_vel_, std::string("cmd_vel"));
           private_nh.param("dist_err", _dist_err, std::string("0.8"));
           server.start();
     }
@@ -44,7 +44,8 @@ class SpecialMove{
         const double wx = dest.position.x;
         const double wy = dest.position.y;
         const double dist = std::sqrt(std::pow(wx - rx, 2) + std::pow(wy - ry, 2));
-        const double velocity_x = Kp* dist - Kv * dist/0.05;
+        //rn I only consider the x coordinate for determing the velocity
+        const double velocity_x = Kp* (wx-rx) - Kv *(wx-rx) /0.05;
         // twist.linear.x = velocity_x;
         twist.linear.x = 0.1;
         printf("cmd_vel_x = %f\n", velocity_x);
@@ -60,8 +61,9 @@ class SpecialMove{
     actionlib::SimpleActionServer<fulanghua_action::special_moveAction> server;
     double rx, ry;
   private:
-    double Kp = 0.1;
-    double Kv = 1.0;
+    double Kp = 1.0;
+    double Kv = 0.5;
+    
 };
 
 
