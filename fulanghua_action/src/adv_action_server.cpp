@@ -5,7 +5,7 @@
 #include <geometry_msgs/Point.h>
 #include <tf/tf.h>
 #include <tf/transform_listener.h>
-#include "orne_waypoints_msgs/Waypoint.h"
+#include "orne_waypoints_msgs/Pose.h"
 
 typedef actionlib::SimpleActionServer<fulanghua_action::special_moveAction> Server;
 
@@ -40,9 +40,9 @@ class SpecialMove{
       }
     }
 
-    bool onNavigationPoint(const orne_waypoints_msgs::Waypoint &dest, double dist_err = 0.8){
-        const double wx = dest.x;
-        const double wy = dest.y;
+    bool onNavigationPoint(const orne_waypoints_msgs::Pose &dest, double dist_err = 0.8){
+        const double wx = dest.position.x;
+        const double wy = dest.position.y;
         const double dist = std::sqrt(std::pow(wx - rx, 2) + std::pow(wy - ry, 2));
         const double velocity_x = Kp* dist - Kv * dist/0.05;
         // twist.linear.x = velocity_x;
@@ -79,7 +79,6 @@ int main(int argc, char** argv)
   SpM.twist_move_pub = SpM.nh.advertise<geometry_msgs::Twist>(SpM.cmd_vel_,1000);
   SpM.robot_coordinate_sub = SpM.nh.subscribe("robot_coordniate", 1000, &SpecialMove::coordinate_callback, &SpM);
   fulanghua_action::special_moveGoalConstPtr current_goal;
-  orne_waypoints_msgs::Waypoint dest;
   while (ros::ok())
   {
     if (SpM.server.isNewGoalAvailable())

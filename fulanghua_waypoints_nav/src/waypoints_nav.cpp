@@ -500,10 +500,10 @@ public:
         bool initial_goal = false;
         if (action_client.isServerConnected())
         {
-            fulanghua_action::testGoal goal;
+            fulanghua_action::special_moveGoal goal;
             // goal.task_id = task_id;
             goal.command = dest.position.action;
-            // task_id++;
+            goal.wp = dest;
             goal.duration = dest.position.duration;
             action_client.sendGoal(goal);
             std::cout <<"publish command:" << goal.command;
