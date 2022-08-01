@@ -34,7 +34,6 @@ class SpecialMove{
 
     void P2P_move(const orne_waypoints_msgs::Waypoint &dest){
       if (!onNavigationPoint(dest)){
-          twist.linear.x = 1;
           twist_move_pub.publish(twist);
       }else{
           server.setPreempted();
@@ -45,7 +44,8 @@ class SpecialMove{
         const double wx = dest.x;
         const double wy = dest.y;
         const double dist = std::sqrt(std::pow(wx - rx, 2) + std::pow(wy - ry, 2));
-
+        const double velocity_x = Kp* dist - Kv * dist/0.05;
+        twist.linear.x = velocity_x;
         return dist < dist_err;
     }
 
@@ -57,6 +57,9 @@ class SpecialMove{
     geometry_msgs::Twist twist;
     actionlib::SimpleActionServer<fulanghua_action::testAction> server;
     double rx, ry;
+  private:
+    Kp = 0.1;
+    Kv = 1.0;
 };
 
 
