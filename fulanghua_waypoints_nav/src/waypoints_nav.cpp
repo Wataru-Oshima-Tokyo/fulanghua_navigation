@@ -417,7 +417,7 @@ public:
 
    void computeWpOrientation(){
         for(std::vector<orne_waypoints_msgs::Pose>::iterator it = waypoints_.poses.begin(); it != finish_pose_; it++) {
-            if(it->position.action =="passthrough"){
+            if(it->position.action =="passthrough" || it->position.action =="p2p"){
                 double goal_direction = atan2((it+1)->position.y - (it)->position.y,
                                 (it+1)->position.x - (it)->position.x);
                 (it)->orientation = tf::createQuaternionMsgFromYaw(goal_direction);

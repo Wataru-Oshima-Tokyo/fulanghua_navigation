@@ -1,5 +1,5 @@
 #include <ros/ros.h>
-#include <fulanghua_action/testAction.h>
+#include <fulanghua_action/special_moveAction.h>
 #include <actionlib/server/simple_action_server.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Point.h>
@@ -7,7 +7,7 @@
 #include <tf/transform_listener.h>
 #include "orne_waypoints_msgs/Waypoint.h"
 
-typedef actionlib::SimpleActionServer<fulanghua_action::testAction> Server;
+typedef actionlib::SimpleActionServer<fulanghua_action::special_moveAction> Server;
 
 class SpecialMove{
   public:
@@ -57,7 +57,7 @@ class SpecialMove{
     ros::Publisher twist_move_pub, twist_postgure_pub; 
     ros::Subscriber robot_coordinate_sub;
     geometry_msgs::Twist twist;
-    actionlib::SimpleActionServer<fulanghua_action::testAction> server;
+    actionlib::SimpleActionServer<fulanghua_action::special_moveAction> server;
     double rx, ry;
   private:
     double Kp = 0.1;
@@ -78,7 +78,7 @@ int main(int argc, char** argv)
   SpM.twist_postgure_pub = SpM.nh.advertise<geometry_msgs::Twist>(SpM.cmd_vel_posture,1000);
   SpM.twist_move_pub = SpM.nh.advertise<geometry_msgs::Twist>(SpM.cmd_vel_,1000);
   SpM.robot_coordinate_sub = SpM.nh.subscribe("robot_coordniate", 1000, &SpecialMove::coordinate_callback, &SpM);
-  fulanghua_action::testGoalConstPtr current_goal;
+  fulanghua_action::special_moveGoalConstPtr current_goal;
   orne_waypoints_msgs::Waypoint dest;
   while (ros::ok())
   {
@@ -106,7 +106,7 @@ int main(int argc, char** argv)
         }
         else
         {
-          fulanghua_action::testFeedback feedback;
+          fulanghua_action::special_moveFeedback feedback;
           feedback.rate = (ros::Time::now() - start_time).toSec() / current_goal->duration;
           SpM.server.publishFeedback(feedback);
           // printf("Active: publish feedback id:%i\n", current_goal->task_id);

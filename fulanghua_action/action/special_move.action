@@ -2,6 +2,7 @@
 #uint32 task_id  # Specify which dishwasher we want to use
 float64 duration
 string command
+orne_waypoints_msgs/Waypoint
 ---
 # Define the result
 bool done
