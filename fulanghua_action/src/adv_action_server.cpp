@@ -32,7 +32,7 @@ class SpecialMove{
           printf("charging action here\n");
     }
 
-    void P2P_move(const orne_waypoints_msgs::Waypoint &dest){
+    void P2P_move(const orne_waypoints_msgs::Pose &dest){
       if (!onNavigationPoint(dest)){
           twist_move_pub.publish(twist);
       }else{
@@ -136,7 +136,7 @@ int main(int argc, char** argv)
             SpM.chargingFunction();  
           }
           else if (current_goal->command =="p2p"){
-            SpM.P2P_move(dest);  
+            SpM.P2P_move(current_goal->wp);  
           }
           else if (current_goal->command =="takephoto"){
              printf("take photo\n");
