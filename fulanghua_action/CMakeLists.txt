@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   geometry_msgs
   fulanghua_srvs
+  orne_waypoints_msgs
   tf
 )
 
@@ -76,6 +77,7 @@ generate_messages(
   DEPENDENCIES
   std_msgs
   actionlib_msgs
+  orne_waypoints_msgs
 )
 
 ################################################
