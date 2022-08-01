@@ -10,5 +10,5 @@
     <param name="dist_err" value="$(arg dist_err)"/>
     <param name="cmd_vel"  value="$(arg cmd_vel)" />
   </node>
-  <ndoe name="action_server" pkg="fulanghua_action" type="adv_action_server" output="screen"></node>
+  <node name="action_server" pkg="fulanghua_action" type="adv_action_server" output="screen"></node>
 </launch>
