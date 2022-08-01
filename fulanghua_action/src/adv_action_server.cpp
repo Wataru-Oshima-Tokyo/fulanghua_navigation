@@ -45,7 +45,9 @@ class SpecialMove{
         const double wy = dest.y;
         const double dist = std::sqrt(std::pow(wx - rx, 2) + std::pow(wy - ry, 2));
         const double velocity_x = Kp* dist - Kv * dist/0.05;
-        twist.linear.x = velocity_x;
+        // twist.linear.x = velocity_x;
+        twist.linear.x = 0.1;
+        printf("cmd_vel_x = %f\n", velocity_x);
         return dist < dist_err;
     }
 
