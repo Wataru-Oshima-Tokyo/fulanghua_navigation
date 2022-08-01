@@ -63,7 +63,7 @@ class SpecialMove{
   private:
     const double Kp = 0.2;
     const double Kv = 0.003;
-    double velocity_x:
+    double velocity_x;
     
 };
 
