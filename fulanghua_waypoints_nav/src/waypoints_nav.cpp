@@ -508,9 +508,12 @@ public:
                 goal.wp.position = next->position;
                 goal.wp.orientation = next->orientation;
             }else if (dest->position.action == "p2p" && REVERSE){
-                std::vector<orne_waypoints_msgs::Pose>::iterator next = dest-1;
-                goal.wp.position = next->position;
-                goal.wp.orientation = next->orientation;
+                std::vector<orne_waypoints_msgs::Pose>::iterator prev = dest-1;
+                goal.wp.position = prev->position;
+                goal.wp.orientation = prev->orientation;
+            }else{
+                goal.wp.position = dest->position;
+                goal.wp.orientation = dest->orientation;
             }
             goal.duration = dest->position.duration;
             action_client.sendGoal(goal);
