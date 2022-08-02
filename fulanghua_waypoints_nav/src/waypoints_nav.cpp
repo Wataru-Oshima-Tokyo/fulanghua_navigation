@@ -492,19 +492,19 @@ public:
     }
     
     
-    void actionServiceCall(const orne_waypoints_msgs::Pose &dest){
+    void actionServiceCall(const std::vector<orne_waypoints_msgs::Pose>::iterator &dest){
         fulanghua_srvs::actions _action;
-        _action.request.action = dest.position.action;
-        _action.request.duration = dest.position.duration;
+        _action.request.action = dest->position.action;
+        _action.request.duration = dest->position.duration;
         // action_cmd_srv.call(_action);
         bool initial_goal = false;
         if (action_client.isServerConnected())
         {
             fulanghua_action::special_moveGoal goal;
             // goal.task_id = task_id;
-            goal.command = dest.position.action;
+            goal.command = dest->position.action;
             goal.wp = dest;
-            goal.duration = dest.position.duration;
+            goal.duration = dest->position.duration;
             action_client.sendGoal(goal);
             std::cout <<"publish command:" << goal.command;
             initial_goal = true;
@@ -644,9 +644,7 @@ public:
                         if(actionConfirm(*current_waypoint_)){
                             while(!navigationFinished() && ros::ok()) sleep();
                             has_activate_ = false;
-                            current_waypoint_++;
-                            actionServiceCall(*current_waypoint_);
-                            current_waypoint_--;
+                            actionServiceCall(current_waypoint_);
                             has_activate_ = true;
                         }
                     }
