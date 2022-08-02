@@ -56,6 +56,8 @@ class SpecialMove{
         // }
         if(initial){
           // direction.orientation = tf::createQuaternionMsgFromYaw(angle);
+          
+          origin = dist;
           original_angle =angle;
           // steering = direction.orientation - angle;
           initial = false;
@@ -67,9 +69,14 @@ class SpecialMove{
         // }
         steering = original_angle - angle;
         //rn I only consider the x coordinate for determing the velocity
-        velocity_x = Kp* std::abs(wx-rx) - Kv * std::abs(wx-rx) /interval;
+        if (t!=0){
+          velocity_x = Kp* std::abs(origin - dist) - Kv * std::abs(dist-prev_location)/interval;
+        }else{
+          velocity_x =0.4;
+        }
+        prev_location = dist;
         // twist.linear.x = velocity_x;
-        twist.linear.x = 0.4;
+        twist.linear.x = 0.1;
         twist.angular.z = -steering*0.3;
         printf("cmd_vel_x = %f\n", velocity_x);
         // printf("dist = %f\n", dist);
@@ -82,6 +89,7 @@ class SpecialMove{
         // printf("orientation.y = %f\n", direction.orientation.y);
         printf("steering   = %f\n", steering);
         // printf("orientation.w = %f\n", direction.orientation.w);
+        
         return dist < dist_err;
     }
 
@@ -94,8 +102,8 @@ class SpecialMove{
     actionlib::SimpleActionServer<fulanghua_action::special_moveAction> server;
     const double hz =20;
   private:
-    const double Kp = 0.8;
-    const double Kv = 0.003;
+    const double Kp = 0.02;
+    const double Kv = -0.016;
     orne_waypoints_msgs::Pose direction;
     double velocity_x;
     double rx, ry;
@@ -104,6 +112,9 @@ class SpecialMove{
     bool initial = true;
     double steering;
     double original_angle;
+    double prev_location = 0;
+    double origin;
+    double t =0;
 
     
 };
