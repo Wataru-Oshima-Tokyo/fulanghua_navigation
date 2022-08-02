@@ -46,18 +46,20 @@ class SpecialMove{
         const double dist = std::sqrt(std::pow(wx - rx, 2) + std::pow(wy - ry, 2));
         //get the angle the target from the current position
         double angle = std::atan2((wy-ry),(wx-rx));
-        printf("angle prev = %f\n", angle);
-        if(std::abs(wy-ry)>std::abs(wx-rx)){
-          if(angle>0)
-            angle = radian_90 - angle;
-          else 
-            angle = -(radian_90+angle);
-        }
+        orne_waypoints_msgs::Pose direction;
+        direction.orientation = tf::createQuaternionMsgFromYaw(angle);
+        // printf("angle prev = %f\n", angle);
+        // if(std::abs(wy-ry)>std::abs(wx-rx)){
+        //   if(angle>0)
+        //     angle = radian_90 - angle;
+        //   else 
+        //     angle = -(radian_90+angle);
+        // }
         //rn I only consider the x coordinate for determing the velocity
         velocity_x = Kp* std::abs(wx-rx) - Kv * std::abs(wx-rx) /interval;
         // twist.linear.x = velocity_x;
         twist.linear.x = 0.1;
-        twist.angular.z = angle*0.2;
+        // twist.angular.z = angle*0.2;
         // printf("cmd_vel_x = %f\n", velocity_x);
         // printf("dist = %f\n", dist);
         // printf("ry = %f\n", ry);
@@ -65,6 +67,10 @@ class SpecialMove{
         // printf("wr-ry = %f\n", std::abs(wy-ry));
         // printf("wx - rx = %f\n", std::abs(wx - rx));
         printf("angle = %f\n", angle);
+        printf("orientation.x = %f\n", direction.orientation.x);
+        printf("orientation.y = %f\n", direction.orientation.y);
+        printf("orientation.z = %f\n", direction.orientation.z);
+        printf("orientation.w = %f\n", direction.orientation.w);
         return dist < dist_err;
     }
 
