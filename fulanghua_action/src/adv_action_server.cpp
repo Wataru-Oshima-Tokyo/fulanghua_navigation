@@ -36,6 +36,7 @@ class SpecialMove{
       if (!onNavigationPoint(dest)){
           twist_move_pub.publish(twist);
       }else{
+          initial = true;
           server.setPreempted();
       }
     }
@@ -45,21 +46,26 @@ class SpecialMove{
         const double wy = dest.position.y;
         const double dist = std::sqrt(std::pow(wx - rx, 2) + std::pow(wy - ry, 2));
         //get the angle the target from the current position
-        double angle = std::atan2((wy-ry),(wx-rx));
-        orne_waypoints_msgs::Pose direction;
-        direction.orientation = tf::createQuaternionMsgFromYaw(angle);
+        double angle = std::atan2((wy-ry),(wx-rx)); 
         // printf("angle prev = %f\n", angle);
-        // if(std::abs(wy-ry)>std::abs(wx-rx)){
-        //   if(angle>0)
-        //     angle = radian_90 - angle;
-        //   else 
-        //     angle = -(radian_90+angle);
-        // }
+        if(std::abs(wy-ry)>std::abs(wx-rx)){
+          if(angle>0)
+            angle = radian_90 - angle;
+          else 
+            angle = -(radian_90+angle);
+        }
+        if(initial){
+          // direction.orientation = tf::createQuaternionMsgFromYaw(angle);
+          original_angle =angle;
+          // steering = direction.orientation - angle;
+          initial = false;
+        }
+        steering = original_angle - angle;
         //rn I only consider the x coordinate for determing the velocity
         velocity_x = Kp* std::abs(wx-rx) - Kv * std::abs(wx-rx) /interval;
         // twist.linear.x = velocity_x;
         twist.linear.x = 0.1;
-        twist.angular.z = direction.orientation.z*0.2;
+        twist.angular.z = steering*0.2;
         printf("cmd_vel_x = %f\n", velocity_x);
         // printf("dist = %f\n", dist);
         // printf("ry = %f\n", ry);
@@ -85,11 +91,14 @@ class SpecialMove{
   private:
     const double Kp = 0.2;
     const double Kv = 0.003;
-    
+    orne_waypoints_msgs::Pose direction;
     double velocity_x;
     double rx, ry;
     const double radian_90 = 1.5708;
     const double interval =1/hz;
+    bool initial = true;
+    double steering;
+    double original_angle;
 
     
 };
