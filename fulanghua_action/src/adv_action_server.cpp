@@ -46,7 +46,9 @@ class SpecialMove{
         const double dist = std::sqrt(std::pow(wx - rx, 2) + std::pow(wy - ry, 2));
         //get the angle the target from the current position
         const double angle = std::atan2((wy-ry),(wx-rx));
-
+        if((wy-ry)>(wx-rx)){
+          angle = radian_90 - angle;
+        }
         //rn I only consider the x coordinate for determing the velocity
         velocity_x = Kp* std::abs(wx-rx) - Kv * std::abs(wx-rx) /0.05;
         // twist.linear.x = velocity_x;
@@ -72,6 +74,7 @@ class SpecialMove{
     const double Kv = 0.003;
     double velocity_x;
     double rx, ry;
+    const radian_90 = 1.5708;
 
 
     
