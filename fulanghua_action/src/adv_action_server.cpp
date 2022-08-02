@@ -72,11 +72,11 @@ class SpecialMove{
     ros::Subscriber robot_coordinate_sub;
     geometry_msgs::Twist twist;
     actionlib::SimpleActionServer<fulanghua_action::special_moveAction> server;
-    
+    const double hz =20;
   private:
     const double Kp = 0.2;
     const double Kv = 0.003;
-    const double hz =20;
+    
     double velocity_x;
     double rx, ry;
     const double radian_90 = 1.5708;
