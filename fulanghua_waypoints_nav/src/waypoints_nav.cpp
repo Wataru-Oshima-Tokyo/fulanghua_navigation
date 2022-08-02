@@ -644,7 +644,7 @@ public:
                         if(actionConfirm(*current_waypoint_)){
                             while(!navigationFinished() && ros::ok()) sleep();
                             has_activate_ = false;
-                            actionServiceCall(*current_waypoint_);
+                            actionServiceCall(*current_waypoint_+1);
                             has_activate_ = true;
                         }
                     }
