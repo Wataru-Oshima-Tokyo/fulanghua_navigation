@@ -46,8 +46,11 @@ class SpecialMove{
         const double dist = std::sqrt(std::pow(wx - rx, 2) + std::pow(wy - ry, 2));
         //get the angle the target from the current position
         const double angle = std::atan2((wy-ry),(wx-rx));
-        if((wy-ry)>(wx-rx)){
-          angle = radian_90 - angle;
+        if(std::abs(wy-ry)>std::abs(wx-rx)){
+          if(angle>0)
+            angle = radian_90 - angle;
+          else 
+            angle = -(radian_90+angle);
         }
         //rn I only consider the x coordinate for determing the velocity
         velocity_x = Kp* std::abs(wx-rx) - Kv * std::abs(wx-rx) /0.05;
