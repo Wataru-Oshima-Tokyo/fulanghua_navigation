@@ -77,7 +77,7 @@ class SpecialMove{
     const double Kv = 0.003;
     double velocity_x;
     double rx, ry;
-    const radian_90 = 1.5708;
+    const double radian_90 = 1.5708;
 
 
     
