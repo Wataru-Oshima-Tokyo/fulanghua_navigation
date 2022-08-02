@@ -53,7 +53,7 @@ class SpecialMove{
             angle = -(radian_90+angle);
         }
         //rn I only consider the x coordinate for determing the velocity
-        velocity_x = Kp* std::abs(wx-rx) - Kv * std::abs(wx-rx) /0.05;
+        velocity_x = Kp* std::abs(wx-rx) - Kv * std::abs(wx-rx) /interval;
         // twist.linear.x = velocity_x;
         twist.linear.x = 0.1;
         printf("cmd_vel_x = %f\n", velocity_x);
@@ -75,10 +75,11 @@ class SpecialMove{
   private:
     const double Kp = 0.2;
     const double Kv = 0.003;
+    const double hz =20;
     double velocity_x;
     double rx, ry;
     const double radian_90 = 1.5708;
-
+    const double interval =1/hz;
 
     
 };
@@ -92,7 +93,7 @@ int main(int argc, char** argv)
   ros::init(argc, argv, "task_server");
   SpecialMove SpM;
   ros::Time start_time;
-  ros::Rate loop_rate(20);
+  ros::Rate loop_rate(SpM.hz);
   // Server server;
   SpM.twist_postgure_pub = SpM.nh.advertise<geometry_msgs::Twist>(SpM.cmd_vel_posture,1000);
   SpM.twist_move_pub = SpM.nh.advertise<geometry_msgs::Twist>(SpM.cmd_vel_,1000);
