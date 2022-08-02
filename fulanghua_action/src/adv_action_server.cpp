@@ -59,6 +59,8 @@ class SpecialMove{
         twist.angular.z = angle*10;
         printf("cmd_vel_x = %f\n", velocity_x);
         printf("dist = %f\n", dist);
+        printf("ry = %f\n", ry);
+        printf("rx = %f\n", rx);
         printf("wr-ry = %f\n", std::abs(wy-ry));
         printf("wx - rx = %f\n", std::abs(wx - rx));
         printf("angle = %f\n", angle);
