@@ -503,12 +503,14 @@ public:
             fulanghua_action::special_moveGoal goal;
             // goal.task_id = task_id;
             goal.command = dest->position.action;
-            if(dest->position.action == "p2p"){
+            if(dest->position.action == "p2p" && !REVERSE){
                 std::vector<orne_waypoints_msgs::Pose>::iterator next = dest+1;
                 goal.wp.position = next->position;
                 goal.wp.orientation = next->orientation;
-            }else{
-
+            }else if (dest->position.action == "p2p" && REVERSE){
+                std::vector<orne_waypoints_msgs::Pose>::iterator next = dest-1;
+                goal.wp.position = next->position;
+                goal.wp.orientation = next->orientation;
             }
             goal.duration = dest->position.duration;
             action_client.sendGoal(goal);
