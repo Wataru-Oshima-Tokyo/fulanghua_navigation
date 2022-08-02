@@ -503,7 +503,11 @@ public:
             fulanghua_action::special_moveGoal goal;
             // goal.task_id = task_id;
             goal.command = dest->position.action;
-            goal.wp = dest;
+            if(dest->position.action == "p2p"){
+                std::vector<orne_waypoints_msgs::Pose>::iterator next = dest++;
+                goal.wp.position = next->position;
+                goal.wp.orientation = next->orientation;
+            }
             goal.duration = dest->position.duration;
             action_client.sendGoal(goal);
             std::cout <<"publish command:" << goal.command;
