@@ -80,7 +80,7 @@ class SpecialMove{
         printf("angle = %f\n", angle);
         // printf("orientation.x = %f\n", direction.orientation.x);
         // printf("orientation.y = %f\n", direction.orientation.y);
-        printf("orientation.z = %f\n", direction.orientation.z);
+        printf("steering   = %f\n", steering);
         // printf("orientation.w = %f\n", direction.orientation.w);
         return dist < dist_err;
     }
@@ -94,7 +94,7 @@ class SpecialMove{
     actionlib::SimpleActionServer<fulanghua_action::special_moveAction> server;
     const double hz =20;
   private:
-    const double Kp = 0.2;
+    const double Kp = 0.8;
     const double Kv = 0.003;
     orne_waypoints_msgs::Pose direction;
     double velocity_x;
