@@ -69,7 +69,7 @@ class SpecialMove{
         //rn I only consider the x coordinate for determing the velocity
         velocity_x = Kp* std::abs(wx-rx) - Kv * std::abs(wx-rx) /interval;
         // twist.linear.x = velocity_x;
-        twist.linear.x = 0.1;
+        twist.linear.x = 0.4;
         twist.angular.z = -steering*0.3;
         printf("cmd_vel_x = %f\n", velocity_x);
         // printf("dist = %f\n", dist);
