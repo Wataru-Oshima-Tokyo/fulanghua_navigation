@@ -59,18 +59,18 @@ class SpecialMove{
         velocity_x = Kp* std::abs(wx-rx) - Kv * std::abs(wx-rx) /interval;
         // twist.linear.x = velocity_x;
         twist.linear.x = 0.1;
-        twist.angular.z = direction.orientation.z;
-        // printf("cmd_vel_x = %f\n", velocity_x);
+        twist.angular.z = direction.orientation.z*0.2;
+        printf("cmd_vel_x = %f\n", velocity_x);
         // printf("dist = %f\n", dist);
         // printf("ry = %f\n", ry);
         // printf("rx = %f\n", rx);
         // printf("wr-ry = %f\n", std::abs(wy-ry));
         // printf("wx - rx = %f\n", std::abs(wx - rx));
         printf("angle = %f\n", angle);
-        printf("orientation.x = %f\n", direction.orientation.x);
-        printf("orientation.y = %f\n", direction.orientation.y);
+        // printf("orientation.x = %f\n", direction.orientation.x);
+        // printf("orientation.y = %f\n", direction.orientation.y);
         printf("orientation.z = %f\n", direction.orientation.z);
-        printf("orientation.w = %f\n", direction.orientation.w);
+        // printf("orientation.w = %f\n", direction.orientation.w);
         return dist < dist_err;
     }
 
