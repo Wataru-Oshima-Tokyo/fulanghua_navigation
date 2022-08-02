@@ -504,9 +504,11 @@ public:
             // goal.task_id = task_id;
             goal.command = dest->position.action;
             if(dest->position.action == "p2p"){
-                std::vector<orne_waypoints_msgs::Pose>::iterator next = dest++;
+                std::vector<orne_waypoints_msgs::Pose>::iterator next = dest+1;
                 goal.wp.position = next->position;
                 goal.wp.orientation = next->orientation;
+            }else{
+
             }
             goal.duration = dest->position.duration;
             action_client.sendGoal(goal);
