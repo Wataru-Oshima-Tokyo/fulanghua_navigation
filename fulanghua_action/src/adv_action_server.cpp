@@ -45,7 +45,7 @@ class SpecialMove{
         const double wy = dest.position.y;
         const double dist = std::sqrt(std::pow(wx - rx, 2) + std::pow(wy - ry, 2));
         //get the angle the target from the current position
-        const double angle = std::asin(dist/std::abs(wy-ry));
+        const double angle = std::asin(std::abs(wy-ry)/dist);
 
         //rn I only consider the x coordinate for determing the velocity
         velocity_x = Kp* std::abs(wx-rx) - Kv * std::abs(wx-rx) /0.05;
@@ -54,7 +54,7 @@ class SpecialMove{
         printf("cmd_vel_x = %f\n", velocity_x);
         printf("dist = %f\n", dist);
         printf("wr-ry = %f\n", std::abs(wy-ry));
-        printf("wr-ry = %f\n", std::abs(wx - rx));
+        printf("wx - rx = %f\n", std::abs(wx - rx));
         printf("angle = %f\n", angle);
         return dist < dist_err;
     }
