@@ -46,7 +46,7 @@ class SpecialMove{
         const double dist = std::sqrt(std::pow(wx - rx, 2) + std::pow(wy - ry, 2));
         //get the angle the target from the current position
         double angle = std::atan2((wy-ry),(wx-rx));
-        printf("angle prev = %f\n", angle)
+        printf("angle prev = %f\n", angle);
         if(std::abs(wy-ry)>std::abs(wx-rx)){
           if(angle>0)
             angle = radian_90 - angle;
