@@ -48,18 +48,23 @@ class SpecialMove{
         //get the angle the target from the current position
         double angle = std::atan2((wy-ry),(wx-rx)); 
         // printf("angle prev = %f\n", angle);
-        if(std::abs(wy-ry)>std::abs(wx-rx)){
-          if(angle>0)
-            angle = radian_90 - angle;
-          else 
-            angle = -(radian_90+angle);
-        }
+        // if(std::abs(wy-ry)>std::abs(wx-rx)){
+          // if(angle>0)
+          //   angle = radian_90 - angle;
+          // else 
+          //   angle = -(radian_90+angle);
+        // }
         if(initial){
           // direction.orientation = tf::createQuaternionMsgFromYaw(angle);
           original_angle =angle;
           // steering = direction.orientation - angle;
           initial = false;
         }
+        // if(original_angle>0){
+        //   steering = original_angle - angle;
+        // }else{
+        //   steering = original_angle + angle;
+        // }
         steering = original_angle - angle;
         //rn I only consider the x coordinate for determing the velocity
         velocity_x = Kp* std::abs(wx-rx) - Kv * std::abs(wx-rx) /interval;
