@@ -53,6 +53,7 @@ class SpecialMove{
         twist.linear.x = 0.1;
         printf("cmd_vel_x = %f\n", velocity_x);
         printf("dist = %f\n", dist);
+        printf("wr-ry = %f\n", std::abs(wy-ry));
         printf("angle = %f\n", angle);
         return dist < dist_err;
     }
