@@ -56,7 +56,7 @@ class SpecialMove{
         velocity_x = Kp* std::abs(wx-rx) - Kv * std::abs(wx-rx) /interval;
         // twist.linear.x = velocity_x;
         twist.linear.x = 0.1;
-        twist.angular.z = angle*0.1;
+        twist.angular.z = angle*0.5;
         printf("cmd_vel_x = %f\n", velocity_x);
         printf("dist = %f\n", dist);
         printf("ry = %f\n", ry);
