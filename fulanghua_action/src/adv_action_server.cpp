@@ -70,8 +70,12 @@ class SpecialMove{
         steering = original_angle - angle;
         //rn I only consider the x coordinate for determing the velocity
         if (t!=0){
+          //PD
           velocity_x = Kp* std::abs(origin - dist) - Kv * std::abs(dist-prev_location)/interval;
+          velocity_x = Kp* std::abs(origin - dist);
           velocity_x = std::min(0.4,velocity_x);
+          velocity_x = std::max(0.1, velocity_x);
+
         }else{
           velocity_x =0.4;
         }
@@ -105,7 +109,7 @@ class SpecialMove{
     actionlib::SimpleActionServer<fulanghua_action::special_moveAction> server;
     const double hz =20;
   private:
-    const double Kp = 0.02;
+    const double Kp = 0.3;
     const double Kv = -0.016;
     orne_waypoints_msgs::Pose direction;
     double velocity_x;
