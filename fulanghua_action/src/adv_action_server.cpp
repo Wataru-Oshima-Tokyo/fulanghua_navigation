@@ -84,7 +84,7 @@ class SpecialMove{
           }else{
               prev_diff = diff;
           }
-          velocity_x = Kp* std::abs(dist) - Kv * diff)/interval;
+          velocity_x = Kp* std::abs(dist) - Kv * diff/interval;
           //P
           // velocity_x = Kp* std::abs(dist);
           temp = velocity_x;
