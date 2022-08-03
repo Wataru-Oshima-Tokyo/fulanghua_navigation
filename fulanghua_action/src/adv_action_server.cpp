@@ -73,13 +73,15 @@ class SpecialMove{
         // }
         steering = original_angle - angle;
         //rn I only consider the x coordinate for determing the velocity
+        double temp;
         if (t!=0){
           //PD
           velocity_x = Kp* std::abs(dist) - Kv * std::abs(dist-prev_location)/interval;
           //P
           velocity_x = Kp* std::abs(dist);
-          velocity_x = std::min(0.4,velocity_x);
-          velocity_x = std::max(0.1, velocity_x);
+          temp = velocity_x;
+          velocity_x = std::min(max_vel,velocity_x);
+          velocity_x = std::max(min_vel, velocity_x);
 
         }else{
           velocity_x =0.4;
@@ -90,16 +92,17 @@ class SpecialMove{
         twist.linear.x = velocity_x;
         twist.angular.z = -steering*0.3;
         printf("cmd_vel_x = %f\n", velocity_x);
-        printf("dist = %f\n", dist);
+        printf("calculated velocity %f\n", temp);
+        // printf("dist = %f\n", dist);
         
-        // printf("ry = %f\n", ry);
-        // printf("rx = %f\n", rx);
-        // printf("wr-ry = %f\n", std::abs(wy-ry));
-        // printf("wx - rx = %f\n", std::abs(wx - rx));
-        printf("angle = %f\n", angle);
-        // printf("orientation.x = %f\n", direction.orientation.x);
-        // printf("orientation.y = %f\n", direction.orientation.y);
-        printf("steering   = %f\n", steering);
+        // // printf("ry = %f\n", ry);
+        // // printf("rx = %f\n", rx);
+        // // printf("wr-ry = %f\n", std::abs(wy-ry));
+        // // printf("wx - rx = %f\n", std::abs(wx - rx));
+        // printf("angle = %f\n", angle);
+        // // printf("orientation.x = %f\n", direction.orientation.x);
+        // // printf("orientation.y = %f\n", direction.orientation.y);
+        // printf("steering   = %f\n", steering);
         // printf("orientation.w = %f\n", direction.orientation.w);
         t++;
         return dist < dist_err;
@@ -114,7 +117,7 @@ class SpecialMove{
     actionlib::SimpleActionServer<fulanghua_action::special_moveAction> server;
     const double hz =20;
   private:
-    const double Kp = 0.3;
+    const double Kp = 0.2;
     const double Kv = -0.016;
     orne_waypoints_msgs::Pose direction;
     double velocity_x;
