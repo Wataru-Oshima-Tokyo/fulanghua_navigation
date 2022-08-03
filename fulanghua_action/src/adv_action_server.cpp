@@ -24,6 +24,7 @@ class SpecialMove{
           max_vel = std::stod(max_vel_);
           min_vel = std::stod(min_vel_);
           private_nh.param("dist_err", _dist_err, std::string("0.8"));
+          dist_err_ = std::stod(_dist_err);
           server.start();
     }
 
@@ -46,7 +47,7 @@ class SpecialMove{
       }
     }
 
-    bool onNavigationPoint(const orne_waypoints_msgs::Pose &dest, double dist_err = 0.8){
+    bool onNavigationPoint(const orne_waypoints_msgs::Pose &dest, double dist_err = dist_err_){
         const double wx = dest.position.x;
         const double wy = dest.position.y;
         const double dist = std::sqrt(std::pow(wx - rx, 2) + std::pow(wy - ry, 2));
@@ -130,6 +131,7 @@ class SpecialMove{
     orne_waypoints_msgs::Pose direction;
     double velocity_x;
     double rx, ry;
+    double dist_err_ = 0;
     const double radian_90 = 1.5708;
     const double interval =1/hz;
     bool initial = true;

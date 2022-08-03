@@ -2,7 +2,7 @@
 <launch>
   
 <arg name="waypoints_file" default="$(find orne_waypoints_editor)/waypoints_cfg/waypoints.yaml"/>
-<arg name="dist_err"       default="0.8"/>
+<arg name="dist_err"       default="0.4"/>
 <arg name="cmd_vel"         default="cmd_vel"/>
 <arg name="max_vel"         default="0.4"/>
 <arg name="min_vel"         default="0.1"/>
