@@ -21,8 +21,8 @@ class SpecialMove{
           private_nh.param("cmd_vel_", cmd_vel_, std::string("cmd_vel"));
           private_nh.param("max_vel_", max_vel_, std::string("0.4"));
           private_nh.param("min_vel_", min_vel_, std::string("0.1"));
-          max_vel = std::stof(max_vel_);
-          min_vel = std::stof(min_vel_);
+          max_vel = std::stod(max_vel_);
+          min_vel = std::stod(min_vel_);
           private_nh.param("dist_err", _dist_err, std::string("0.8"));
           server.start();
     }
