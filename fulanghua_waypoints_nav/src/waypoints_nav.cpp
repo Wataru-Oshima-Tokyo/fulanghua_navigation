@@ -674,12 +674,13 @@ public:
                             has_activate_ = false;
                             actionServiceCall(current_waypoint_);
                             if (p2p_flag){
+                                ROS_WARN("reversed p2p");
                                 current_waypoint_->position.action = temp_action;
                                 current_waypoint_--;
                                 startNavigationGL(*current_waypoint_);
                                 while(!navigationFinished() && ros::ok()) sleep();
                                 current_waypoint_->position.action ="p2p";
-                                p2p_flag = true;
+                                p2p_flag = false;
                             } 
                             has_activate_ = false;
                         }
