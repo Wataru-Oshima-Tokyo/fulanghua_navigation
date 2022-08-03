@@ -73,7 +73,7 @@ class SpecialMove{
         // }
         steering = original_angle - angle;
         //rn I only consider the x coordinate for determing the velocity
-        double temp;
+        double temp=0;
         if (t!=0){
           //PD
           velocity_x = Kp* std::abs(dist) - Kv * std::abs(dist-prev_location)/interval;
