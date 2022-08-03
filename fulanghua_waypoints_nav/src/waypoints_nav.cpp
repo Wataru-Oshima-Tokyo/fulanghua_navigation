@@ -507,7 +507,7 @@ public:
                 std::vector<orne_waypoints_msgs::Pose>::iterator next = dest+1;
                 goal.wp.position = next->position;
                 goal.wp.orientation = next->orientation;
-            }else if (dest->position.action == "p2p" && REVERSE){
+            }else if (dest->position.action == "p2p" && _reached && REVERSE){
                 std::vector<orne_waypoints_msgs::Pose>::iterator prev = dest-1;
                 goal.wp.position = prev->position;
                 goal.wp.orientation = prev->orientation;
@@ -583,7 +583,6 @@ public:
         return _charging_waypoint;
     }
     void run(){
-        bool _reached = false;
         while(ros::ok()){
             getRobotPosGL();
             try {
@@ -603,7 +602,7 @@ public:
                         ROS_INFO("calculate waypoint direction");
                         ROS_INFO_STREAM("goal_direction = " << current_waypoint_->orientation);
                         if(REVERSE && _reached){
-                            ROS_INFO_STREAM("current_waypoint_+1 " << (current_waypoint_-1)->position.y);
+                            ROS_INFO_STREAM("current_waypoint_-1 " << (current_waypoint_-1)->position.y);
                         }else{
                             ROS_INFO_STREAM("current_waypoint_+1 " << (current_waypoint_+1)->position.y);
                         }
@@ -652,11 +651,29 @@ public:
                         has_activate_ = false;
                         while(!chargingFinished() && ros::ok()) sleep();
                     }else{
+                        
+                        std::string temp_action ="";
+                        if(_reached && REVERSE){
+                            if((current_waypoint_-1)->position.action =="p2p"){
+                                temp_action = current_waypoint_->position.action;
+                                current_waypoint_->position.action ="p2p";
+                                (current_waypoint_-1)->position.action =="passthrough";
+                                p2p_flag = true;
+                            }
+                        }
                         if(actionConfirm(*current_waypoint_)){
                             while(!navigationFinished() && ros::ok()) sleep();
                             has_activate_ = false;
                             actionServiceCall(current_waypoint_);
-                            has_activate_ = true;
+                            if (p2p_flag){
+                                current_waypoint_->position.action = temp_action;
+                                current_waypoint_--;
+                                startNavigationGL(*current_waypoint_);
+                                while(!navigationFinished() && ros::ok()) sleep();
+                                current_waypoint_->position.action ="p2p";
+                                p2p_flag = true;
+                            } 
+                            has_activate_ = false;
                         }
                     }
                     
@@ -728,6 +745,8 @@ private:
     bool action_finished = false;
     bool CHARGE =false;
     bool CHARGING_STATION=false;
+    bool _reached = false;
+    bool p2p_flag =false;
 };
 
 int main(int argc, char *argv[]){
