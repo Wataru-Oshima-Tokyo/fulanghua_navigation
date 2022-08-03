@@ -89,7 +89,7 @@ class SpecialMove{
         // printf("orientation.y = %f\n", direction.orientation.y);
         printf("steering   = %f\n", steering);
         // printf("orientation.w = %f\n", direction.orientation.w);
-        
+        t++;
         return dist < dist_err;
     }
 
