@@ -230,7 +230,6 @@ public:
 
     bool resumePoseCallback(std_srvs::Empty::Request &request, std_srvs::Empty::Request &response) {
         if(has_activate_) {
-            response.status = false;
             return false;
         }
         tf::StampedTransform robot_gl = getRobotPosGL();
@@ -249,7 +248,6 @@ public:
             }
         }
         
-        response.status = true;
         has_activate_ = true;
 
         return true;
