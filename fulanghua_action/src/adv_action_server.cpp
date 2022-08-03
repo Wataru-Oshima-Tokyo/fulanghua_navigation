@@ -76,9 +76,15 @@ class SpecialMove{
         steering = original_angle - angle;
         //rn I only consider the x coordinate for determing the velocity
         double temp=0;
+        double diff = std::abs(dist-prev_location);
         if (t!=0){
           //PD
-          velocity_x = Kp* std::abs(dist) - Kv * std::abs(dist-prev_location)/interval;
+          if(diff ==0){
+              diff = prev_diff;
+          }else{
+              prev_diff = diff;
+          }
+          velocity_x = Kp* std::abs(dist) - Kv * diff)/interval;
           //P
           // velocity_x = Kp* std::abs(dist);
           temp = velocity_x;
@@ -120,7 +126,7 @@ class SpecialMove{
     const double hz =20;
   private:
     const double Kp = 0.5;
-    const double Kv = 1.08;
+    const double Kv = 0.4775;
     orne_waypoints_msgs::Pose direction;
     double velocity_x;
     double rx, ry;
@@ -135,7 +141,7 @@ class SpecialMove{
     double max_vel =0;
     double min_vel =0;
     double t =0;
-
+    double prev_diff=0;
     
 };
 
