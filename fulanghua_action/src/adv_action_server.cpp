@@ -72,6 +72,7 @@ class SpecialMove{
         if (t!=0){
           //PD
           velocity_x = Kp* std::abs(origin - dist) - Kv * std::abs(dist-prev_location)/interval;
+          //P
           velocity_x = Kp* std::abs(origin - dist);
           velocity_x = std::min(0.4,velocity_x);
           velocity_x = std::max(0.1, velocity_x);
@@ -82,7 +83,7 @@ class SpecialMove{
         printf("dx: %f\n", (dist-prev_location));
         prev_location = dist;
         // twist.linear.x = velocity_x;
-        twist.linear.x = 0.1;
+        twist.linear.x = velocity_x;
         twist.angular.z = -steering*0.3;
         printf("cmd_vel_x = %f\n", velocity_x);
         printf("dist = %f\n", dist);
