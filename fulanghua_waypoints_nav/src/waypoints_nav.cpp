@@ -496,7 +496,6 @@ public:
         fulanghua_srvs::actions _action;
         _action.request.action = dest->position.action;
         _action.request.duration = dest->position.duration;
-        // action_cmd_srv.call(_action);
         bool initial_goal = false;
         if (action_client.isServerConnected())
         {
@@ -660,7 +659,6 @@ public:
                         has_activate_ = false;
                         while(!chargingFinished() && ros::ok()) sleep();
                     }else{
-                        
                         std::string temp_action ="";
                         if(_reached && REVERSE){
                             if((current_waypoint_-1)->position.action =="p2p"){

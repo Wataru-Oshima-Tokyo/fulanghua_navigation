@@ -15,6 +15,7 @@
     <param name="cmd_vel"  value="$(arg cmd_vel)" />
   </node>
   <node name="action_server" pkg="fulanghua_action" type="adv_action_server" output="screen">
+     <param name="dist_err" value="$(arg dist_err)"/> 
      <param name="cmd_vel"  value="$(arg cmd_vel)" />
      <param name="max_vel"  value="$(arg max_vel)" />
      <param name="min_vel"  value="$(arg min_vel)" />

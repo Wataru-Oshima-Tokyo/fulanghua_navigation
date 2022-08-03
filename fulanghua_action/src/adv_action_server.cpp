@@ -90,7 +90,7 @@ class SpecialMove{
           // velocity_x = Kp* std::abs(dist);
           temp = velocity_x;
           velocity_x = std::min(max_vel,velocity_x);
-          velocity_x = std::max(min_vel, velocity_x);
+          velocity_x = std::max(min_vel,velocity_x);
 
         }else{
           velocity_x =0.4;
