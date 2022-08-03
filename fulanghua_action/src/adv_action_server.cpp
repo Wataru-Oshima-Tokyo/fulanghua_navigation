@@ -21,9 +21,9 @@ class SpecialMove{
           private_nh.param("cmd_vel", cmd_vel_, std::string("cmd_vel"));
           private_nh.param("max_vel", max_vel_, std::string("0.4"));
           private_nh.param("min_vel", min_vel_, std::string("0.1"));
+          private_nh.param("dist_err", _dist_err, std::string("0.8"));
           max_vel = std::stod(max_vel_);
           min_vel = std::stod(min_vel_);
-          private_nh.param("dist_err", _dist_err, std::string("0.8"));
           dist_err = std::stod(_dist_err);
           server.start();
     }
@@ -44,6 +44,7 @@ class SpecialMove{
           initial = true;
           t=0;
           server.setPreempted();
+          printf("Preempt Goal\n");
       }
     }
 
