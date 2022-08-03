@@ -527,6 +527,7 @@ public:
                 //     printf("Current State: %s\n", action_client.getState().toString().c_str());
                 sleep();
             }
+            printf("Action finished\n");
         }   
         rate_.sleep();
     }
