@@ -541,9 +541,9 @@ public:
         tf::Matrix3x3 m(q);
         double roll, pitch, yaw;
         m.getRPY(roll, pitch, yaw);
-        ofs << "initial_pose_x:" << robot_gl.getOrigin().x()  <<std::endl;
-        ofs << "initial_pose_y:" << robot_gl.getOrigin().y() <<std::endl;
-        ofs << "initial_pose_a:" << yaw << std::endl;
+        ofs << "initial_pose_x: " << robot_gl.getOrigin().x()  <<std::endl;
+        ofs << "initial_pose_y: " << robot_gl.getOrigin().y() <<std::endl;
+        ofs << "initial_pose_a: " << yaw << std::endl;
         // printf("yaw: %f\n", yaw);
         ofs.close();
     }
