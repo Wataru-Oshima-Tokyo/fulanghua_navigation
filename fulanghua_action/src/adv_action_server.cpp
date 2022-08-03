@@ -78,7 +78,7 @@ class SpecialMove{
           //PD
           velocity_x = Kp* std::abs(dist) - Kv * std::abs(dist-prev_location)/interval;
           //P
-          velocity_x = Kp* std::abs(dist);
+          // velocity_x = Kp* std::abs(dist);
           temp = velocity_x;
           velocity_x = std::min(max_vel,velocity_x);
           velocity_x = std::max(min_vel, velocity_x);
@@ -118,7 +118,7 @@ class SpecialMove{
     const double hz =20;
   private:
     const double Kp = 0.5;
-    const double Kv = -0.016;
+    const double Kv = 2.16;
     orne_waypoints_msgs::Pose direction;
     double velocity_x;
     double rx, ry;
