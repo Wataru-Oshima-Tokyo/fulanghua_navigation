@@ -57,7 +57,7 @@ class SpecialMove{
         if(initial){
           // direction.orientation = tf::createQuaternionMsgFromYaw(angle);
           
-          origin = dist;
+          // origin = dist;
           original_angle =angle;
           // steering = direction.orientation - angle;
           initial = false;
@@ -73,7 +73,7 @@ class SpecialMove{
           //PD
           velocity_x = Kp* std::abs(dist) - Kv * std::abs(dist-prev_location)/interval;
           //P
-          velocity_x = Kp* std::abs(origin - dist);
+          velocity_x = Kp* std::abs(dist);
           velocity_x = std::min(0.4,velocity_x);
           velocity_x = std::max(0.1, velocity_x);
 
