@@ -81,7 +81,7 @@ class SpecialMove{
         twist.angular.z = -steering*0.3;
         printf("cmd_vel_x = %f\n", velocity_x);
         printf("dist = %f\n", dist);
-        print("dx: %f\n", (dist-prev_location));
+        printf("dx: %f\n", (dist-prev_location));
         // printf("ry = %f\n", ry);
         // printf("rx = %f\n", rx);
         // printf("wr-ry = %f\n", std::abs(wy-ry));
