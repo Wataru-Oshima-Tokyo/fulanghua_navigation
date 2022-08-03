@@ -19,6 +19,10 @@ class SpecialMove{
           ros::NodeHandle private_nh("~");
           private_nh.param("cmd_vel_posture", cmd_vel_posture, std::string("cmd_vel_posture_"));
           private_nh.param("cmd_vel_", cmd_vel_, std::string("cmd_vel"));
+          private_nh.param("max_vel_", max_vel_, std::string("0.4"));
+          private_nh.param("min_vel_", min_vel_, std::string("0.1"));
+          max_vel = std::stof(max_vel_);
+          min_vel = std::stof(min_vel_);
           private_nh.param("dist_err", _dist_err, std::string("0.8"));
           server.start();
     }
@@ -121,7 +125,10 @@ class SpecialMove{
     double steering;
     double original_angle;
     double prev_location = 0;
-    double origin;
+    std::string max_vel_;
+    std::string min_vel_;
+    double max_vel =0;
+    double min_vel =0;
     double t =0;
 
     
