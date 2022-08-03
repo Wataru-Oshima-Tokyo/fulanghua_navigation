@@ -71,7 +71,7 @@ class SpecialMove{
         //rn I only consider the x coordinate for determing the velocity
         if (t!=0){
           //PD
-          velocity_x = Kp* std::abs(origin - dist) - Kv * std::abs(dist-prev_location)/interval;
+          velocity_x = Kp* std::abs(dist) - Kv * std::abs(dist-prev_location)/interval;
           //P
           velocity_x = Kp* std::abs(origin - dist);
           velocity_x = std::min(0.4,velocity_x);
