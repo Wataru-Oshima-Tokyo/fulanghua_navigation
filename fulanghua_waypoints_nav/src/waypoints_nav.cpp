@@ -534,16 +534,16 @@ public:
     void location_update(const tf::StampedTransform& robot_gl){
         std::ofstream ofs(amcl_filename_.c_str(), std::ios::out);
         tf::Quaternion q(
-                robot_gl.getRotation().orientation.x,
-                robot_gl.getRotation()orientation.y,
-                robot_gl.getRotation()orientation.z,
-                robot_gl.getRotation()orientation.w);
+                robot_gl.getRotation().x(),
+                robot_gl.getRotation().y(),
+                robot_gl.getRotation().z(),
+                robot_gl.getRotation().w());
             tf::Matrix3x3 m(q);
             double roll, pitch, yaw;
             m.getRPY(roll, pitch, yaw);
         ofs << "initial_pose_x:" << robot_gl.getOrigin().x()  <<std::endl;
         ofs << "initial_pose_x:" << robot_gl.getOrigin().y() std::endl;
-        ofs << "initial_pose_x:" << yaw m std::endl;
+        ofs << "initial_pose_x:" << yaw <<std::endl;
         printf("yaw: %f\n", yaw);
         
 
