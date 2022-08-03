@@ -538,15 +538,13 @@ public:
                 robot_gl.getRotation().y(),
                 robot_gl.getRotation().z(),
                 robot_gl.getRotation().w());
-            tf::Matrix3x3 m(q);
-            double roll, pitch, yaw;
-            m.getRPY(roll, pitch, yaw);
+        tf::Matrix3x3 m(q);
+        double roll, pitch, yaw;
+        m.getRPY(roll, pitch, yaw);
         ofs << "initial_pose_x:" << robot_gl.getOrigin().x()  <<std::endl;
         ofs << "initial_pose_y:" << robot_gl.getOrigin().y() <<std::endl;
-        ofs << "initial_pose_a:" << yaw <<std::endl;
-        printf("yaw: %f\n", yaw);
-        
-
+        ofs << "initial_pose_a:" << yaw << std::endl;
+        // printf("yaw: %f\n", yaw);
         ofs.close();
     }
     void startNavigationGL(const orne_waypoints_msgs::Pose &dest){
