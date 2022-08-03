@@ -117,7 +117,7 @@ public:
         start_server_ = nh.advertiseService("start_wp_nav", &WaypointsNavigation::startNavigationCallback, this);
         pause_server_ = nh.advertiseService("pause_wp_nav", &WaypointsNavigation::pauseNavigationCallback,this);
         unpause_server_ = nh.advertiseService("unpause_wp_nav", &WaypointsNavigation::unpauseNavigationCallback,this);
-        stop_server_ = nh.advertiseService("stop_wp_nav", &WaypointsNavigation::pauseNavigationCallback,this);
+        stop_server_ = nh.advertiseService("stop_wp_nav", &WaypointsNavigation::stopNavigationCallback,this);
         suspend_server_ = nh.advertiseService("suspend_wp_pose", &WaypointsNavigation::suspendPoseCallback, this);
         resume_server_ = nh.advertiseService("resume_wp_pose", &WaypointsNavigation::resumePoseCallback, this);
         search_server_ = nh.advertiseService("near_wp_nav",&WaypointsNavigation::searchPoseCallback, this);
