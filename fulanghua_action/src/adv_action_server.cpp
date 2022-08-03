@@ -41,6 +41,7 @@ class SpecialMove{
           twist_move_pub.publish(twist);
       }else{
           initial = true;
+          t=0;
           server.setPreempted();
       }
     }
@@ -65,6 +66,7 @@ class SpecialMove{
           original_angle =angle;
           // steering = direction.orientation - angle;
           initial = false;
+
         }
         // if(original_angle>0){
         //   steering = original_angle - angle;
@@ -93,7 +95,7 @@ class SpecialMove{
         twist.angular.z = -steering*0.3;
         printf("cmd_vel_x = %f\n", velocity_x);
         printf("calculated velocity %f\n", temp);
-        // printf("dist = %f\n", dist);
+        printf("dist = %f\n", dist);
         
         // // printf("ry = %f\n", ry);
         // // printf("rx = %f\n", rx);
