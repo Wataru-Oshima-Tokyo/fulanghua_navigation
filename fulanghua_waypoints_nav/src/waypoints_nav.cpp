@@ -75,7 +75,8 @@ public:
         action_client("action", true),
         rate_(10),
         last_moved_time_(0),
-        dist_err_(0.8)
+        dist_err_(0.8),
+        amcl_filename_("")
     {
         while((move_base_action_.waitForServer(ros::Duration(1.0)) == false) && (ros::ok() == true))
         {
@@ -87,7 +88,7 @@ public:
         private_nh.param("world_frame", world_frame_, std::string("map"));
         private_nh.param("cmd_vel", cmd_vel_, std::string("cmd_vel"));
         private_nh.param("charge_topic", CHARGE_TOPIC, std::string("charge"));
-        
+        private_nh.param("amcl_filename", amcl_filename_,amcl_filename_);
         double max_update_rate;
         private_nh.param("max_update_rate", max_update_rate, 10.0);
         rate_ = ros::Rate(max_update_rate);
@@ -475,6 +476,7 @@ public:
             tf_listener_.lookupTransform(world_frame_, robot_frame_, ros::Time(0.0), robot_gl);
             pt.x = robot_gl.getOrigin().x();
             pt.y = robot_gl.getOrigin().y();
+            location_update(robot_gl);
             robot_coordinate_pub.publish(pt);
         }catch(tf::TransformException &e){
             ROS_WARN_STREAM("tf::TransformException: " << e.what());
@@ -529,13 +531,24 @@ public:
         rate_.sleep();
     }
 
-    // void startNavigationGL(const orne_waypoints_msgs::Waypoint &dest){
-    //     orne_waypoints_msgs::Pose pose;
-    //     pose.position = dest;
-    //     pose.orientation = tf::createQuaternionMsgFromYaw(0.0);
-    //     startNavigationGL(pose);
-    // }
+    void location_update(const tf::StampedTransform& robot_gl){
+        std::ofstream ofs(amcl_filename_.c_str(), std::ios::out);
+        tf::Quaternion q(
+                robot_gl.getRotation().orientation.x,
+                robot_gl.getRotation()orientation.y,
+                robot_gl.getRotation()orientation.z,
+                robot_gl.getRotation()orientation.w);
+            tf::Matrix3x3 m(q);
+            double roll, pitch, yaw;
+            m.getRPY(roll, pitch, yaw);
+        ofs << "initial_pose_x:" << robot_gl.getOrigin().x()  <<std::endl;
+        ofs << "initial_pose_x:" << robot_gl.getOrigin().y() std::endl;
+        ofs << "initial_pose_x:" << yaw m std::endl;
+        printf("yaw: %f\n", yaw);
+        
 
+        ofs.close();
+    }
     void startNavigationGL(const orne_waypoints_msgs::Pose &dest){
         move_base_msgs::MoveBaseGoal move_base_goal;
         move_base_goal.target_pose.header.stamp = ros::Time::now();
@@ -719,7 +732,7 @@ public:
 private:
     actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> move_base_action_;
     actionlib::SimpleActionClient<fulanghua_action::special_moveAction> action_client;
-    
+    std::string amcl_filename_;
     // geometry_msgs::PoseArray waypoints_;
     orne_waypoints_msgs::WaypointArray waypoints_, charging_waypoints_ ;
     visualization_msgs::MarkerArray marker_;
