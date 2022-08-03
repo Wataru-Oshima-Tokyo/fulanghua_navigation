@@ -18,9 +18,9 @@ class SpecialMove{
     {
           ros::NodeHandle private_nh("~");
           private_nh.param("cmd_vel_posture", cmd_vel_posture, std::string("cmd_vel_posture_"));
-          private_nh.param("cmd_vel_", cmd_vel_, std::string("cmd_vel"));
-          private_nh.param("max_vel_", max_vel_, std::string("0.4"));
-          private_nh.param("min_vel_", min_vel_, std::string("0.1"));
+          private_nh.param("cmd_vel", cmd_vel_, std::string("cmd_vel"));
+          private_nh.param("max_vel", max_vel_, std::string("0.4"));
+          private_nh.param("min_vel", min_vel_, std::string("0.1"));
           max_vel = std::stod(max_vel_);
           min_vel = std::stod(min_vel_);
           private_nh.param("dist_err", _dist_err, std::string("0.8"));

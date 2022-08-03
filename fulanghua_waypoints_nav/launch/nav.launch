@@ -4,11 +4,17 @@
 <arg name="waypoints_file" default="$(find orne_waypoints_editor)/waypoints_cfg/waypoints.yaml"/>
 <arg name="dist_err"       default="0.8"/>
 <arg name="cmd_vel"         default="cmd_vel"/>
+<arg name="max_vel"         default="0.4"/>
+<arg name="min_vel"         default="0.1"/>
 
   <node name="waypoints_nav" pkg="fulanghua_waypoints_nav" type="waypoints_nav" output="screen">
     <param name="filename" value="$(arg waypoints_file)"/>
     <param name="dist_err" value="$(arg dist_err)"/>
     <param name="cmd_vel"  value="$(arg cmd_vel)" />
   </node>
-  <node name="action_server" pkg="fulanghua_action" type="adv_action_server" output="screen"></node>
+  <node name="action_server" pkg="fulanghua_action" type="adv_action_server" output="screen">
+     <param name="cmd_vel"  value="$(arg cmd_vel)" />
+     <param name="max_vel"  value="$(arg max_vel)" />
+     <param name="min_vel"  value="$(arg min_vel)" />
+  </node>
 </launch>
