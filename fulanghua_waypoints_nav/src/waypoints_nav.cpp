@@ -511,10 +511,6 @@ public:
                 }
                 goal.wp.position = target->position;
                 goal.wp.orientation = target->orientation;
-            }else if (dest->position.action == "p2p" && _reached && REVERSE){
-                
-                goal.wp.position = prev->position;
-                goal.wp.orientation = prev->orientation;
             }else{
                 goal.wp.position = dest->position;
                 goal.wp.orientation = dest->orientation;
