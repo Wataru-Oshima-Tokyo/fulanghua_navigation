@@ -200,15 +200,13 @@ public:
         return true;
     }
 
-    bool pauseNavigationCallback(std_srvs::Trigger::Request &request, std_srvs::Trigger::Response &response){
+    bool pauseNavigationCallback(std_srvs::Empty::Request &request, std_srvs::Empty::Response &response){
          if(!has_activate_) {
             ROS_WARN("Navigation is already pause");
-            response.success = false;
             return false;
         }
-        
+        ROS_WARN("Navigation has been paused");
         has_activate_ = false;
-        response.success = true;
         return true;
     }
 
@@ -223,18 +221,19 @@ public:
         return true;
     }
 
-    bool stopNavigationCallback(std_srvs::Trigger::Request &request, std_srvs::Trigger::Response &response){
+    bool stopNavigationCallback(std_srvs::Empty::Request &request, std_srvs::Empty::Response &response){
+        ROS_WARN("Navigation has been stopped");
         has_activate_ = false;
         move_base_action_.cancelAllGoals();
         return true;
     }
 
-    bool resumePoseCallback(fulanghua_srvs::_Pose::Request &request, fulanghua_srvs::_Pose::Response &response) {
+    bool resumePoseCallback(std_srvs::Empty::Request &request, std_srvs::Empty::Request &response) {
         if(has_activate_) {
             response.status = false;
             return false;
         }
-        
+        tf::StampedTransform robot_gl = getRobotPosGL();
         std_srvs::Empty empty;
         clear_costmaps_srv_.call(empty);
         //move_base_action_.cancelAllGoals();
@@ -242,10 +241,11 @@ public:
         ///< @todo calculating metric with request orientation
         double min_dist = std::numeric_limits<double>::max();
         for(std::vector<orne_waypoints_msgs::Pose>::iterator it = current_waypoint_; it != finish_pose_; it++) {
-            double dist = hypot(it->position.x - request.pose.position.x, it->position.y - request.pose.position.y);
+            double dist = hypot(it->position.x -robot_gl.getOrigin().x(), it->position.y - robot_gl.getOrigin().y());
             if(dist < min_dist) {
                 min_dist = dist;
                 current_waypoint_ = it;
+                ROS_WARN("Navigation has been resumed");
             }
         }
         
