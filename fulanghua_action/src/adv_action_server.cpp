@@ -126,7 +126,7 @@ class SpecialMove{
     const double hz =20;
   private:
     const double Kp = 0.5;
-    const double Kv = 0.4775;
+    const double Kv = 0.2865;
     orne_waypoints_msgs::Pose direction;
     double velocity_x;
     double rx, ry;
