@@ -528,9 +528,9 @@ public:
                 goal.wp.position = dest->position;
                 goal.wp.orientation = dest->orientation;
             }
-            goal.duration = dest->position.duration;
-            action_client.sendGoal(goal);
+            goal.duration = INT_MAX;
             std::cout <<"publish command:" << goal.command;
+            action_client.sendGoal(goal);
             initial_goal = true;
             actionlib::SimpleClientGoalState state = action_client.getState();
             while(state !=actionlib::SimpleClientGoalState::PREEMPTED){
