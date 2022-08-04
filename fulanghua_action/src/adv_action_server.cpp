@@ -58,6 +58,7 @@ class SpecialMove{
                 state = sound_client.getState();
                 printf("Current State: %s\n", sound_client.getState().toString().c_str());
                 rate_.sleep();
+                std::cout << speaking << std::endl;
             }
             while(speaking){
                 rate_.sleep();
