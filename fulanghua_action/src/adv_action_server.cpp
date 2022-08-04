@@ -60,6 +60,9 @@ class SpecialMove{
                 rate_.sleep();
                 std::cout << speaking << std::endl;
             }
+            ros::Rate temp_rt(20);
+            temp_rt.sleep();
+            std::cout << speaking << std::endl;
             while(speaking){
                 rate_.sleep();
             }
