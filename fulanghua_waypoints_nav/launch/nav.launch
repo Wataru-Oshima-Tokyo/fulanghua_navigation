@@ -21,4 +21,5 @@
      <param name="min_vel"  value="$(arg min_vel)" />
      <param name="voice_path"  value="$(arg voice_path)" />
   </node>
+  <include file="$(find sound_play)/launch/soundplay_node.launch"></include>
 </launch>

@@ -40,7 +40,7 @@ class SpecialMove{
         rx = point.x;
         ry = point.y;
     }
-    void speaking_function(std::string& sound_fle_name){
+    void speaking_function(const std::string& sound_fle_name){
         speak_start = true;
         if (sound_client.isServerConnected())
         {
@@ -61,7 +61,7 @@ class SpecialMove{
             server.setPreempted();
             printf("Preempt Goal\n");
         }   
-
+        speak_start = false;
     }
 
     void chargingFunction(){
@@ -245,7 +245,7 @@ int main(int argc, char** argv)
             twist.linear.x = 0;
             twist.angular.z = 0;
             if(!SpM.speak_start){
-              std::string str = "mg400";
+              std::string str = "StarWars3";
               SpM.speaking_function(str);
             }
           }
