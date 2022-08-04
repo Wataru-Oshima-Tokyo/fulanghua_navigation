@@ -3,6 +3,7 @@
 #include <actionlib/server/simple_action_server.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Point.h>
+#include <nav_msgs/Odometry.h>
 #include <tf/tf.h>
 #include <tf/transform_listener.h>
 #include "orne_waypoints_msgs/Pose.h"
@@ -27,7 +28,9 @@ class SpecialMove{
           dist_err = std::stod(_dist_err);
           server.start();
     }
-
+    void odom_callback(const nav_msgs::Odometry& odom){
+        _odom = odom;
+    }
     void coordinate_callback(const geometry_msgs::Point& point){
         rx = point.x;
         ry = point.y;
@@ -62,20 +65,11 @@ class SpecialMove{
           //   angle = -(radian_90+angle);
         // }
         if(initial){
-          // direction.orientation = tf::createQuaternionMsgFromYaw(angle);
-          
-          // origin = dist;
-          original_angle =angle;
+          initial_odom =_odom;
           // steering = direction.orientation - angle;
           initial = false;
-
         }
-        // if(original_angle>0){
-        //   steering = original_angle - angle;
-        // }else{
-        //   steering = original_angle + angle;
-        // }
-        steering = original_angle - angle;
+        double odom_diff =(initial_odom.pose.orientation.z - _odom.pose.orientation.z);
         //rn I only consider the x coordinate for determing the velocity
         double temp=0;
         double diff = std::abs(dist-prev_location);
@@ -100,7 +94,7 @@ class SpecialMove{
         prev_location = dist;
         // twist.linear.x = velocity_x;
         twist.linear.x = velocity_x;
-        twist.angular.z = -steering*0.3;
+        twist.angular.z = 3.33232 * -odom_diff + 0.32467; // Calculated by linear regression
         printf("cmd_vel_x = %f\n", velocity_x);
         printf("calculated velocity %f\n", temp);
         printf("dist = %f\n", dist);
@@ -122,8 +116,9 @@ class SpecialMove{
     tf::TransformListener tf_listener_;
     std::string cmd_vel_, _dist_err,cmd_vel_posture;
     ros::Publisher twist_move_pub, twist_postgure_pub; 
-    ros::Subscriber robot_coordinate_sub;
+    ros::Subscriber robot_coordinate_sub, odom_sub;
     geometry_msgs::Twist twist;
+    nav_msgs::Odometry _odom, initial_odom;;
     actionlib::SimpleActionServer<fulanghua_action::special_moveAction> server;
     const double hz =20;
   private:
@@ -162,6 +157,7 @@ int main(int argc, char** argv)
   SpM.twist_postgure_pub = SpM.nh.advertise<geometry_msgs::Twist>(SpM.cmd_vel_posture,1000);
   SpM.twist_move_pub = SpM.nh.advertise<geometry_msgs::Twist>(SpM.cmd_vel_,1000);
   SpM.robot_coordinate_sub = SpM.nh.subscribe("robot_coordinate", 1000, &SpecialMove::coordinate_callback, &SpM);
+  SpM.odom_sub = SpM.nh.subscribe("odom", 1000, &SpecialMove::odom_callback, &SpM);
   fulanghua_action::special_moveGoalConstPtr current_goal;
   while (ros::ok())
   {
