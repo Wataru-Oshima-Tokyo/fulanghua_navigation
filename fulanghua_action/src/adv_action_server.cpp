@@ -1,4 +1,5 @@
 #include <ros/ros.h>
+#include <actionlib/client/simple_action_client.h>
 #include <fulanghua_action/special_moveAction.h>
 #include <actionlib/server/simple_action_server.h>
 #include <geometry_msgs/Twist.h>
@@ -51,7 +52,6 @@ class SpecialMove{
             goal.sound_request.arg = voice_path + sound_fle_name + ".wav";
             std::cout <<"sound file name:" << sound_fle_name;
             action_client.sendGoal(goal);
-            initial_goal = true;
             actionlib::SimpleClientGoalState state = sound_client.getState();
             while(state !=actionlib::SimpleClientGoalState::PREEMPTED || state !=actionlib::SimpleClientGoalState::SUCCEEDED){
                 state = sound_client.getState();
@@ -97,7 +97,7 @@ class SpecialMove{
           // steering = direction.orientation - angle;
           initial = false;
         }
-        double odom_diff =(initial_odom.pose.orientation.z - _odom.pose.orientation.z);
+        double odom_diff =(initial_odom.pose.pose.orientation.z - _odom.pose.pose.orientation.z);
         //rn I only consider the x coordinate for determing the velocity
         double temp=0;
         double diff = std::abs(dist-prev_location);
@@ -244,7 +244,7 @@ int main(int argc, char** argv)
             twist.linear.x = 0;
             twist.angular.z = 0;
             if(!SpM.speak_start){
-              SpM.speaking_function();
+              SpM.speaking_function("mg400");
             }
           }
           else if (current_goal->command =="charge"){
