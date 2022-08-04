@@ -148,7 +148,7 @@ class SpecialMove{
     geometry_msgs::Twist twist;
     nav_msgs::Odometry _odom, initial_odom;;
     actionlib::SimpleActionServer<fulanghua_action::special_moveAction> server;
-    actionlib::SimpleActionClient<sound_play::SoundRequest> sound_client;
+    actionlib::SimpleActionClient<sound_play::SoundRequestAction> sound_client;
     ros::Rate rate_;
     const double hz =20;
     bool speak_start = false;
