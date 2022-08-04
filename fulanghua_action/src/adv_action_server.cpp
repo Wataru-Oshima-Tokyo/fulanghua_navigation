@@ -53,18 +53,19 @@ class SpecialMove{
             goal.sound_request.arg = voice_path + sound_fle_name + ".wav";
             std::cout <<"sound file name:" << sound_fle_name;
             sound_client.sendGoal(goal);
-            actionlib::SimpleClientGoalState state = sound_client.getState();
-            while(state !=actionlib::SimpleClientGoalState::SUCCEEDED){
-                state = sound_client.getState();
-                printf("Current State: %s\n", sound_client.getState().toString().c_str());
-                rate_.sleep();
-                std::cout << speaking << std::endl;
-            }
-            ros::Duration(1).sleep();
-            std::cout << speaking << std::endl;
-            while(speaking){
-                rate_.sleep();
-            }
+            sound_client.wait_for_result();
+            // actionlib::SimpleClientGoalState state = sound_client.getState();
+            // while(state !=actionlib::SimpleClientGoalState::SUCCEEDED){
+            //     state = sound_client.getState();
+            //     printf("Current State: %s\n", sound_client.getState().toString().c_str());
+            //     rate_.sleep();
+            //     std::cout << speaking << std::endl;
+            // }
+            // ros::Duration(1).sleep();
+            // std::cout << speaking << std::endl;
+            // while(speaking){
+            //     rate_.sleep();
+            // }
             speak_start = false;
             printf("Voice Action finished\n");
             server.setPreempted();
