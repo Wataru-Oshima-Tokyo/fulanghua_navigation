@@ -665,6 +665,7 @@ public:
                                 current_waypoint_->position.action ="p2p";
                                 (current_waypoint_-1)->position.action ="passthrough";
                                 p2p_flag = true;
+                                printf("action: %s\n", current_waypoint_->position.action);
                             }
                         }
                         if(actionConfirm(*current_waypoint_)){
