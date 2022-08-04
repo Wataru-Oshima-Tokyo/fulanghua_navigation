@@ -58,12 +58,19 @@ class SpecialMove{
                 printf("Current State: %s\n", sound_client.getState().toString().c_str());
                 rate_.sleep();
             }
+            while(speaking){
+                rate_.sleep();
+            }
             speak_start = false;
             printf("Voice Action finished\n");
             server.setPreempted();
             printf("Preempt Goal\n");
         }   
         
+    }
+
+    void speaking_callback(const std_msgs::Bool &msg){
+        speaking = msg.data;
     }
 
     void chargingFunction(){
@@ -146,7 +153,7 @@ class SpecialMove{
     tf::TransformListener tf_listener_;
     std::string cmd_vel_, _dist_err,cmd_vel_posture;
     ros::Publisher twist_move_pub, twist_postgure_pub; 
-    ros::Subscriber robot_coordinate_sub, odom_sub;
+    ros::Subscriber robot_coordinate_sub, odom_sub, speaking_sub;
     geometry_msgs::Twist twist;
     nav_msgs::Odometry _odom, initial_odom;;
     actionlib::SimpleActionServer<fulanghua_action::special_moveAction> server;
@@ -167,6 +174,7 @@ class SpecialMove{
     double steering;
     double original_angle;
     double prev_location = 0;
+    bool speaking =false;
     std::string max_vel_;
     std::string min_vel_;
     std::string voice_path;
@@ -193,6 +201,7 @@ int main(int argc, char** argv)
   SpM.twist_move_pub = SpM.nh.advertise<geometry_msgs::Twist>(SpM.cmd_vel_,1000);
   SpM.robot_coordinate_sub = SpM.nh.subscribe("robot_coordinate", 1000, &SpecialMove::coordinate_callback, &SpM);
   SpM.odom_sub = SpM.nh.subscribe("odom", 1000, &SpecialMove::odom_callback, &SpM);
+  SpM.speaking_sub = SpM.nh.subscribe("sound_play/is_speaking", &SpecialMove::speaking_callback, &SpM);
   fulanghua_action::special_moveGoalConstPtr current_goal;
   while (ros::ok())
   {
