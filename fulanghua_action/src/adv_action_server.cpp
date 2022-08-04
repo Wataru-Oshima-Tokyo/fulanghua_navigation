@@ -53,8 +53,9 @@ class SpecialMove{
             std::cout <<"sound file name:" << sound_fle_name;
             sound_client.sendGoal(goal);
             actionlib::SimpleClientGoalState state = sound_client.getState();
-            while(state !=actionlib::SimpleClientGoalState::PREEMPTED || state !=actionlib::SimpleClientGoalState::SUCCEEDED){
+            while(state !=actionlib::SimpleClientGoalState::SUCCEEDED){
                 state = sound_client.getState();
+                printf("Current State: %s\n", sound_client.getState().toString().c_str());
                 rate_.sleep();
             }
             printf("Voice Action finished\n");
