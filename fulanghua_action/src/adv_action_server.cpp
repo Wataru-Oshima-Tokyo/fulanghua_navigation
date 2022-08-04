@@ -260,6 +260,11 @@ int main(int argc, char** argv)
             printf("stop\n");
             twist.linear.x = 0;
             twist.angular.z = 0;
+          }
+          else if (current_goal->command == "speak"){
+            printf("speak\n");
+            twist.linear.x = 0;
+            twist.angular.z = 0;
             if(!SpM.speak_start){
               SpM.speaking_function(current_goal->file);
             }
