@@ -53,7 +53,7 @@ class SpecialMove{
             goal.sound_request.arg = voice_path + sound_fle_name + ".wav";
             std::cout <<"sound file name:" << sound_fle_name;
             sound_client.sendGoal(goal);
-            sound_client.wait_for_result();
+            sound_client.waitForResult();
             // actionlib::SimpleClientGoalState state = sound_client.getState();
             // while(state !=actionlib::SimpleClientGoalState::SUCCEEDED){
             //     state = sound_client.getState();
