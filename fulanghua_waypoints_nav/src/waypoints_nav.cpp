@@ -683,7 +683,7 @@ public:
                                 current_waypoint_->position.action ="p2p";
                                 p2p_flag = false;
                             } 
-                            has_activate_ = false;
+                            has_activate_ = true;
                         }
                     }
                     
