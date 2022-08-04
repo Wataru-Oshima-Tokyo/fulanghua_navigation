@@ -3,6 +3,7 @@
   
 <arg name="waypoints_file" default="$(find orne_waypoints_editor)/waypoints_cfg/waypoints.yaml"/>
 <arg name="amcl_filename" default="$(find fulanghua_waypoints_nav)/param/initial_pose.yaml"/>
+<arg name="voice_path" default="$(find fulanghua_waypoints_nav)/voice/"/>
 <arg name="dist_err"       default="0.8"/>
 <arg name="cmd_vel"         default="cmd_vel"/>
 <arg name="max_vel"         default="0.4"/>
@@ -18,5 +19,6 @@
      <param name="cmd_vel"  value="$(arg cmd_vel)" />
      <param name="max_vel"  value="$(arg max_vel)" />
      <param name="min_vel"  value="$(arg min_vel)" />
+     <param name="voice_path"  value="$(arg voice_path)" />
   </node>
 </launch>
