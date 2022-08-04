@@ -206,7 +206,7 @@ int main(int argc, char** argv)
   SpM.twist_move_pub = SpM.nh.advertise<geometry_msgs::Twist>(SpM.cmd_vel_,1000);
   SpM.robot_coordinate_sub = SpM.nh.subscribe("robot_coordinate", 1000, &SpecialMove::coordinate_callback, &SpM);
   SpM.odom_sub = SpM.nh.subscribe("odom", 1000, &SpecialMove::odom_callback, &SpM);
-  SpM.speaking_sub = SpM.nh.subscribe("sound_play/is_speaking", 1000, &SpecialMove::speaking_callback, &SpM);
+  // SpM.speaking_sub = SpM.nh.subscribe("sound_play/is_speaking", 1000, &SpecialMove::speaking_callback, &SpM);
   fulanghua_action::special_moveGoalConstPtr current_goal;
   while (ros::ok())
   {
