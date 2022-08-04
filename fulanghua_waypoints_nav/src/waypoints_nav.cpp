@@ -430,6 +430,22 @@ public:
         if(CHARGING_STATION)
              charging_waypoints_.header.frame_id = world_frame_;
     }
+    void computeWpOrientationReverse(){
+        for(std::vector<orne_waypoints_msgs::Pose>::iterator it = finish_pose_; it != waypoints_.poses.begin(); it--) {
+            if(it->position.action =="passthrough" || it->position.action =="p2p"){
+                double goal_direction = atan2((it)->position.y -(it-1)->position.y,
+                                 (it)->position.x) - (it-1)->position.x;
+                (it)->orientation = tf::createQuaternionMsgFromYaw(goal_direction);
+            }
+            if(it->position.action=="charge"){
+                charging_waypoints_.poses.push_back(*it);
+                CHARGING_STATION =true;
+            }
+        }
+        waypoints_.header.frame_id = world_frame_;
+        if(CHARGING_STATION)
+             charging_waypoints_.header.frame_id = world_frame_;
+    }
 
     bool shouldSendGoal(){
         bool ret = true;
@@ -658,14 +674,13 @@ public:
                         has_activate_ = false;
                         while(!chargingFinished() && ros::ok()) sleep();
                     }else{
-                        std::string temp_action ="";
+                        orne_waypoints_msgs::Pose temp_wp;
                         if(_reached && REVERSE){
                             if((current_waypoint_-1)->position.action =="p2p"){
-                                temp_action = current_waypoint_->position.action;
-                                current_waypoint_->position.action ="p2p";
-                                (current_waypoint_-1)->position.action ="passthrough";
+                                temp_wp.position.action = current_waypoint_->position.action;
+                                current_waypoint_->position.action = (current_waypoint_-1)->position.action;
+                                (current_waypoint_-1)->position.action = temp_wp.position.action;
                                 p2p_flag = true;
-                                printf("action: %s\n", current_waypoint_->position.action);
                             }
                         }
                         if(actionConfirm(*current_waypoint_)){
@@ -674,11 +689,12 @@ public:
                             actionServiceCall(current_waypoint_);
                             if (p2p_flag){
                                 ROS_WARN("reversed p2p");
-                                current_waypoint_->position.action = temp_action;
+                                
                                 current_waypoint_--;
                                 startNavigationGL(*current_waypoint_);
                                 while(!navigationFinished() && ros::ok()) sleep();
-                                current_waypoint_->position.action ="p2p";
+                                current_waypoint_->position.action = (current_waypoint_+1)->position.action;
+                                (current_waypoint_+1)->position.action = temp_wp.position.action;
                                 p2p_flag = false;
                             } 
                             has_activate_ = true;
@@ -702,11 +718,13 @@ public:
                         // startNavigationGL(*current_waypoint_);
                         // while(!navigationFinished() && ros::ok()) sleep();
                         ROS_INFO_STREAM("REVERSE start!");
+                        computeWpOrientationReverse();
                         current_waypoint_--;
                         _reached = true;
                     }
                     if(_reached && LOOP && current_waypoint_ == first_waypoint_){
                         has_activate_ = true;
+                        computeWpOrientation();
                         startNavigationGL(*current_waypoint_);
                         while(!navigationFinished() && ros::ok()) sleep();
                         current_waypoint_++;
