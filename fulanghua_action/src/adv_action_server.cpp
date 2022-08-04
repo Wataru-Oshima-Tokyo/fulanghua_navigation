@@ -61,7 +61,7 @@ class SpecialMove{
             //     rate_.sleep();
             //     std::cout << speaking << std::endl;
             // }
-            // ros::Duration(1).sleep();
+            ros::Duration(1).sleep();
             // std::cout << speaking << std::endl;
             // while(speaking){
             //     rate_.sleep();
@@ -261,8 +261,7 @@ int main(int argc, char** argv)
             twist.linear.x = 0;
             twist.angular.z = 0;
             if(!SpM.speak_start){
-              std::string str = "StarWars3";
-              SpM.speaking_function(str);
+              SpM.speaking_function(current_goal->file);
             }
           }
           else if (current_goal->command =="charge"){

@@ -370,6 +370,7 @@ public:
                     (*wp_node)[i]["point"]["pose"]["z"] >> pose.position.z;
                     (*wp_node)[i]["point"]["action"]["a"] >> pose.position.action;
                     (*wp_node)[i]["point"]["action"]["d"] >> pose.position.duration;
+                    (*wp_node)[i]["point"]["action"]["f"] >> pose.position.file;
                     (*wp_node)[i]["point"]["orientation"]["x"] >> pose.orientation.x;
                     (*wp_node)[i]["point"]["orientation"]["y"] >> pose.orientation.y;
                     (*wp_node)[i]["point"]["orientation"]["z"] >> pose.orientation.z;
@@ -529,9 +530,9 @@ public:
                 goal.wp.orientation = dest->orientation;
             }
             goal.duration = INT_MAX;
+            goal.file = dest->position.file;
             std::cout <<"publish command:" << goal.command;
             action_client.sendGoal(goal);
-            initial_goal = true;
             actionlib::SimpleClientGoalState state = action_client.getState();
             while(state !=actionlib::SimpleClientGoalState::PREEMPTED){
                 getRobotPosGL();
