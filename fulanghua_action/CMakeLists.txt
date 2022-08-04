@@ -17,6 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
   fulanghua_srvs
   orne_waypoints_msgs
   tf
+  sound_play
 )
 
 ## System dependencies are found with CMake's conventions

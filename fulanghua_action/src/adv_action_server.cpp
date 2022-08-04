@@ -7,7 +7,8 @@
 #include <tf/tf.h>
 #include <tf/transform_listener.h>
 #include "orne_waypoints_msgs/Pose.h"
-
+#include <sound_play/SoundRequestAction.h>
+#include <sound_play/SoundRequest.h>
 typedef actionlib::SimpleActionServer<fulanghua_action::special_moveAction> Server;
 
 class SpecialMove{
@@ -15,7 +16,9 @@ class SpecialMove{
 
 
     SpecialMove():
-      server(nh, "action", false)  
+      server(nh, "action", false),
+      sound_client("sound_play", true),
+      rate_(2)
     {
           ros::NodeHandle private_nh("~");
           private_nh.param("cmd_vel_posture", cmd_vel_posture, std::string("cmd_vel_posture_"));
@@ -23,6 +26,7 @@ class SpecialMove{
           private_nh.param("max_vel", max_vel_, std::string("0.4"));
           private_nh.param("min_vel", min_vel_, std::string("0.1"));
           private_nh.param("dist_err", _dist_err, std::string("0.8"));
+          private_nh.param("voice_path", voice_path, std::string(""));
           max_vel = std::stod(max_vel_);
           min_vel = std::stod(min_vel_);
           dist_err = std::stod(_dist_err);
@@ -34,6 +38,30 @@ class SpecialMove{
     void coordinate_callback(const geometry_msgs::Point& point){
         rx = point.x;
         ry = point.y;
+    }
+    void speaking_function(std::string& sound_fle_name){
+        speak_start = true;
+        if (sound_client.isServerConnected())
+        {
+            sound_play::SoundRequestGoal goal;
+            sound_play::SoundRequest sr;
+            goal.sound_request.sound = sr.PLAY_FILE;
+            goal.sound_request.command = sr.PLAY_ONCE;
+            goal.sound_request.volume = 1.0;
+            goal.sound_request.arg = voice_path + sound_fle_name + ".wav";
+            std::cout <<"sound file name:" << sound_fle_name;
+            action_client.sendGoal(goal);
+            initial_goal = true;
+            actionlib::SimpleClientGoalState state = sound_client.getState();
+            while(state !=actionlib::SimpleClientGoalState::PREEMPTED || state !=actionlib::SimpleClientGoalState::SUCCEEDED){
+                state = sound_client.getState();
+                rate_.sleep();
+            }
+            printf("Voice Action finished\n");
+            server.setPreempted();
+            printf("Preempt Goal\n");
+        }   
+
     }
 
     void chargingFunction(){
@@ -120,7 +148,9 @@ class SpecialMove{
     geometry_msgs::Twist twist;
     nav_msgs::Odometry _odom, initial_odom;;
     actionlib::SimpleActionServer<fulanghua_action::special_moveAction> server;
+    actionlib::SimpleActionClient<sound_play::SoundClient> sound_client;
     const double hz =20;
+    bool speak_start = false;
   private:
     const double Kp = 0.5;
     const double Kv = 0.2865;
@@ -136,10 +166,12 @@ class SpecialMove{
     double prev_location = 0;
     std::string max_vel_;
     std::string min_vel_;
+    std::string voice_path;
     double max_vel =0;
     double min_vel =0;
     double t =0;
     double prev_diff=0;
+    ros::Rate rate_;
     
 };
 
@@ -211,6 +243,9 @@ int main(int argc, char** argv)
             printf("stop\n");
             twist.linear.x = 0;
             twist.angular.z = 0;
+            if(!SpM.speak_start){
+              SpM.speaking_function();
+            }
           }
           else if (current_goal->command =="charge"){
             SpM.chargingFunction();  
