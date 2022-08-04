@@ -58,11 +58,12 @@ class SpecialMove{
                 printf("Current State: %s\n", sound_client.getState().toString().c_str());
                 rate_.sleep();
             }
+            speak_start = false;
             printf("Voice Action finished\n");
             server.setPreempted();
             printf("Preempt Goal\n");
         }   
-        speak_start = false;
+        
     }
 
     void chargingFunction(){
