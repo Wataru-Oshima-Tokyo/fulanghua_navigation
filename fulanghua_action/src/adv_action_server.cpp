@@ -245,7 +245,7 @@ int main(int argc, char** argv)
             twist.linear.x = 0;
             twist.angular.z = 0;
             if(!SpM.speak_start){
-              std::string str = "mg400"
+              std::string str = "mg400";
               SpM.speaking_function(str);
             }
           }
