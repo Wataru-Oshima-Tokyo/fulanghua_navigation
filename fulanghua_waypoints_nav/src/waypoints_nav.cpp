@@ -493,9 +493,6 @@ public:
     
     
     void actionServiceCall(const std::vector<orne_waypoints_msgs::Pose>::iterator &dest){
-        fulanghua_srvs::actions _action;
-        _action.request.action = dest->position.action;
-        _action.request.duration = dest->position.duration;
         bool initial_goal = false;
         if (action_client.isServerConnected())
         {
@@ -666,7 +663,7 @@ public:
                             if((current_waypoint_-1)->position.action =="p2p"){
                                 temp_action = current_waypoint_->position.action;
                                 current_waypoint_->position.action ="p2p";
-                                (current_waypoint_-1)->position.action =="passthrough";
+                                (current_waypoint_-1)->position.action ="passthrough";
                                 p2p_flag = true;
                             }
                         }
