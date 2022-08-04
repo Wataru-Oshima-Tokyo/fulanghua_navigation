@@ -10,6 +10,7 @@
 #include "orne_waypoints_msgs/Pose.h"
 #include <sound_play/SoundRequestAction.h>
 #include <sound_play/SoundRequest.h>
+#include "std_msgs/Bool.h"
 typedef actionlib::SimpleActionServer<fulanghua_action::special_moveAction> Server;
 
 class SpecialMove{
