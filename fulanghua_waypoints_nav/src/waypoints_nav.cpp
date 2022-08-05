@@ -164,6 +164,14 @@ public:
         std::vector<orne_waypoints_msgs::Pose>::iterator dummy;
         dummy.position.action ="speak";
         dummy.position.file = command;
+        dummy.position.duration = INT_MAX;
+        dummy.position.x =0;
+        dummy.position.y =0;
+        dummy.position.z =0;
+        dummy.orientation.x =0;
+        dummy.orientation.y =0;
+        dummy.orientation.z =0;
+        dummy.orientation.w =0;
         return dummy;
     }
 
@@ -171,6 +179,14 @@ public:
         std::vector<orne_waypoints_msgs::Pose>::iterator dummy;
         dummy.position.action = command1;
         dummy.position.file = command2;
+        dummy.position.duration = INT_MAX;
+        dummy.position.x =0;
+        dummy.position.y =0;
+        dummy.position.z =0;
+        dummy.orientation.x =0;
+        dummy.orientation.y =0;
+        dummy.orientation.z =0;
+        dummy.orientation.w =0;
         return dummy;
     }
 
@@ -560,7 +576,8 @@ public:
                 //     printf("Current State: %s\n", action_client.getState().toString().c_str());
                 sleep();
             }
-            actionServiceCall(makeQueue("next"));
+            if((goal.wp.position.x != 0 && goal.wp.position.y != 0) && (goal.wp.orientaion.x != 0 && goal.wp.orientaion.y != 0))
+                actionServiceCall(makeQueue("next"));
             printf("Action finished\n");
         }   
         rate_.sleep();
