@@ -162,6 +162,7 @@ public:
 
     std::vector<orne_waypoints_msgs::Pose>::iterator makeQueue(const std::string& command){
         std::vector<orne_waypoints_msgs::Pose>::iterator dummy;
+        ROS_INFO("Here making dummy iterator");
         dummy->position.action ="speak";
         dummy->position.file = command;
         dummy->position.duration = INT_MAX;
@@ -172,6 +173,7 @@ public:
         dummy->orientation.y =0;
         dummy->orientation.z =0;
         dummy->orientation.w =0;
+        ROS_WARN("Made it");
         return dummy;
     }
 
@@ -187,7 +189,6 @@ public:
         dummy->orientation.y =0;
         dummy->orientation.z =0;
         dummy->orientation.w =0;
-        ROS_WARN("Made it");
         return dummy;
     }
 
