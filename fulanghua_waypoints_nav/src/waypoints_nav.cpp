@@ -160,37 +160,37 @@ public:
         LOOP = false;
     }
 
-    std::vector<orne_waypoints_msgs::Pose>::iterator makeQueue(const std::string& command){
+    const std::vector<orne_waypoints_msgs::Pose>::iterator makeQueue(const std::string& command){
         std::vector<orne_waypoints_msgs::Pose>::iterator dummy;
-        ROS_INFO("Here making dummy iterator");
-        dummy->position.action = "speak";
-        ROS_INFO("Here making action");
-        dummy->position.file = command;
-        ROS_INFO("Here making file");
-        dummy->position.duration = INT_MAX;
-        dummy->position.x =0;
-        dummy->position.y =0;
-        dummy->position.z =0;
-        dummy->orientation.x =0;
-        dummy->orientation.y =0;
-        dummy->orientation.z =0;
-        dummy->orientation.w =0;
+        orne_waypoints_msgs::Pose pose;
+        pose.position.action = "speak";
+        pose.position.file = command;
+        pose.position.duration = INT_MAX;
+        pose.position.x =0;
+        pose.position.y =0;
+        pose.position.z =0;
+        pose.orientation.x =0;
+        pose.orientation.y =0;
+        pose.orientation.z =0;
+        pose.orientation.w =0;
         ROS_WARN("Made it");
+        dummy = pose;
         return dummy;
     }
 
     std::vector<orne_waypoints_msgs::Pose>::iterator makeQueue(const std::string& command1, const std::string& command2){
         std::vector<orne_waypoints_msgs::Pose>::iterator dummy;
-        dummy->position.action = command1;
-        dummy->position.file = command2;
-        dummy->position.duration = INT_MAX;
-        dummy->position.x =0;
-        dummy->position.y =0;
-        dummy->position.z =0;
-        dummy->orientation.x =0;
-        dummy->orientation.y =0;
-        dummy->orientation.z =0;
-        dummy->orientation.w =0;
+        orne_waypoints_msgs::Pose pose;
+        pose.position.action = command1;
+        pose.position.file = command2;
+        pose.position.duration = INT_MAX;
+        pose.position.x =0;
+        pose.position.y =0;
+        pose.position.z =0;
+        pose.orientation.x =0;
+        pose.orientation.y =0;
+        pose.orientation.z =0;
+        pose.orientation.w =0;
         return dummy;
     }
 
