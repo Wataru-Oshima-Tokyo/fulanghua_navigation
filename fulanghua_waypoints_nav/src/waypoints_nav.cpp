@@ -162,28 +162,28 @@ public:
 
     std::vector<orne_waypoints_msgs::Pose>::iterator makeQueue(const std::string& command){
         std::vector<orne_waypoints_msgs::Pose>::iterator dummy;
-        dummy.position.action ="speak";
-        dummy.position.file = command;
-        dummy.position.duration = INT_MAX;
-        dummy.position.x =0;
-        dummy.position.y =0;
-        dummy.position.z =0;
-        dummy.orientation.x =0;
-        dummy.orientation.y =0;
-        dummy.orientation.z =0;
-        dummy.orientation.w =0;
+        dummy->position.action ="speak";
+        dummy->position.file = command;
+        dummy->position.duration = INT_MAX;
+        dummy->position.x =0;
+        dummy->position.y =0;
+        dummy->position.z =0;
+        dummy->orientation.x =0;
+        dummy->orientation.y =0;
+        dummy->orientation.z =0;
+        dummy->orientation.w =0;
         return dummy;
     }
 
     std::vector<orne_waypoints_msgs::Pose>::iterator makeQueue(const std::string& command1, const std::string& command2){
         std::vector<orne_waypoints_msgs::Pose>::iterator dummy;
-        dummy.position.action = command1;
-        dummy.position.file = command2;
-        dummy.position.duration = INT_MAX;
-        dummy.position.x =0;
-        dummy.position.y =0;
-        dummy.position.z =0;
-        dummy.orientation.x =0;
+        dummy->position.action = command1;
+        dummy->position.file = command2;
+        dummy->position.duration = INT_MAX;
+        dummy->position.x =0;
+        dummy->position.y =0;
+        dummy->position.z =0;
+        dummy->orientation.x =0;
         dummy.orientation.y =0;
         dummy.orientation.z =0;
         dummy.orientation.w =0;
