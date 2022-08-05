@@ -228,7 +228,9 @@ public:
 
         current_waypoint_ = waypoints_.poses.begin();
         ROS_WARN("Start!");
-        actionServiceCall(makeQueue("start"));
+        std::vector<orne_waypoints_msgs::Pose>::iterator dummy;
+        dummy = makeQueue("start");
+        actionServiceCall(dummy);
         has_activate_ = true;
         response.success = true;
         return true;
