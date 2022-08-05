@@ -163,8 +163,10 @@ public:
     std::vector<orne_waypoints_msgs::Pose>::iterator makeQueue(const std::string& command){
         std::vector<orne_waypoints_msgs::Pose>::iterator dummy;
         ROS_INFO("Here making dummy iterator");
-        dummy->position.action ="speak";
+        dummy->position.action = "speak";
+        ROS_INFO("Here making action");
         dummy->position.file = command;
+        ROS_INFO("Here making file");
         dummy->position.duration = INT_MAX;
         dummy->position.x =0;
         dummy->position.y =0;
