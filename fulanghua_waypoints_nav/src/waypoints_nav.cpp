@@ -160,6 +160,20 @@ public:
         LOOP = false;
     }
 
+    std::vector<orne_waypoints_msgs::Pose>::iterator makeQueue(const std::string& command){
+        std::vector<orne_waypoints_msgs::Pose>::iterator dummy;
+        dummy.position.action ="speak";
+        dummy.position.file = command;
+        return dummy;
+    }
+
+    std::vector<orne_waypoints_msgs::Pose>::iterator makeQueue(const std::string& command1, const std::string& command2){
+        std::vector<orne_waypoints_msgs::Pose>::iterator dummy;
+        dummy.position.action = command1;
+        dummy.position.file = command2;
+        return dummy;
+    }
+
     bool startNavigationCallback(std_srvs::Trigger::Request &request, std_srvs::Trigger::Response &response) {
         if(has_activate_) {
             response.success = false;
@@ -169,6 +183,8 @@ public:
         private_nh.param("robot_frame", robot_frame_, std::string("base_link"));
         private_nh.param("world_frame", world_frame_, std::string("map"));
         private_nh.param("cmd_vel", cmd_vel_, std::string("cmd_vel"));
+        //saying start!
+        actionServiceCall(makeQueue("start"));
         std::string filename = "";
         private_nh.param("filename", filename, filename);
         if(filename != ""){
@@ -690,7 +706,6 @@ public:
                             actionServiceCall(current_waypoint_);
                             if (p2p_flag){
                                 ROS_WARN("reversed p2p");
-                                
                                 current_waypoint_--;
                                 startNavigationGL(*current_waypoint_);
                                 while(!navigationFinished() && ros::ok()) sleep();
@@ -712,13 +727,17 @@ public:
                         while(!navigationFinished() && ros::ok()) sleep();
                         has_activate_ = false;
                         if(LOOP){
+                            actionServiceCall(makeQueue("loop"));
                             has_activate_ = true;
                             current_waypoint_ = waypoints_.poses.begin();
+                        }else{
+                            actionServiceCall(makeQueue("finish"));
                         }
                     }else if (current_waypoint_ == finish_pose_ && REVERSE){
                         // startNavigationGL(*current_waypoint_);
                         // while(!navigationFinished() && ros::ok()) sleep();
                         ROS_INFO_STREAM("REVERSE start!");
+                        actionServiceCall(makeQueue("reverse"));
                         computeWpOrientationReverse();
                         current_waypoint_--;
                         _reached = true;
