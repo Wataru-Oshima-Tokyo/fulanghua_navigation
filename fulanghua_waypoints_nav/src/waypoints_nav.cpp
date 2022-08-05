@@ -576,7 +576,7 @@ public:
                 //     printf("Current State: %s\n", action_client.getState().toString().c_str());
                 sleep();
             }
-            if((goal.wp.position.x != 0 && goal.wp.position.y != 0) && (goal.wp.orientaion.x != 0 && goal.wp.orientaion.y != 0))
+            if((goal.wp.position.x != 0 && goal.wp.position.y != 0) && (goal.wp.orientation.x != 0 && goal.wp.orientation.y != 0))
                 actionServiceCall(makeQueue("next"));
             printf("Action finished\n");
         }   
