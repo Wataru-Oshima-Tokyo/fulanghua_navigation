@@ -541,6 +541,7 @@ public:
                 }
                 goal.wp.position = target->position;
                 goal.wp.orientation = target->orientation;
+                actionServiceCall(makeQueue("p2p"));
             }else{
                 goal.wp.position = dest->position;
                 goal.wp.orientation = dest->orientation;
@@ -550,6 +551,8 @@ public:
             std::cout <<"publish command:" << goal.command;
             action_client.sendGoal(goal);
             actionlib::SimpleClientGoalState state = action_client.getState();
+            if(goal.command == "stop")
+                actionServiceCall(makeQueue("stop"));
             while(state !=actionlib::SimpleClientGoalState::PREEMPTED){
                 getRobotPosGL();
                 state = action_client.getState();
@@ -557,6 +560,7 @@ public:
                 //     printf("Current State: %s\n", action_client.getState().toString().c_str());
                 sleep();
             }
+            actionServiceCall(makeQueue("next"));
             printf("Action finished\n");
         }   
         rate_.sleep();
