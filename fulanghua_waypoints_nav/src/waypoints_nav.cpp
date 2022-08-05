@@ -187,6 +187,7 @@ public:
         dummy->orientation.y =0;
         dummy->orientation.z =0;
         dummy->orientation.w =0;
+        ROS_WARN("Made it");
         return dummy;
     }
 
@@ -547,6 +548,7 @@ public:
         {
             fulanghua_action::special_moveGoal goal;
             // goal.task_id = task_id;
+            ROS_WARN("goal setting");
             goal.command = dest->position.action;
             if(dest->position.action == "p2p" ){
                 std::vector<orne_waypoints_msgs::Pose>::iterator target;
