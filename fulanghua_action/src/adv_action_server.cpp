@@ -25,15 +25,11 @@ class SpecialMove{
           ros::NodeHandle private_nh("~");
           private_nh.param("cmd_vel_posture", cmd_vel_posture, std::string("cmd_vel_posture_"));
           private_nh.param("cmd_vel", cmd_vel_, std::string("cmd_vel"));
-          private_nh.param("max_vel", max_vel_, std::string("0.4"));
-          private_nh.param("min_vel", min_vel_, std::string("0.1"));
-          private_nh.param("dist_err", _dist_err, std::string("0.8"));
+          private_nh.param("max_vel", max_vel, 0.4);
+          private_nh.param("min_vel", min_vel, 0.1);
+          private_nh.param("dist_err", dist_err, 0.8);
           private_nh.param("voice_path", voice_path, std::string(""));
-          private_nh.param("volume", _voice_volume, std::string(""));
-          max_vel = std::stod(max_vel_);
-          min_vel = std::stod(min_vel_);
-          voice_volume = std::stod(_voice_volume);
-          dist_err = std::stod(_dist_err);
+          private_nh.param("volume", voice_volume, 1.0);
           server.start();
     }
     void odom_callback(const nav_msgs::Odometry& odom){
@@ -182,15 +178,13 @@ class SpecialMove{
     double original_angle;
     double prev_location = 0;
     bool speaking =false;
-    std::string max_vel_;
-    std::string min_vel_;
     std::string voice_path;
-    std::string _voice_volume;
-    double max_vel =0;
-    double min_vel =0;
+
+    double max_vel;
+    double min_vel;
     double t =0;
     double prev_diff=0;
-    double voice_volume=0;
+    double voice_volume;
     
     
 };
