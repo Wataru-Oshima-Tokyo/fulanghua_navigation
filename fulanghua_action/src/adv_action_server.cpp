@@ -29,8 +29,10 @@ class SpecialMove{
           private_nh.param("min_vel", min_vel_, std::string("0.1"));
           private_nh.param("dist_err", _dist_err, std::string("0.8"));
           private_nh.param("voice_path", voice_path, std::string(""));
+          private_nh.param("volume", _voice_volume, std::string(""));
           max_vel = std::stod(max_vel_);
           min_vel = std::stod(min_vel_);
+          voice_volume = std::stod(_voice_volume);
           dist_err = std::stod(_dist_err);
           server.start();
     }
@@ -49,7 +51,7 @@ class SpecialMove{
             sound_play::SoundRequest sr;
             goal.sound_request.sound = sr.PLAY_FILE;
             goal.sound_request.command = sr.PLAY_ONCE;
-            goal.sound_request.volume = 1.0;
+            goal.sound_request.volume = voice_volume;
             goal.sound_request.arg = voice_path + sound_fle_name + ".wav";
             std::cout <<"sound file name:" << sound_fle_name;
             sound_client.sendGoal(goal);
@@ -183,10 +185,12 @@ class SpecialMove{
     std::string max_vel_;
     std::string min_vel_;
     std::string voice_path;
+    std::string _voice_volume;
     double max_vel =0;
     double min_vel =0;
     double t =0;
     double prev_diff=0;
+    double voice_volume=0;
     
     
 };

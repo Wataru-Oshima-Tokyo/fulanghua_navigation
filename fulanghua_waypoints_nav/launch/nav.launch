@@ -8,6 +8,7 @@
 <arg name="cmd_vel"         default="cmd_vel"/>
 <arg name="max_vel"         default="0.4"/>
 <arg name="min_vel"         default="0.1"/>
+<arg name="volume"         default="2.0"/>
 
   <node name="waypoints_nav" pkg="fulanghua_waypoints_nav" type="waypoints_nav" output="screen">
     <param name="filename" value="$(arg waypoints_file)"/>
@@ -20,6 +21,7 @@
      <param name="max_vel"  value="$(arg max_vel)" />
      <param name="min_vel"  value="$(arg min_vel)" />
      <param name="voice_path"  value="$(arg voice_path)" />
+     <param name="volume"  value="$(arg volume)" />
   </node>
   <include file="$(find sound_play)/soundplay_node.launch"></include>
 </launch>
