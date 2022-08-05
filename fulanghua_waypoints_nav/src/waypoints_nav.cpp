@@ -199,8 +199,6 @@ public:
         private_nh.param("robot_frame", robot_frame_, std::string("base_link"));
         private_nh.param("world_frame", world_frame_, std::string("map"));
         private_nh.param("cmd_vel", cmd_vel_, std::string("cmd_vel"));
-        //saying start!
-        actionServiceCall(makeQueue("start"));
         std::string filename = "";
         private_nh.param("filename", filename, filename);
         if(filename != ""){
@@ -228,6 +226,8 @@ public:
         }
 
         current_waypoint_ = waypoints_.poses.begin();
+        ROS_WARN("Start!");
+        actionServiceCall(makeQueue("start"));
         has_activate_ = true;
         response.success = true;
         return true;
