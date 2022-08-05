@@ -174,7 +174,7 @@ public:
         pose.orientation.z =0;
         pose.orientation.w =0;
         ROS_WARN("Made it");
-        dummy = pose;
+        dummy = *pose;
         return dummy;
     }
 
