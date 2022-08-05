@@ -161,7 +161,8 @@ public:
     }
 
     const std::vector<orne_waypoints_msgs::Pose>::iterator makeQueue(const std::string& command){
-        std::vector<orne_waypoints_msgs::Pose>::iterator dummy;
+        
+        orne_waypoints_msgs::WaypointArray dummy_array;
         orne_waypoints_msgs::Pose pose;
         pose.position.action = "speak";
         pose.position.file = command;
@@ -174,8 +175,8 @@ public:
         pose.orientation.z =0;
         pose.orientation.w =0;
         ROS_WARN("Made it");
-        dummy = *pose;
-        return dummy;
+        dummy_array.poses.push_back(pose);
+        return dummy_array.poses.begin();
     }
 
     std::vector<orne_waypoints_msgs::Pose>::iterator makeQueue(const std::string& command1, const std::string& command2){
@@ -231,9 +232,7 @@ public:
 
         current_waypoint_ = waypoints_.poses.begin();
         ROS_WARN("Start!");
-        std::vector<orne_waypoints_msgs::Pose>::iterator dummy;
-        dummy = makeQueue("start");
-        actionServiceCall(dummy);
+        actionServiceCall(makeQueue("start"));
         has_activate_ = true;
         response.success = true;
         return true;
