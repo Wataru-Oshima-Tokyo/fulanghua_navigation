@@ -184,9 +184,9 @@ public:
         dummy->position.y =0;
         dummy->position.z =0;
         dummy->orientation.x =0;
-        dummy.orientation.y =0;
-        dummy.orientation.z =0;
-        dummy.orientation.w =0;
+        dummy->orientation.y =0;
+        dummy->orientation.z =0;
+        dummy->orientation.w =0;
         return dummy;
     }
 
