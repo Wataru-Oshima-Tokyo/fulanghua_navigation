@@ -23,7 +23,7 @@ class SpecialMove{
       rate_(2)
     {
           ros::NodeHandle private_nh("~");
-          private_nh.param("cmd_vel_posture", cmd_vel_posture, std::string("cmd_vel_posture_"));
+          private_nh.param("cmd_vel_posture", cmd_vel_posture, std::string("cmd_vel_posture"));
           private_nh.param("cmd_vel", cmd_vel_, std::string("cmd_vel"));
           private_nh.param("max_vel", max_vel, 0.4);
           private_nh.param("min_vel", min_vel, 0.1);
@@ -64,6 +64,17 @@ class SpecialMove{
             // while(speaking){
             //     rate_.sleep();
             // }
+            if(posture){
+              twist.linear.x = 0;
+              twist.angular.z = 0;
+              double start_send_time = ros::Time::now().toSec();
+              double end_send_time = ros::Time::now().toSec();
+              while((end_send_time-start_send_time)<0.5){
+                twist_postgure_pub.publish(twist);
+                  end_send_time = ros::Time::now().toSec();
+                  rate_.sleep();
+              }
+            }
             speak_start = false;
             printf("Voice Action finished\n");
             server.setPreempted();
@@ -152,6 +163,19 @@ class SpecialMove{
         return dist < dist_err;
     }
 
+
+    bool isPostureAvailable(const fulanghua_action::special_moveGoalConstPtr& current_goal){
+      if(current_goal->file == "guide_go1")
+          return true;
+      else
+          return false;
+    }
+    bool posture_control(const fulanghua_action::special_moveGoalConstPtr& current_goal){
+    if((current_goal->wp.position.x != 0 && current_goal->wp.position.y != 0) && (current_goal->wp.orientation.x != 0 && current_goal->wp.orientation.y != 0))
+          return true;
+      else
+          return false;
+    }
     ros::NodeHandle nh;
     tf::TransformListener tf_listener_;
     std::string cmd_vel_, _dist_err,cmd_vel_posture;
@@ -164,6 +188,8 @@ class SpecialMove{
     ros::Rate rate_;
     const double hz =20;
     bool speak_start = false;
+    bool isPosAvailable =false;
+    bool posture = false;
   private:
     const double Kp = 0.5;
     const double Kv = 0.2865;
@@ -178,6 +204,7 @@ class SpecialMove{
     double original_angle;
     double prev_location = 0;
     bool speaking =false;
+    
     std::string voice_path;
 
     double max_vel;
@@ -199,6 +226,7 @@ int main(int argc, char** argv)
   SpecialMove SpM;
   ros::Time start_time;
   ros::Rate loop_rate(SpM.hz);
+  bool initial_goal = true;
   // Server server;
   SpM.twist_postgure_pub = SpM.nh.advertise<geometry_msgs::Twist>(SpM.cmd_vel_posture,1000);
   SpM.twist_move_pub = SpM.nh.advertise<geometry_msgs::Twist>(SpM.cmd_vel_,1000);
@@ -261,8 +289,24 @@ int main(int argc, char** argv)
           }
           else if (current_goal->command == "speak"){
             printf("speak\n");
+            if(initial_goal){
+              SpM.isPosAvailable = SpM.isPostureAvailable(current_goal);
+              initial_goal = false;
+            }
             twist.linear.x = 0;
-            twist.angular.z = 0;
+            twist.angular.z = 0; 
+            SpM.posture = SpM.posture_control(current_goal);
+            if(SpM.isPosAvailable && SpM.posture){
+              twist.linear.x = 1;
+              twist.angular.z = 0;
+              double start_send_time = ros::Time::now().toSec();
+              double end_send_time = ros::Time::now().toSec();
+              while((end_send_time-start_send_time)<0.5){
+                  SpM.twist_postgure_pub.publish(twist);
+                  end_send_time = ros::Time::now().toSec();
+                  loop_rate.sleep();
+              }
+            }
             if(!SpM.speak_start){
               SpM.speaking_function(current_goal->file);
             }

@@ -85,6 +85,7 @@ public:
         
         ros::NodeHandle private_nh("~");
         private_nh.param("robot_frame", robot_frame_, std::string("base_link"));
+        private_nh.param("robot_naame", robot_name_, std::string("go1"));
         private_nh.param("world_frame", world_frame_, std::string("map"));
         private_nh.param("cmd_vel", cmd_vel_, std::string("cmd_vel"));
         private_nh.param("charge_topic", CHARGE_TOPIC, std::string("charge"));
@@ -232,7 +233,8 @@ public:
 
         current_waypoint_ = waypoints_.poses.begin();
         ROS_WARN("Start!");
-        actionServiceCall(makeQueue("start"));
+        std::string rname = "guide_" + robot_name_;
+        actionServiceCall(makeQueue(rname));
         has_activate_ = true;
         response.success = true;
         return true;
@@ -684,7 +686,7 @@ public:
                             throw SwitchRunningStatus();
                         
                         double time = ros::Time::now().toSec();
-                        if(time - start_nav_time > 10.0 && time - last_moved_time_ > 10.0) {
+                        if(time - start_nav_time > 5.0 && time - last_moved_time_ > 5.0) {
                             ROS_WARN("Resend the navigation goal.");
                             std_srvs::Empty empty;
                             clear_costmaps_srv_.call(empty);
@@ -692,6 +694,7 @@ public:
                             resend_goal++;
                             if(resend_goal == 3) {
                                 ROS_WARN("Skip waypoint.");
+                                actionServiceCall(makeQueue("skip"));
                                 if(REVERSE && _reached)
                                     current_waypoint_--;
                                 else
@@ -804,7 +807,7 @@ private:
     std::vector<orne_waypoints_msgs::Pose>::iterator first_waypoint_;
     std::vector<orne_waypoints_msgs::Pose>::iterator finish_pose_;
     bool has_activate_;
-    std::string robot_frame_, world_frame_, cmd_vel_, CHARGE_TOPIC;
+    std::string robot_frame_, world_frame_, cmd_vel_, CHARGE_TOPIC, robot_name_;
     tf::TransformListener tf_listener_;
     ros::Rate rate_;
     ros::ServiceServer start_server_, pause_server_, unpause_server_, stop_server_, suspend_server_, 
