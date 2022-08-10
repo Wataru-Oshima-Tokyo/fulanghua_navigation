@@ -85,7 +85,7 @@ public:
         
         ros::NodeHandle private_nh("~");
         private_nh.param("robot_frame", robot_frame_, std::string("base_link"));
-        private_nh.param("robot_naame", robot_name_, std::string("go1"));
+        private_nh.param("robot_name", robot_name_, std::string("go1"));
         private_nh.param("world_frame", world_frame_, std::string("map"));
         private_nh.param("cmd_vel", cmd_vel_, std::string("cmd_vel"));
         private_nh.param("charge_topic", CHARGE_TOPIC, std::string("charge"));

@@ -12,7 +12,7 @@
 <arg name="volume"         default="2.0"/>
 
   <node name="waypoints_nav" pkg="fulanghua_waypoints_nav" type="waypoints_nav" output="screen">
-  <param name="world_frame" value="$(arg world_frame)"/>
+    <param name="world_frame" value="$(arg world_frame)"/>
     <param name="filename" value="$(arg waypoints_file)"/>
     <param name="amcl_filename" value="$(arg amcl_filename)"/>
     <param name="cmd_vel"  value="$(arg cmd_vel)" />
