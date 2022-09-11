@@ -28,7 +28,7 @@ class SpecialMove{
           private_nh.param("max_vel", max_vel, 0.4);
           private_nh.param("min_vel", min_vel, 0.1);
           private_nh.param("dist_err", dist_err, 0.8);
-          private_nh.param("voice_path", voice_path, std::string(""));
+          private_nh.param("voice_path", _voice_path, std::string(""));
           private_nh.param("volume", voice_volume, 1.0);
           server.start();
     }
@@ -190,6 +190,8 @@ class SpecialMove{
     bool speak_start = false;
     bool isPosAvailable =false;
     bool posture = false;
+    std::string _voice_path;
+    std::string voice_path;
   private:
     const double Kp = 0.5;
     const double Kv = 0.2865;
@@ -205,7 +207,6 @@ class SpecialMove{
     double prev_location = 0;
     bool speaking =false;
     
-    std::string voice_path;
 
     double max_vel;
     double min_vel;
@@ -289,6 +290,7 @@ int main(int argc, char** argv)
           }
           else if (current_goal->command == "speak"){
             printf("speak\n");
+            SpM.voice_path = SpM._voice_path + "speeches/";
             if(initial_goal){
               SpM.isPosAvailable = SpM.isPostureAvailable(current_goal);
               initial_goal = false;
@@ -306,6 +308,17 @@ int main(int argc, char** argv)
                   end_send_time = ros::Time::now().toSec();
                   loop_rate.sleep();
               }
+            }
+            if(!SpM.speak_start){
+              SpM.speaking_function(current_goal->file);
+            }
+          }
+          else if(current_goal->command == "guide"){
+            printf("guide\n");
+            SpM.voice_path = SpM._voice_path + "basic/";
+            if(initial_goal){
+              SpM.isPosAvailable = SpM.isPostureAvailable(current_goal);
+              initial_goal = false;
             }
             if(!SpM.speak_start){
               SpM.speaking_function(current_goal->file);

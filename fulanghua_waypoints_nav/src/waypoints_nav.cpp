@@ -165,7 +165,7 @@ public:
         
         orne_waypoints_msgs::WaypointArray dummy_array;
         orne_waypoints_msgs::Pose pose;
-        pose.position.action = "speak";
+        pose.position.action = "guide";
         pose.position.file = command;
         pose.position.duration = INT_MAX;
         pose.position.x =0;
@@ -175,7 +175,6 @@ public:
         pose.orientation.y =0;
         pose.orientation.z =0;
         pose.orientation.w =0;
-        ROS_WARN("Made it");
         dummy_array.poses.push_back(pose);
         return dummy_array.poses.begin();
     }

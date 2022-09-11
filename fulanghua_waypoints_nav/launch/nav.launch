@@ -2,9 +2,10 @@
 <launch>
 <arg name="world_frame"       default="map"/>
 <arg name="robot_name"       default="go1"/>
+<arg name="lang"              default="eng"/>
 <arg name="waypoints_file" default="$(find orne_waypoints_editor)/waypoints_cfg/waypoints.yaml"/>
 <arg name="amcl_filename" default="$(find fulanghua_waypoints_nav)/param/initial_pose.yaml"/>
-<arg name="voice_path" default="$(find fulanghua_waypoints_nav)/voice/basic/"/>
+<arg name="voice_path" default="$(find fulanghua_waypoints_nav)/voice/$(arg lang)/"/>
 <arg name="dist_err"       default="0.8"/>
 <arg name="cmd_vel"         default="cmd_vel"/>
 <arg name="max_vel"         default="0.4"/>
