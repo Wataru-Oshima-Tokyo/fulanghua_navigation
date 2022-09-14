@@ -179,12 +179,11 @@ public:
         return dummy_array.poses.begin();
     }
 
-    std::vector<orne_waypoints_msgs::Pose>::iterator makeQueue(const std::string& command1, const std::string& command2){
-        std::vector<orne_waypoints_msgs::Pose>::iterator dummy;
+    std::vector<orne_waypoints_msgs::Pose>::iterator makeQueue(const std::string& command, const int& duration){
+        orne_waypoints_msgs::WaypointArray dummy_array;
         orne_waypoints_msgs::Pose pose;
-        pose.position.action = command1;
-        pose.position.file = command2;
-        pose.position.duration = INT_MAX;
+        pose.position.action = command;
+        pose.position.duration = duration;
         pose.position.x =0;
         pose.position.y =0;
         pose.position.z =0;
@@ -192,7 +191,8 @@ public:
         pose.orientation.y =0;
         pose.orientation.z =0;
         pose.orientation.w =0;
-        return dummy;
+        dummy_array.poses.push_back(pose);
+        return dummy_array.poses.begin();
     }
 
     bool startNavigationCallback(std_srvs::Trigger::Request &request, std_srvs::Trigger::Response &response) {
@@ -555,27 +555,14 @@ public:
             // goal.task_id = task_id;
             ROS_WARN("goal setting");
             goal.command = dest->position.action;
-            if(dest->position.action == "p2p" ){
-                std::vector<orne_waypoints_msgs::Pose>::iterator target;
-                if(_reached && REVERSE){
-                    target = dest-1;
-                }else{
-                    target = dest+1;
-                }
-                goal.wp.position = target->position;
-                goal.wp.orientation = target->orientation;
-                actionServiceCall(makeQueue("p2p"));
-            }else{
-                goal.wp.position = dest->position;
-                goal.wp.orientation = dest->orientation;
-            }
+            goal.wp.position = dest->position;
+            goal.wp.orientation = dest->orientation;
             goal.duration = INT_MAX;
             goal.file = dest->position.file;
-            std::cout <<"publish command:" << goal.command;
+            std::cout <<"publish command:" << goal.command << std::endl;
             action_client.sendGoal(goal);
             actionlib::SimpleClientGoalState state = action_client.getState();
-            if(goal.command == "stop")
-                actionServiceCall(makeQueue("stop"));
+
             while(state !=actionlib::SimpleClientGoalState::PREEMPTED){
                 getRobotPosGL();
                 state = action_client.getState();

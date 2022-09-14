@@ -145,7 +145,7 @@ include_directories(
 
 # add_executable(adv_action_client src/adv_action_client.cpp)
 add_executable(adv_action_server src/adv_action_server.cpp)
-
+add_executable(rotate_action_server src/rotate_action_server.cpp)
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -165,6 +165,9 @@ add_dependencies(adv_action_server ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_
 #   ${catkin_LIBRARIES}
 # )
 target_link_libraries(adv_action_server
+  ${catkin_LIBRARIES}
+)
+target_link_libraries(rotate_action_server
   ${catkin_LIBRARIES}
 )
 #############

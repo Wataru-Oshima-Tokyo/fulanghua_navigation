@@ -20,6 +20,8 @@ class SpecialMove{
     SpecialMove():
       server(nh, "action", false),
       sound_client("sound_play", true),
+      rotate_client("rotate", true),
+      qr_detect_client("qr_detect", true),
       rate_(2)
     {
           ros::NodeHandle private_nh("~");
@@ -89,6 +91,16 @@ class SpecialMove{
 
     void chargingFunction(){
           printf("charging action here\n");
+          if (rotate_client.isServerConnected()){
+            printf("is conneceted\n");
+            fulanghua_action::special_moveGoal current_goal;
+            current_goal.duration = 100;
+            rotate_client.sendGoal(current_goal);
+            rotate_client.waitForResult();
+            ros::Duration(1).sleep();
+          }
+          server.setPreempted();
+          printf("Preempt Goal\n");
     }
 
     void P2P_move(const orne_waypoints_msgs::Pose &dest){
@@ -185,6 +197,8 @@ class SpecialMove{
     nav_msgs::Odometry _odom, initial_odom;;
     actionlib::SimpleActionServer<fulanghua_action::special_moveAction> server;
     actionlib::SimpleActionClient<sound_play::SoundRequestAction> sound_client;
+    actionlib::SimpleActionClient<fulanghua_action::special_moveAction> rotate_client;
+    actionlib::SimpleActionClient<fulanghua_action::special_moveAction> qr_detect_client;
     ros::Rate rate_;
     const double hz =20;
     bool speak_start = false;
@@ -257,7 +271,6 @@ int main(int argc, char** argv)
         {
           SpM.server.setSucceeded();
           // server.setAborted();
-          
         }
         else
         {
@@ -267,26 +280,13 @@ int main(int argc, char** argv)
           // printf("Active: publish feedback id:%i\n", current_goal->task_id);
           std::cout << "received command: " << current_goal->command <<std::endl;
           // printf("Active: publish result id:%i\n", current_goal->task_id);
-          if(current_goal->command =="lookup"){
-              printf("look up\n");
-              twist.linear.x = 1;
-          }
-          else if (current_goal->command =="lookdown"){
-              printf("look down\n");
-              twist.linear.x = -1;
-          }
-          else if (current_goal->command =="lookleft"){
-              printf("look left\n");
-              twist.angular.z = 1;
-          }
-          else if (current_goal->command =="lookright"){
-            printf("look right\n");
-            twist.angular.z = -1;
-          }
-          else if (current_goal->command =="stop"){
+          if (current_goal->command == "stop"){
+            // provisionally set the charging funtion here
             printf("stop\n");
-            twist.linear.x = 0;
-            twist.angular.z = 0;
+            SpM.chargingFunction();  
+            
+            // twist.linear.x = 0;
+            // twist.angular.z = 0;
           }
           else if (current_goal->command == "speak"){
             printf("speak\n");
