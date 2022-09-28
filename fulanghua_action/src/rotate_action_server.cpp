@@ -56,28 +56,36 @@ int main(int argc, char** argv){
             feedback.rate = (ros::Time::now() - start_time).toSec() / current_goal->duration; // decide the rate of feedback
             server.publishFeedback(feedback); //publish the feedback
              tf::StampedTransform current_transform;
+             geometry_msgs::Point pt;
+             geometry_msgs::Twist vel_msg;
             try{
               listener.lookupTransform("/base_link", "/odom",
                             ros::Time(0), current_transform);
+              pt.x = current_transform.getOrigin().x();
+              pt.y = current_transform.getOrigin().y();
+              double current = atan2(pt.y,pt.x);
+              double diff = target -current;
+              printf("target: %lf\n",target);
+              printf("current: %lf\n",current);
+              printf("diff_from target to current_position: %lf\n",diff);
+
+              vel_msg.angular.z =  -Kp* (target - current);
+              // vel_msg.linear.x = 0.5 * sqrt(pow(transform.getOrigin().x(), 2) +
+              //                               pow(transform.getOrigin().y(), 2));
+              if (std::abs(diff)<5)
+                turtle_vel.publish(vel_msg);
+              if(std::abs(diff)<0.1 ){
+                server.setSucceeded();
+                ROS_INFO("Succeeded it!");
+              }else if (std::abs(diff)>5){
+                server.setPreempted();
+                ROS_WARN("failed it...");
+              }
             }
             catch (tf::TransformException &ex) {
               ROS_ERROR("%s",ex.what());
               ros::Duration(1.0).sleep();
               continue;
-            }
-            geometry_msgs::Twist vel_msg;
-            double current = atan2(current_transform.getOrigin().y(),
-                                            current_transform.getOrigin().x());
-            double diff = target -current;
-            printf("diff_from target to current_position: %lf\n",diff);
-
-            vel_msg.angular.z =  -Kp* (target - current);
-            // vel_msg.linear.x = 0.5 * sqrt(pow(transform.getOrigin().x(), 2) +
-            //                               pow(transform.getOrigin().y(), 2));
-            turtle_vel.publish(vel_msg);
-            if(std::abs(diff)<0.1){
-                server.setSucceeded();
-                ROS_INFO("Succeeded it!");
             }
           }
         }

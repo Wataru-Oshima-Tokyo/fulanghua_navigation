@@ -11,6 +11,7 @@
 #include <sound_play/SoundRequestAction.h>
 #include <sound_play/SoundRequest.h>
 #include "std_msgs/Bool.h"
+#include "std_srvs/Empty.h"
 typedef actionlib::SimpleActionServer<fulanghua_action::special_moveAction> Server;
 
 class SpecialMove{
@@ -21,7 +22,7 @@ class SpecialMove{
       server(nh, "action", false),
       sound_client("sound_play", true),
       rotate_client("rotate", true),
-      qr_detect_client("qr_detect", true),
+      ar_detect_client("ar_detect", true),
       rate_(2)
     {
           ros::NodeHandle private_nh("~");
@@ -54,18 +55,7 @@ class SpecialMove{
             std::cout <<"sound file name:" << sound_fle_name;
             sound_client.sendGoal(goal);
             sound_client.waitForResult();
-            // actionlib::SimpleClientGoalState state = sound_client.getState();
-            // while(state !=actionlib::SimpleClientGoalState::SUCCEEDED){
-            //     state = sound_client.getState();
-            //     printf("Current State: %s\n", sound_client.getState().toString().c_str());
-            //     rate_.sleep();
-            //     std::cout << speaking << std::endl;
-            // }
             ros::Duration(1).sleep();
-            // std::cout << speaking << std::endl;
-            // while(speaking){
-            //     rate_.sleep();
-            // }
             if(posture){
               twist.linear.x = 0;
               twist.angular.z = 0;
@@ -90,17 +80,46 @@ class SpecialMove{
     }
 
     void chargingFunction(){
+          charging = true;
+          bool state = true;
+          int counter_=0;
           printf("charging action here\n");
-          if (rotate_client.isServerConnected()){
-            printf("is conneceted\n");
+          //ar marker detection to approach the charging station
+          if (ar_detect_client.isServerConnected() && state){
             fulanghua_action::special_moveGoal current_goal;
-            current_goal.duration = 100;
-            rotate_client.sendGoal(current_goal);
-            rotate_client.waitForResult();
+            current_goal.duration = 20;
+            state = false;
+            while(!state && counter_<5){
+              ar_detect_client.sendGoal(current_goal);
+              state = ar_detect_client.waitForResult();
+              counter_++;
+            }
             ros::Duration(1).sleep();
           }
-          server.setPreempted();
-          printf("Preempt Goal\n");
+          //rotate the robot so that realsense can see it 
+          if (rotate_client.isServerConnected() && state){
+            fulanghua_action::special_moveGoal current_goal;
+            current_goal.duration = 20;
+                        
+            state = false;
+            counter_=0;
+            while(!state && counter_<5){
+              rotate_client.sendGoal(current_goal);
+              state = rotate_client.waitForResult();
+              counter_++;
+            }
+            ros::Duration(1).sleep();
+          }
+
+          //call the charge start service (it iwll be action server)
+          charge_start_srv.call(req,res);
+
+          //here the ar detect to charge the robot program should be here
+
+
+          // server.setPreempted();
+          //charging = false;
+          // printf("Preempt Goal\n");
     }
 
     void P2P_move(const orne_waypoints_msgs::Pose &dest){
@@ -120,13 +139,6 @@ class SpecialMove{
         const double dist = std::sqrt(std::pow(wx - rx, 2) + std::pow(wy - ry, 2));
         //get the angle the target from the current position
         double angle = std::atan2((wy-ry),(wx-rx)); 
-        // printf("angle prev = %f\n", angle);
-        // if(std::abs(wy-ry)>std::abs(wx-rx)){
-          // if(angle>0)
-          //   angle = radian_90 - angle;
-          // else 
-          //   angle = -(radian_90+angle);
-        // }
         if(initial){
           initial_odom =_odom;
           // steering = direction.orientation - angle;
@@ -162,15 +174,6 @@ class SpecialMove{
         printf("calculated velocity %f\n", temp);
         printf("dist = %f\n", dist);
         
-        // // printf("ry = %f\n", ry);
-        // // printf("rx = %f\n", rx);
-        // // printf("wr-ry = %f\n", std::abs(wy-ry));
-        // // printf("wx - rx = %f\n", std::abs(wx - rx));
-        // printf("angle = %f\n", angle);
-        // // printf("orientation.x = %f\n", direction.orientation.x);
-        // // printf("orientation.y = %f\n", direction.orientation.y);
-        // printf("steering   = %f\n", steering);
-        // printf("orientation.w = %f\n", direction.orientation.w);
         t++;
         return dist < dist_err;
     }
@@ -198,7 +201,11 @@ class SpecialMove{
     actionlib::SimpleActionServer<fulanghua_action::special_moveAction> server;
     actionlib::SimpleActionClient<sound_play::SoundRequestAction> sound_client;
     actionlib::SimpleActionClient<fulanghua_action::special_moveAction> rotate_client;
-    actionlib::SimpleActionClient<fulanghua_action::special_moveAction> qr_detect_client;
+    actionlib::SimpleActionClient<fulanghua_action::special_moveAction> ar_detect_client;
+
+    //service client
+    ros::ServiceClient charge_start_srv;
+    
     ros::Rate rate_;
     const double hz =20;
     bool speak_start = false;
@@ -206,6 +213,8 @@ class SpecialMove{
     bool posture = false;
     std::string _voice_path;
     std::string voice_path;
+    const std::string ARUCO_DETECT_SERVICE_START = "/arucodetect/start";
+    bool charging = false;
   private:
     const double Kp = 0.5;
     const double Kv = 0.2865;
@@ -220,13 +229,13 @@ class SpecialMove{
     double original_angle;
     double prev_location = 0;
     bool speaking =false;
-    
-
     double max_vel;
     double min_vel;
     double t =0;
     double prev_diff=0;
     double voice_volume;
+    std_srvs::Empty::Request req;
+    std_srvs::Empty::Response res;
     
     
 };
@@ -245,6 +254,7 @@ int main(int argc, char** argv)
   // Server server;
   SpM.twist_postgure_pub = SpM.nh.advertise<geometry_msgs::Twist>(SpM.cmd_vel_posture,1000);
   SpM.twist_move_pub = SpM.nh.advertise<geometry_msgs::Twist>(SpM.cmd_vel_,1000);
+  SpM.charge_start_srv = SpM.nh.serviceClient<std_srvs::Empty>(SpM.ARUCO_DETECT_SERVICE_START);
   SpM.robot_coordinate_sub = SpM.nh.subscribe("robot_coordinate", 1000, &SpecialMove::coordinate_callback, &SpM);
   SpM.odom_sub = SpM.nh.subscribe("odom", 1000, &SpecialMove::odom_callback, &SpM);
   // SpM.speaking_sub = SpM.nh.subscribe("sound_play/is_speaking", 1000, &SpecialMove::speaking_callback, &SpM);
@@ -283,7 +293,8 @@ int main(int argc, char** argv)
           if (current_goal->command == "stop"){
             // provisionally set the charging funtion here
             printf("stop\n");
-            SpM.chargingFunction();  
+            if(!SpM.charging)
+              SpM.chargingFunction();  
             
             // twist.linear.x = 0;
             // twist.angular.z = 0;
@@ -322,6 +333,7 @@ int main(int argc, char** argv)
             }
             if(!SpM.speak_start){
               SpM.speaking_function(current_goal->file);
+              SpM.charging = false;
             }
           }
           else if (current_goal->command =="charge"){

@@ -18,8 +18,11 @@ find_package(catkin REQUIRED COMPONENTS
   orne_waypoints_msgs
   tf
   sound_play
+  cv_bridge
+  image_transport
 )
 
+find_package(OpenCV 4  REQUIRED)
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -124,9 +127,10 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  #include
   ${catkin_INCLUDE_DIRS}
-)
+  ${OpenCV_INCLUDE_DIRS}
+  )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
@@ -144,8 +148,15 @@ include_directories(
 # add_executable(${PROJECT_NAME}_node src/fulanghua_action_node.cpp)
 
 # add_executable(adv_action_client src/adv_action_client.cpp)
+
 add_executable(adv_action_server src/adv_action_server.cpp)
 add_executable(rotate_action_server src/rotate_action_server.cpp)
+
+add_executable(aruco_detect_server src/aruco_detect_action_server.cpp)
+target_compile_options(aruco_detect_server PRIVATE ${OpenMP_FLAGS})
+add_dependencies(aruco_detect_server ${catkin_EXPORTED_TARGETS})
+
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -170,6 +181,12 @@ target_link_libraries(adv_action_server
 target_link_libraries(rotate_action_server
   ${catkin_LIBRARIES}
 )
+
+target_link_libraries(aruco_detect_server 
+${OpenCV_LIBRARIES} ${catkin_LIBRARIES} 
+${CMAKE_THREAD_LIBS_INIT} ${OpenMP_LIBS}
+)
+
 #############
 ## Install ##
 #############
