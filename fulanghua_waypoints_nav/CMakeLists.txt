@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   fulanghua_srvs
   orne_waypoints_msgs
   fulanghua_action
+  fulanghua_msg
 )
 
 find_package(PkgConfig)

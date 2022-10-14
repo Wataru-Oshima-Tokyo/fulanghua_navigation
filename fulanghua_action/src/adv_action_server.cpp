@@ -1,6 +1,7 @@
 #include <ros/ros.h>
 #include <actionlib/client/simple_action_client.h>
 #include <fulanghua_action/special_moveAction.h>
+#include <camera_action/camera_pkgAction.h>
 #include <actionlib/server/simple_action_server.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Point.h>
@@ -9,6 +10,7 @@
 #include <tf/transform_listener.h>
 #include "orne_waypoints_msgs/Pose.h"
 #include <sound_play/SoundRequestAction.h>
+#include <fulanghua_msg/_LimoStatus.h>
 #include <sound_play/SoundRequest.h>
 #include "std_msgs/Bool.h"
 #include "std_srvs/Empty.h"
@@ -23,17 +25,58 @@ class SpecialMove{
       sound_client("sound_play", true),
       rotate_client("rotate", true),
       ar_detect_client("ar_detect", true),
+      charging_station_client("charging_station", true),
       rate_(2)
     {
           ros::NodeHandle private_nh("~");
           private_nh.param("cmd_vel_posture", cmd_vel_posture, std::string("cmd_vel_posture"));
           private_nh.param("cmd_vel", cmd_vel_, std::string("cmd_vel"));
+          private_nh.param("robot_name", robot_name_, std::string("go1"));
+          private_nh.param("holonomic", holonomic_, true);
+          private_nh.param("charge_threshold_higher", charge_threshold_higher_, 12.0);
+          if (robot_name_ !="go1"){
+          #define LIMO
+              CHARGE_TOPIC = "/limo_status";
+          }else{
+              CHARGE_TOPIC = "/go1_status";
+          }
           private_nh.param("max_vel", max_vel, 0.4);
           private_nh.param("min_vel", min_vel, 0.1);
           private_nh.param("dist_err", dist_err, 0.8);
           private_nh.param("voice_path", _voice_path, std::string(""));
           private_nh.param("volume", voice_volume, 1.0);
+
+          
+          twist_postgure_pub = nh.advertise<geometry_msgs::Twist>(cmd_vel_posture,100);
+          twist_move_pub = nh.advertise<geometry_msgs::Twist>(cmd_vel_,100);
+          charge_reset_srv = nh.serviceClient<std_srvs::Empty>(ARUCO_DETECT_SERVICE_RESET);
+          robot_coordinate_sub = nh.subscribe("robot_coordinate", 100, &SpecialMove::coordinate_callback, this);
+          insert_queue_sub_ = nh.subscribe("insert_now", 100, &SpecialMove::insert_now_callback, this);
+          odom_sub = nh.subscribe("odom", 100, &SpecialMove::odom_callback, this);
+          #ifdef LIMO
+              charge_sub = nh.subscribe(CHARGE_TOPIC, 100, &SpecialMove::limo_batteryCallback, this);
+          #else
+              charge_sub = nh.subscribe(CHARGE_TOPIC, 100, &WaypointsNavigation::go1_batteryCallback, this);
+          #endif
+
           server.start();
+    }
+
+    
+    void insert_now_callback(const std_msgs::Bool &msg){
+      if (msg.data){
+        if (check_battery_){
+          battery_criteria_ = battery_;
+          check_battery_ = false;
+        }
+      }else{
+        check_battery_ = true;
+      }
+    }
+
+
+    void limo_batteryCallback(const fulanghua_msg::_LimoStatus &msg){
+      battery_ = msg.battery_voltage;
     }
     void odom_callback(const nav_msgs::Odometry& odom){
         _odom = odom;
@@ -42,7 +85,7 @@ class SpecialMove{
         rx = point.x;
         ry = point.y;
     }
-    void speaking_function(const std::string& sound_fle_name){
+    void speaking_function(const std::string& sound_file_name){
         speak_start = true;
         if (sound_client.isServerConnected())
         {
@@ -51,8 +94,8 @@ class SpecialMove{
             goal.sound_request.sound = sr.PLAY_FILE;
             goal.sound_request.command = sr.PLAY_ONCE;
             goal.sound_request.volume = voice_volume;
-            goal.sound_request.arg = voice_path + sound_fle_name + ".wav";
-            std::cout <<"sound file name:" << sound_fle_name;
+            goal.sound_request.arg = voice_path + sound_file_name + ".wav";
+            std::cout <<"sound file name:" << sound_file_name;
             sound_client.sendGoal(goal);
             sound_client.waitForResult();
             ros::Duration(1).sleep();
@@ -96,30 +139,82 @@ class SpecialMove{
             }
             ros::Duration(1).sleep();
           }
-          //rotate the robot so that realsense can see it 
-          if (rotate_client.isServerConnected() && state){
-            fulanghua_action::special_moveGoal current_goal;
-            current_goal.duration = 20;
-                        
+          //rotate the robot so that realsense can see it
+          if (!holonomic_){
+            if (rotate_client.isServerConnected() && state){
+              fulanghua_action::special_moveGoal current_goal;
+              current_goal.duration = 20;
+              current_goal.angle = -90;
+              state = false;
+              counter_=0;
+              while(!state && counter_<5){
+                rotate_client.sendGoal(current_goal);
+                state = rotate_client.waitForResult();
+                counter_++;
+              }
+              ros::Duration(1).sleep();
+            }
+          }
+
+
+          //chaging station action server here
+          if (charging_station_client.isServerConnected() && state){
+            camera_action::camera_pkgGoal current_goal;
+            current_goal.duration = 120;
+            
             state = false;
             counter_=0;
             while(!state && counter_<5){
-              rotate_client.sendGoal(current_goal);
-              state = rotate_client.waitForResult();
+              charging_station_client.sendGoal(current_goal);
+              state = charging_station_client.waitForResult();
+              ros::Duration(2).sleep();
+              //check if it succeeds or not
+              if (battery_<battery_criteria_+0.2){
+                state = false;
+              }
               counter_++;
             }
-            ros::Duration(1).sleep();
           }
 
-          //call the charge start service (it iwll be action server)
-          charge_start_srv.call(req,res);
+          //check everything is fine.
+          if(!state){
+            //call the operator!!
+            ROS_ERROR("Charging failed, please call the operator\n");
+            charge_reset_srv.call(req,res);
+            //sleep 5 seconds
+            ros::Duration(5).sleep();
+          }else{
+            ros::Time start = ros::Time::now();
 
-          //here the ar detect to charge the robot program should be here
+            while(battery_<charge_threshold_higher_){
+              ros::Duration(5).sleep();
+            }
+            //reset the arm
+            charge_reset_srv.call(req,res);
+            //sleep 5 seconds
+            ros::Duration(5).sleep();
+
+            //rotate the robot so that the robot can go to the next point smoothly
+            if (rotate_client.isServerConnected() && state){
+              fulanghua_action::special_moveGoal current_goal;
+              current_goal.duration = 20;
+              current_goal.angle = -90;
+              state = false;
+              counter_=0;
+              while(!state && counter_<5){
+                rotate_client.sendGoal(current_goal);
+                state = rotate_client.waitForResult();
+                counter_++;
+              }
+              ros::Duration(1).sleep();
+            }
+          }
 
 
-          // server.setPreempted();
-          //charging = false;
-          // printf("Preempt Goal\n");
+
+          server.setPreempted();
+          charging = false;
+          printf("Preempt Goal\n");
     }
 
     void P2P_move(const orne_waypoints_msgs::Pose &dest){
@@ -180,10 +275,12 @@ class SpecialMove{
 
 
     bool isPostureAvailable(const fulanghua_action::special_moveGoalConstPtr& current_goal){
-      if(current_goal->file == "guide_go1")
-          return true;
-      else
-          return false;
+      if(current_goal->file == "guide_go1"){
+         return true;
+      }else{
+         return false;
+      }
+          
     }
     bool posture_control(const fulanghua_action::special_moveGoalConstPtr& current_goal){
     if((current_goal->wp.position.x != 0 && current_goal->wp.position.y != 0) && (current_goal->wp.orientation.x != 0 && current_goal->wp.orientation.y != 0))
@@ -191,20 +288,22 @@ class SpecialMove{
       else
           return false;
     }
-    ros::NodeHandle nh;
+    
+    ros::NodeHandle nh; 
     tf::TransformListener tf_listener_;
     std::string cmd_vel_, _dist_err,cmd_vel_posture;
     ros::Publisher twist_move_pub, twist_postgure_pub; 
-    ros::Subscriber robot_coordinate_sub, odom_sub, speaking_sub;
+    ros::Subscriber robot_coordinate_sub, odom_sub, speaking_sub,charge_sub, insert_queue_sub_;
     geometry_msgs::Twist twist;
     nav_msgs::Odometry _odom, initial_odom;;
     actionlib::SimpleActionServer<fulanghua_action::special_moveAction> server;
     actionlib::SimpleActionClient<sound_play::SoundRequestAction> sound_client;
     actionlib::SimpleActionClient<fulanghua_action::special_moveAction> rotate_client;
     actionlib::SimpleActionClient<fulanghua_action::special_moveAction> ar_detect_client;
+    actionlib::SimpleActionClient<camera_action::camera_pkgAction> charging_station_client;
 
     //service client
-    ros::ServiceClient charge_start_srv;
+    ros::ServiceClient charge_reset_srv;
     
     ros::Rate rate_;
     const double hz =20;
@@ -213,9 +312,24 @@ class SpecialMove{
     bool posture = false;
     std::string _voice_path;
     std::string voice_path;
-    const std::string ARUCO_DETECT_SERVICE_START = "/arucodetect/start";
+    const std::string ARUCO_DETECT_SERVICE_RESET = "/arucodetect/reset";
     bool charging = false;
+
+
+
+
+
+
+
+
   private:
+    //used for battery
+    std::string CHARGE_TOPIC;
+    std::string robot_name_; 
+    double battery_,battery_criteria_,charge_threshold_higher_; //get the battery info;
+    bool check_battery_;
+    bool holonomic_;
+    //--------
     const double Kp = 0.5;
     const double Kv = 0.2865;
     orne_waypoints_msgs::Pose direction;
@@ -252,11 +366,7 @@ int main(int argc, char** argv)
   ros::Rate loop_rate(SpM.hz);
   bool initial_goal = true;
   // Server server;
-  SpM.twist_postgure_pub = SpM.nh.advertise<geometry_msgs::Twist>(SpM.cmd_vel_posture,1000);
-  SpM.twist_move_pub = SpM.nh.advertise<geometry_msgs::Twist>(SpM.cmd_vel_,1000);
-  SpM.charge_start_srv = SpM.nh.serviceClient<std_srvs::Empty>(SpM.ARUCO_DETECT_SERVICE_START);
-  SpM.robot_coordinate_sub = SpM.nh.subscribe("robot_coordinate", 1000, &SpecialMove::coordinate_callback, &SpM);
-  SpM.odom_sub = SpM.nh.subscribe("odom", 1000, &SpecialMove::odom_callback, &SpM);
+
   // SpM.speaking_sub = SpM.nh.subscribe("sound_play/is_speaking", 1000, &SpecialMove::speaking_callback, &SpM);
   fulanghua_action::special_moveGoalConstPtr current_goal;
   while (ros::ok())

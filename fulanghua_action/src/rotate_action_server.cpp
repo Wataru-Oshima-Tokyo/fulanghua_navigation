@@ -27,19 +27,19 @@ int main(int argc, char** argv){
       if(server.isNewGoalAvailable()){
           current_goal = server.acceptNewGoal();
           start_time = ros::Time::now();
-          while(1){
-          try{
-              listener.lookupTransform("/base_link", "/odom", ros::Time(0), target_transform);
-              break;
-          }
-          catch (tf::TransformException &ex) {
-              ROS_ERROR("%s",ex.what());
-              ros::Duration(1.0).sleep();
-              continue;
-          }
+          while (ros::ok()){
+            try{
+                listener.lookupTransform("/base_link", "/odom", ros::Time(0), target_transform);
+                break;
+            }
+            catch (tf::TransformException &ex) {
+                ROS_ERROR("%s",ex.what());
+                ros::Duration(1.0).sleep();
+                continue;
+            }
          }
-          //get the target angle
-          target = -90*3.14/180 + atan2(target_transform.getOrigin().y(),
+          //get the target angle (rotate left)
+          target = current_goal->angle*3.14/180 + atan2(target_transform.getOrigin().y(),
                                   target_transform.getOrigin().x());
       }
       if(server.isActive()){
@@ -72,15 +72,17 @@ int main(int argc, char** argv){
               vel_msg.angular.z =  -Kp* (target - current);
               // vel_msg.linear.x = 0.5 * sqrt(pow(transform.getOrigin().x(), 2) +
               //                               pow(transform.getOrigin().y(), 2));
-              if (std::abs(diff)<5)
+              //adjusting position bysending twist commands
+              // if (std::abs(diff)<5)
                 turtle_vel.publish(vel_msg);
               if(std::abs(diff)<0.1 ){
                 server.setSucceeded();
                 ROS_INFO("Succeeded it!");
-              }else if (std::abs(diff)>5){
-                server.setPreempted();
-                ROS_WARN("failed it...");
               }
+              // else if (std::abs(diff)>5){
+              //   server.setPreempted();
+              //   ROS_WARN("failed it...");
+              // }
             }
             catch (tf::TransformException &ex) {
               ROS_ERROR("%s",ex.what());

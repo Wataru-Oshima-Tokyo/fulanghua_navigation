@@ -1,6 +1,7 @@
 #Define the goal
 #uint32 task_id  # Specify which dishwasher we want to use
 float64 duration
+float64 angle
 string command
 string file
 orne_waypoints_msgs/Pose wp

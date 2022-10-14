@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(fulanghua_action)
+project(fulanghua_msg)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -8,23 +8,12 @@ project(fulanghua_action)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  actionlib
-  actionlib_msgs
+  message_generation
   roscpp
   rospy
   std_msgs
-  geometry_msgs
-  fulanghua_srvs
-  orne_waypoints_msgs
-  tf
-  sound_play
-  cv_bridge
-  image_transport
-  camera_action
-  fulanghua_msg
 )
 
-find_package(OpenCV 4  REQUIRED)
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -58,6 +47,20 @@ find_package(OpenCV 4  REQUIRED)
 ##   * uncomment the generate_messages entry below
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
+
+add_message_files(
+	FILES
+	_LimoStatus.msg
+)
+
+generate_messages(
+	DEPENDENCIES
+      std_msgs
+)
+
+
+
+
 ## Generate messages in the 'msg' folder
 # add_message_files(
 #   FILES
@@ -73,18 +76,17 @@ find_package(OpenCV 4  REQUIRED)
 # )
 
 ## Generate actions in the 'action' folder
-add_action_files(
-  FILES
-  special_move.action
-)
+# add_action_files(
+#   FILES
+#   Action1.action
+#   Action2.action
+# )
 
-# Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-  actionlib_msgs
-  orne_waypoints_msgs
-)
+## Generate added messages and services with any dependencies listed here
+# generate_messages(
+#   DEPENDENCIES
+#   std_msgs
+# )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -117,8 +119,8 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES fulanghua_action
-#  CATKIN_DEPENDS actionlib actionlib_msgs roscpp rospy
+#  LIBRARIES fulanghua_msg
+#  CATKIN_DEPENDS roscpp rospy std_msgs
 #  DEPENDS system_lib
 )
 
@@ -129,14 +131,13 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-  #include
+# include
   ${catkin_INCLUDE_DIRS}
-  ${OpenCV_INCLUDE_DIRS}
-  )
+)
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/fulanghua_action.cpp
+#   src/${PROJECT_NAME}/fulanghua_msg.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -147,17 +148,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/fulanghua_action_node.cpp)
-
-# add_executable(adv_action_client src/adv_action_client.cpp)
-
-add_executable(adv_action_server src/adv_action_server.cpp)
-add_executable(rotate_action_server src/rotate_action_server.cpp)
-
-add_executable(aruco_detect_server src/aruco_detect_action_server.cpp)
-target_compile_options(aruco_detect_server PRIVATE ${OpenMP_FLAGS})
-add_dependencies(aruco_detect_server ${catkin_EXPORTED_TARGETS})
-
+# add_executable(${PROJECT_NAME}_node src/fulanghua_msg_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -168,26 +159,11 @@ add_dependencies(aruco_detect_server ${catkin_EXPORTED_TARGETS})
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-# add_dependencies(adv_action_client ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(adv_action_server ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
-# target_link_libraries(adv_action_client
-#   ${catkin_LIBRARIES}
-# )
-target_link_libraries(adv_action_server
-  ${catkin_LIBRARIES}
-)
-target_link_libraries(rotate_action_server
-  ${catkin_LIBRARIES}
-)
-
-target_link_libraries(aruco_detect_server 
-${OpenCV_LIBRARIES} ${catkin_LIBRARIES} 
-${CMAKE_THREAD_LIBS_INIT} ${OpenMP_LIBS}
-)
 
 #############
 ## Install ##
@@ -236,7 +212,7 @@ ${CMAKE_THREAD_LIBS_INIT} ${OpenMP_LIBS}
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_fulanghua_action.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_fulanghua_msg.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

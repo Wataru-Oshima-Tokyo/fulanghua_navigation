@@ -11,10 +11,12 @@
 <arg name="max_vel"         default="0.4"/>
 <arg name="min_vel"         default="0.1"/>
 <arg name="volume"         default="2.0"/>
-<arg name="Kp"       default="0.3"/> 
+<arg name="Kp"       default="3.0"/> 
+<arg name="Kv"       default="0.0"/> 
 <arg name="offset_fixed_x" default="0.009"/>
 <arg name="offset_fixed_y" default="0.0345"/>
-<arg name="offset_fixed_z" default="0.395"/>
+<arg name="offset_fixed_z" default="0.32"/>
+<arg name="adjust_speed" default="0.2"/>
 <arg name="image_topic" default="/usb_cam/image_raw"/>
 <arg name="calibration_path" default="$(find camera_pkg)/param"/> 
 
@@ -38,9 +40,12 @@
     <param name="cmd_vel"  value="$(arg cmd_vel)" />
     <param name="image_topic" value="$(arg image_topic)"/>
     <param name="Kp"  value="$(arg Kp)" />
+	<param name="Kv"  value="$(arg Kv)" />
+	<param name="adjust_speed"  value="$(arg adjust_speed)" />
     <param name="offset_fixed_x" value="$(arg offset_fixed_x)"/>
     <param name="offset_fixed_y" value="$(arg offset_fixed_y)"/>
     <param name="offset_fixed_z" value="$(arg offset_fixed_z)"/>
 	<param name="calibration_path" value="$(arg calibration_path)/camera_ext.yaml" />
 </node>
+
 </launch>

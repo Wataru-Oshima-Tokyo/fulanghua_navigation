@@ -53,6 +53,8 @@
 #include <exception>
 #include <math.h>
 #include <limits>
+#include <fulanghua_msg/_LimoStatus.h>
+
 
 #ifdef NEW_YAMLCPP
 template<typename T>
@@ -86,9 +88,16 @@ public:
         ros::NodeHandle private_nh("~");
         private_nh.param("robot_frame", robot_frame_, std::string("base_link"));
         private_nh.param("robot_name", robot_name_, std::string("go1"));
+        private_nh.param("charge_threshold_lower", charge_threshold_lower_, 10.0);
+        private_nh.param("charge_threshold_higher", charge_threshold_higher_, 12.0);
+        if (robot_name_ !="go1"){
+            #define LIMO
+            CHARGE_TOPIC = "/limo_status";
+        }else{
+            CHARGE_TOPIC = "/go1_status";
+        }
         private_nh.param("world_frame", world_frame_, std::string("map"));
         private_nh.param("cmd_vel", cmd_vel_, std::string("cmd_vel"));
-        private_nh.param("charge_topic", CHARGE_TOPIC, std::string("charge"));
         private_nh.param("amcl_filename", amcl_filename_,amcl_filename_);
         double max_update_rate;
         private_nh.param("max_update_rate", max_update_rate, 10.0);
@@ -124,10 +133,13 @@ public:
         resume_server_ = nh.advertiseService("resume_wp_pose", &WaypointsNavigation::resumePoseCallback, this);
         search_server_ = nh.advertiseService("near_wp_nav",&WaypointsNavigation::searchPoseCallback, this);
         cmd_vel_sub_ = nh.subscribe(cmd_vel_, 1, &WaypointsNavigation::cmdVelCallback, this);
-        cmd_vel_pub_ = nh.advertise<geometry_msgs::Twist>(cmd_vel_,1000);
-        robot_coordinate_pub = nh.advertise<geometry_msgs::Point>("robot_coordinate",1000);
-        // action_exe_sub = nh.subscribe("cmd_vel_executing", 1000, &WaypointsNavigation::actionExeCallback, this);
-        charge_sub = nh.subscribe(CHARGE_TOPIC, 1000, &WaypointsNavigation::needChargeCallback, this);
+        cmd_vel_pub_ = nh.advertise<geometry_msgs::Twist>(cmd_vel_,100);
+        robot_coordinate_pub = nh.advertise<geometry_msgs::Point>("robot_coordinate",100);
+        #ifdef LIMO
+            charge_sub = nh.subscribe(CHARGE_TOPIC, 100, &WaypointsNavigation::limo_batteryCallback, this);
+        #else
+            charge_sub = nh.subscribe(CHARGE_TOPIC, 100, &WaypointsNavigation::go1_batteryCallback, this);
+        #endif
         wp_pub_ = nh.advertise<orne_waypoints_msgs::WaypointArray>("waypoints", 10);
         clear_costmaps_srv_ = nh.serviceClient<std_srvs::Empty>("/move_base/clear_costmaps");
         action_cmd_srv = nh.serviceClient<fulanghua_srvs::actions>("/action/start");
@@ -357,22 +369,18 @@ public:
         }
     }
 
-    // void actionExeCallback(const std_msgs::Bool &msg){
-    //     if(msg.data){
-            
-    //     }else{
-    //         action_finished = ;
-    //     }
-    // }
-
     bool action_service_stop_callback(std_srvs::Empty::Request& req, std_srvs::Empty::Response& re){
         ROS_INFO("Finshing action");
         action_client.cancelGoal();
         // re.success = true;
     }
 
-    void needChargeCallback(const std_msgs::Bool &msg){
-        CHARGE = msg.data;
+    void limo_batteryCallback(const fulanghua_msg::_LimoStatus &msg){
+        if (msg.battery_voltage<charge_threshold_lower_){
+            CHARGE =true;
+        }else if (msg.battery_voltage>=charge_threshold_higher_){
+            CHARGE =false;
+        }
     }
 
     bool readFile(const std::string &filename){
@@ -801,7 +809,7 @@ private:
     ros::Subscriber cmd_vel_sub_, charge_sub;
     ros::Publisher wp_pub_, cmd_vel_pub_, robot_coordinate_pub;
     ros::ServiceClient clear_costmaps_srv_, action_cmd_srv;
-    double last_moved_time_, dist_err_;
+    double last_moved_time_, dist_err_,charge_threshold_lower_,charge_threshold_higher_;
     bool LOOP = false;
     bool REVERSE = false;
     bool action_finished = false;
