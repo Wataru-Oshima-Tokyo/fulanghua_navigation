@@ -8,7 +8,7 @@
 <arg name="voice_path" default="$(find fulanghua_waypoints_nav)/voice/$(arg lang)/"/>
 <arg name="dist_err"       default="0.8"/>
 <arg name="charge_threshold_lower"       default="10.0"/>
-<arg name="charge_threshold_higher"       default="12.0"/>
+<arg name="charge_threshold_higher"       default="11.4"/>
 <arg name="cmd_vel"         default="cmd_vel"/>
 <arg name="max_vel"         default="0.4"/>
 <arg name="min_vel"         default="0.1"/>

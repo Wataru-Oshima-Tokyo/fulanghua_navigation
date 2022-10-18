@@ -34,12 +34,6 @@ class SpecialMove{
           private_nh.param("robot_name", robot_name_, std::string("go1"));
           private_nh.param("holonomic", holonomic_, true);
           private_nh.param("charge_threshold_higher", charge_threshold_higher_, 12.0);
-          if (robot_name_ !="go1"){
-          #define LIMO
-              CHARGE_TOPIC = "/limo_status";
-          }else{
-              CHARGE_TOPIC = "/go1_status";
-          }
           private_nh.param("max_vel", max_vel, 0.4);
           private_nh.param("min_vel", min_vel, 0.1);
           private_nh.param("dist_err", dist_err, 0.8);
@@ -51,40 +45,22 @@ class SpecialMove{
           twist_move_pub = nh.advertise<geometry_msgs::Twist>(cmd_vel_,100);
           charge_reset_srv = nh.serviceClient<std_srvs::Empty>(ARUCO_DETECT_SERVICE_RESET);
           robot_coordinate_sub = nh.subscribe("robot_coordinate", 100, &SpecialMove::coordinate_callback, this);
-          insert_queue_sub_ = nh.subscribe("insert_now", 100, &SpecialMove::insert_now_callback, this);
-          odom_sub = nh.subscribe("odom", 100, &SpecialMove::odom_callback, this);
-          #ifdef LIMO
-              charge_sub = nh.subscribe(CHARGE_TOPIC, 100, &SpecialMove::limo_batteryCallback, this);
-          #else
-              charge_sub = nh.subscribe(CHARGE_TOPIC, 100, &WaypointsNavigation::go1_batteryCallback, this);
-          #endif
+          insert_queue_sub_ = nh.subscribe(INSERT_RESULT_TOPIC,100, &SpecialMove::insert_result_callback, this);
 
+          odom_sub = nh.subscribe("odom", 100, &SpecialMove::odom_callback, this);
           server.start();
     }
 
-    
-    void insert_now_callback(const std_msgs::Bool &msg){
-      if (msg.data){
-        if (check_battery_){
-          battery_criteria_ = battery_;
-          check_battery_ = false;
-        }
-      }else{
-        check_battery_ = true;
-      }
-    }
 
-
-    void limo_batteryCallback(const fulanghua_msg::_LimoStatus &msg){
-      battery_ = msg.battery_voltage;
-    }
     void odom_callback(const nav_msgs::Odometry& odom){
         _odom = odom;
     }
+
     void coordinate_callback(const geometry_msgs::Point& point){
         rx = point.x;
         ry = point.y;
     }
+
     void speaking_function(const std::string& sound_file_name){
         speak_start = true;
         if (sound_client.isServerConnected())
@@ -128,29 +104,55 @@ class SpecialMove{
           int counter_=0;
           printf("charging action here\n");
           //ar marker detection to approach the charging station
+          
           if (ar_detect_client.isServerConnected() && state){
+            actionlib::SimpleClientGoalState client_state = ar_detect_client.getState();
             fulanghua_action::special_moveGoal current_goal;
-            current_goal.duration = 20;
-            state = false;
-            while(!state && counter_<5){
+            current_goal.duration = 120;
+            for (int i = 0; i < 5; i++)
+            {
+              state = true;
               ar_detect_client.sendGoal(current_goal);
-              state = ar_detect_client.waitForResult();
-              counter_++;
+              while(client_state !=actionlib::SimpleClientGoalState::SUCCEEDED){
+                client_state = ar_detect_client.getState();
+                if (client_state == actionlib::SimpleClientGoalState::PREEMPTED
+                  || client_state == actionlib::SimpleClientGoalState::ABORTED){
+                  ROS_WARN("failed %d times\n", i+1);
+                  state = false;
+                  break;
+                }
+                ros::Duration(0.1).sleep();
+              }
+              if (state)
+                break;
             }
+            
+
             ros::Duration(1).sleep();
           }
           //rotate the robot so that realsense can see it
           if (!holonomic_){
             if (rotate_client.isServerConnected() && state){
+              actionlib::SimpleClientGoalState client_state = rotate_client.getState();
               fulanghua_action::special_moveGoal current_goal;
               current_goal.duration = 20;
               current_goal.angle = -90;
-              state = false;
-              counter_=0;
-              while(!state && counter_<5){
+              for (int i = 0; i < 5; i++)
+              {
+                state = true;
                 rotate_client.sendGoal(current_goal);
-                state = rotate_client.waitForResult();
-                counter_++;
+                while(client_state !=actionlib::SimpleClientGoalState::SUCCEEDED){
+                  client_state = rotate_client.getState();
+                  if (client_state == actionlib::SimpleClientGoalState::PREEMPTED
+                    || client_state == actionlib::SimpleClientGoalState::ABORTED){
+                    ROS_WARN("failed %d times\n", i+1);
+                    state = false;
+                    break;
+                  }
+                  ros::Duration(0.1).sleep();
+                }
+                if (state)
+                  break;
               }
               ros::Duration(1).sleep();
             }
@@ -159,20 +161,30 @@ class SpecialMove{
 
           //chaging station action server here
           if (charging_station_client.isServerConnected() && state){
+            actionlib::SimpleClientGoalState client_state = charging_station_client.getState();
             camera_action::camera_pkgGoal current_goal;
             current_goal.duration = 120;
             
-            state = false;
-            counter_=0;
-            while(!state && counter_<5){
+            for (int i = 0; i < 5; i++)
+            {
+              state = true;
               charging_station_client.sendGoal(current_goal);
-              state = charging_station_client.waitForResult();
-              ros::Duration(2).sleep();
-              //check if it succeeds or not
-              if (battery_<battery_criteria_+0.2){
-                state = false;
+              while(client_state !=actionlib::SimpleClientGoalState::SUCCEEDED){
+                client_state = charging_station_client.getState();
+                if (client_state == actionlib::SimpleClientGoalState::PREEMPTED
+                || client_state == actionlib::SimpleClientGoalState::ABORTED){
+                  ROS_WARN("failed %d times\n", i+1);
+                  state = false;
+                  break;
+                }
+                ros::Duration(0.1).sleep();
               }
-              counter_++;
+              ros::Duration(2).sleep();
+              if (state){
+                ROS_INFO("Succeeded it!");
+                break;
+              }
+
             }
           }
 
@@ -185,37 +197,48 @@ class SpecialMove{
             ros::Duration(5).sleep();
           }else{
             ros::Time start = ros::Time::now();
-
-            while(battery_<charge_threshold_higher_){
-              ros::Duration(5).sleep();
-            }
+            //here I need to put battery check action server here
+            ROS_INFO("Charging finished, the navigation will be resumed soon\n");
             //reset the arm
             charge_reset_srv.call(req,res);
             //sleep 5 seconds
-            ros::Duration(5).sleep();
+            ros::Duration(10).sleep();
 
             //rotate the robot so that the robot can go to the next point smoothly
             if (rotate_client.isServerConnected() && state){
+              actionlib::SimpleClientGoalState client_state = rotate_client.getState();
               fulanghua_action::special_moveGoal current_goal;
               current_goal.duration = 20;
               current_goal.angle = -90;
-              state = false;
-              counter_=0;
-              while(!state && counter_<5){
+              for (int i = 0; i < 5; i++)
+              {
+                state = true;
                 rotate_client.sendGoal(current_goal);
-                state = rotate_client.waitForResult();
-                counter_++;
+                while(client_state !=actionlib::SimpleClientGoalState::SUCCEEDED){
+                  client_state = rotate_client.getState();
+                  if (client_state == actionlib::SimpleClientGoalState::PREEMPTED
+                    || client_state == actionlib::SimpleClientGoalState::ABORTED){
+                    ROS_WARN("failed %d times\n", i+1);
+                    state = false;
+                    break;
+                  }
+                }
+                if (state)
+                  break;
               }
               ros::Duration(1).sleep();
             }
           }
-
-
-
           server.setPreempted();
           charging = false;
           printf("Preempt Goal\n");
     }
+    //get the insert result
+    void insert_result_callback(const std_msgs::Bool &result){
+        insert_result = result.data;
+        std::cout << "insert_result: " << insert_result << std::endl;
+    }; 
+
 
     void P2P_move(const orne_waypoints_msgs::Pose &dest){
       if (!onNavigationPoint(dest)){
@@ -268,7 +291,6 @@ class SpecialMove{
         printf("cmd_vel_x = %f\n", velocity_x);
         printf("calculated velocity %f\n", temp);
         printf("dist = %f\n", dist);
-        
         t++;
         return dist < dist_err;
     }
@@ -310,9 +332,11 @@ class SpecialMove{
     bool speak_start = false;
     bool isPosAvailable =false;
     bool posture = false;
+    bool insert_result = false;
     std::string _voice_path;
     std::string voice_path;
     const std::string ARUCO_DETECT_SERVICE_RESET = "/arucodetect/reset";
+    const std::string INSERT_RESULT_TOPIC = "/insert_result";
     bool charging = false;
 
 
@@ -458,9 +482,6 @@ int main(int argc, char** argv)
           else if (current_goal->command =="videostream"){
             printf(" watch video\n");
           }
-          // printf("cmd_x_vel = %f\n", twist.linear.x);
-          // printf("cmd_z_vel = %f\n", twist.angular.z);
-          // SpM.twist_pub.publish(twist);
         }
       }
     }

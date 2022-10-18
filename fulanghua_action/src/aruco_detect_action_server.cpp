@@ -108,11 +108,11 @@ class ADJUST_POSITION{
               //move it to the center
               double angle=0;
               if(holonomic_){
-                if (edgeScreen(9,4,7)){
+                if (edgeScreen(3,1,2)){
                   //get the angle here
                   if (_counter>40){
                       std::sort(angle_array.begin(), angle_array.end());
-                      angle = angle_array[angle_array.size()/2-1];               
+                      angle = angle_array[angle_array.size()/2-1] * 0.6; // because it is too much              
                       _counter = -1;
                     }else if (_counter>=0){
                       ROS_INFO("getting an angle");
@@ -146,9 +146,9 @@ class ADJUST_POSITION{
             // cv::circle(src, cv::Point(c_x,c_y),30, cv::Scalar(0, 255, 0), thickness);//Using circle()function to draw the line//
             geometry_msgs::Twist twist;
             if(c_x <(numerator_1*w/denominator)){
-              twist.linear.x = adjust_speed;
+              twist.linear.x = adjust_speed*0.5;
             }else if (c_x> (numerator_2*w/denominator)){
-              twist.linear.x = -adjust_speed;
+              twist.linear.x = -adjust_speed*0.5;
             }else{
               return true;
             }

@@ -244,8 +244,6 @@ public:
 
         current_waypoint_ = waypoints_.poses.begin();
         ROS_WARN("Start!");
-        std::string rname = "guide_" + robot_name_;
-        actionServiceCall(makeQueue(rname));
         has_activate_ = true;
         response.success = true;
         return true;
@@ -650,6 +648,11 @@ public:
             getRobotPosGL();
             try {
                 if(has_activate_) {
+                    if(_initial){
+                        std::string rname = "guide_" + robot_name_;
+                        actionServiceCall(makeQueue(rname));
+                        _initial=false;
+                    }
                     if(current_waypoint_->position.action == "charge" && CHARGING_STATION){
                         if(_reached && REVERSE){
                             current_waypoint_--;
@@ -817,6 +820,7 @@ private:
     bool CHARGING_STATION=false;
     bool _reached = false;
     bool p2p_flag =false;
+    bool _initial=true;
 };
 
 int main(int argc, char *argv[]){
