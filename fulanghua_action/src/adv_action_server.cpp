@@ -45,8 +45,6 @@ class SpecialMove{
           twist_move_pub = nh.advertise<geometry_msgs::Twist>(cmd_vel_,100);
           charge_reset_srv = nh.serviceClient<std_srvs::Empty>(ARUCO_DETECT_SERVICE_RESET);
           robot_coordinate_sub = nh.subscribe("robot_coordinate", 100, &SpecialMove::coordinate_callback, this);
-          insert_queue_sub_ = nh.subscribe(INSERT_RESULT_TOPIC,100, &SpecialMove::insert_result_callback, this);
-
           odom_sub = nh.subscribe("odom", 100, &SpecialMove::odom_callback, this);
           server.start();
     }
@@ -88,8 +86,8 @@ class SpecialMove{
             }
             speak_start = false;
             printf("Voice Action finished\n");
-            server.setPreempted();
-            printf("Preempt Goal\n");
+            server.setSucceeded();
+            printf("Succeeded it\n");
         }   
         
     }
@@ -190,54 +188,18 @@ class SpecialMove{
 
           //check everything is fine.
           if(!state){
-            //call the operator!!
-            ROS_ERROR("Charging failed, please call the operator\n");
-            charge_reset_srv.call(req,res);
-            //sleep 5 seconds
-            ros::Duration(5).sleep();
+              charge_reset_srv.call(req,res);
+              ros::Duration(5).sleep();
+              server.setPreempted();
+              charging = false;
+              printf("Preempted Goal\n");
           }else{
-            ros::Time start = ros::Time::now();
-            //here I need to put battery check action server here
-            ROS_INFO("Charging finished, the navigation will be resumed soon\n");
-            //reset the arm
-            charge_reset_srv.call(req,res);
-            //sleep 5 seconds
-            ros::Duration(10).sleep();
-
-            //rotate the robot so that the robot can go to the next point smoothly
-            if (rotate_client.isServerConnected() && state){
-              actionlib::SimpleClientGoalState client_state = rotate_client.getState();
-              fulanghua_action::special_moveGoal current_goal;
-              current_goal.duration = 20;
-              current_goal.angle = -90;
-              for (int i = 0; i < 5; i++)
-              {
-                state = true;
-                rotate_client.sendGoal(current_goal);
-                while(client_state !=actionlib::SimpleClientGoalState::SUCCEEDED){
-                  client_state = rotate_client.getState();
-                  if (client_state == actionlib::SimpleClientGoalState::PREEMPTED
-                    || client_state == actionlib::SimpleClientGoalState::ABORTED){
-                    ROS_WARN("failed %d times\n", i+1);
-                    state = false;
-                    break;
-                  }
-                }
-                if (state)
-                  break;
-              }
-              ros::Duration(1).sleep();
-            }
+              server.setSucceeded();
+              charging = false;
+              printf("Succeeded it\n");
           }
-          server.setPreempted();
-          charging = false;
-          printf("Preempt Goal\n");
+
     }
-    //get the insert result
-    void insert_result_callback(const std_msgs::Bool &result){
-        insert_result = result.data;
-        std::cout << "insert_result: " << insert_result << std::endl;
-    }; 
 
 
     void P2P_move(const orne_waypoints_msgs::Pose &dest){
@@ -246,8 +208,8 @@ class SpecialMove{
       }else{
           initial = true;
           t=0;
-          server.setPreempted();
-          printf("Preempt Goal\n");
+          server.setSucceeded();
+          printf("Succeeded it\n");
       }
     }
 
@@ -315,7 +277,7 @@ class SpecialMove{
     tf::TransformListener tf_listener_;
     std::string cmd_vel_, _dist_err,cmd_vel_posture;
     ros::Publisher twist_move_pub, twist_postgure_pub; 
-    ros::Subscriber robot_coordinate_sub, odom_sub, speaking_sub,charge_sub, insert_queue_sub_;
+    ros::Subscriber robot_coordinate_sub, odom_sub, speaking_sub,charge_sub;
     geometry_msgs::Twist twist;
     nav_msgs::Odometry _odom, initial_odom;;
     actionlib::SimpleActionServer<fulanghua_action::special_moveAction> server;
@@ -332,11 +294,9 @@ class SpecialMove{
     bool speak_start = false;
     bool isPosAvailable =false;
     bool posture = false;
-    bool insert_result = false;
     std::string _voice_path;
     std::string voice_path;
     const std::string ARUCO_DETECT_SERVICE_RESET = "/arucodetect/reset";
-    const std::string INSERT_RESULT_TOPIC = "/insert_result";
     bool charging = false;
 
 
@@ -413,7 +373,8 @@ int main(int argc, char** argv)
         geometry_msgs::Twist twist;
         if (start_time + ros::Duration(current_goal->duration) < ros::Time::now())
         {
-          SpM.server.setSucceeded();
+          SpM.server.setPreempted();
+          printf("Preempt Goal\n");
           // server.setAborted();
         }
         else
