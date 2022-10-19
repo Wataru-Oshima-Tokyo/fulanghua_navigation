@@ -413,7 +413,7 @@ public:
         }
     }
 
-    void insert_result_callback(const std_msgs::Bool & msg){
+    void insert_result_callback(const std_msgs::Bool &msg){
         _insert_result = msg.data;
     }
 
@@ -643,11 +643,11 @@ public:
                             ROS_WARN("Failed the whole process 5 times so please call the operator to fix this");
                             stopNavigationCallback(req, res);
                             charge_reset_srv.call(req,res);
-                            ros::Duration(3).sleep();
+                            ros::Duration(10).sleep();
                             break;
                         }else{
                             charge_reset_srv.call(req,res);
-                            ros::Duration(3).sleep();
+                            ros::Duration(10).sleep();
                             ROS_WARN("Failed %d  times", i+1);
                         }
                     }else{
