@@ -87,7 +87,7 @@ class SpecialMove{
             speak_start = false;
             printf("Voice Action finished\n");
             server.setSucceeded();
-            printf("Succeeded it\n");
+            ROS_INFO("Succeeded it");
         }   
         
     }
@@ -177,12 +177,10 @@ class SpecialMove{
                 }
                 ros::Duration(0.1).sleep();
               }
-              ros::Duration(2).sleep();
               if (state){
-                ROS_INFO("Succeeded it!");
                 break;
               }
-
+              ros::Duration(1).sleep();
             }
           }
 
@@ -192,11 +190,11 @@ class SpecialMove{
               ros::Duration(5).sleep();
               server.setPreempted();
               charging = false;
-              printf("Preempted Goal\n");
+              ROS_INFO("Preempted Goal");
           }else{
               server.setSucceeded();
               charging = false;
-              printf("Succeeded it\n");
+              ROS_INFO("Succeeded it");
           }
 
     }
@@ -209,7 +207,7 @@ class SpecialMove{
           initial = true;
           t=0;
           server.setSucceeded();
-          printf("Succeeded it\n");
+          ROS_INFO("Succeeded it\n");
       }
     }
 

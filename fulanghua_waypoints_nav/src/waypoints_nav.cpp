@@ -31,6 +31,7 @@
 #include <ros/ros.h>
 #include <std_srvs/Trigger.h>
 #include <std_srvs/Empty.h>
+#include <std_srvs/SetBool.h>
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/PoseArray.h>
 #include <geometry_msgs/Twist.h>
@@ -76,6 +77,7 @@ public:
         move_base_action_("move_base", true),
         action_client("action", true),
         rotate_client("rotate", true),
+        battery_check_client("battery_check", true),
         rate_(10),
         last_moved_time_(0),
         dist_err_(0.8),
@@ -146,7 +148,6 @@ public:
         clear_costmaps_srv_ = nh.serviceClient<std_srvs::Empty>("/move_base/clear_costmaps");
         charge_reset_srv = nh.serviceClient<std_srvs::Empty>(ARUCO_DETECT_SERVICE_RESET);
         action_cmd_srv = nh.serviceClient<fulanghua_srvs::actions>("/action/start");
-        insert_result_sub = nh.subscribe("insert_result", 100, &WaypointsNavigation::insert_result_callback, this);
         //added below
         loop_start_server = nh.advertiseService("loop_start_wp_nav", &WaypointsNavigation::loopStartCallback, this);
         loop_stop_server = nh.advertiseService("loop_stop_wp_nav", &WaypointsNavigation::loopStopCallback, this);
@@ -383,6 +384,32 @@ public:
             }
     }
 
+    void battery_check(){
+        if(battery_check_client.isServerConnected()){
+              bool state =true;
+              actionlib::SimpleClientGoalState client_state = battery_check_client.getState();
+              fulanghua_action::special_moveGoal current_goal;
+              current_goal.duration = INT_MAX-1;
+              for (int i = 0; i < 5; i++)
+              {
+                battery_check_client.sendGoal(current_goal);
+                while(client_state !=actionlib::SimpleClientGoalState::SUCCEEDED){
+                  client_state = battery_check_client.getState();
+                  if (client_state == actionlib::SimpleClientGoalState::PREEMPTED
+                    || client_state == actionlib::SimpleClientGoalState::ABORTED){
+                    ROS_WARN("failed %d times\n", i+1);
+                    state = false;
+                    break;
+                  }
+                  ros::Duration(0.1).sleep();
+                }
+                if (state)
+                  break;
+              }
+              ros::Duration(1).sleep();
+        }
+    }
+
     void cmdVelCallback(const geometry_msgs::Twist &msg){
         if(msg.linear.x > -0.001 && msg.linear.x < 0.001   &&
            msg.linear.y > -0.001 && msg.linear.y < 0.001   &&
@@ -411,10 +438,6 @@ public:
         }else if (battery_>=charge_threshold_higher_){
             CHARGE =false;
         }
-    }
-
-    void insert_result_callback(const std_msgs::Bool &msg){
-        _insert_result = msg.data;
     }
 
 
@@ -592,76 +615,71 @@ public:
     
     void actionServiceCall(const std::vector<orne_waypoints_msgs::Pose>::iterator &dest){
         bool initial_goal = false;
-        if (action_client.isServerConnected())
-        {
-            fulanghua_action::special_moveGoal goal;
-            // goal.task_id = task_id;
-            ROS_WARN("goal setting");
-            goal.command = dest->position.action;
-            goal.wp.position = dest->position;
-            goal.wp.orientation = dest->orientation;
-            goal.duration = INT_MAX;
-            goal.file = dest->position.file;
-            std::cout <<"publish command:" << goal.command << std::endl;
-
-
-            for (int i = 0; i < 5; i++){
-                bool state = true;
+        for (int i = 0; i < 5; i++){
+            bool state = true;
+            if (action_client.isServerConnected())
+            {
+                fulanghua_action::special_moveGoal goal;
+                // goal.task_id = task_id;
+                ROS_WARN("goal setting");
+                goal.command = dest->position.action;
+                goal.wp.position = dest->position;
+                goal.wp.orientation = dest->orientation;
+                goal.duration = INT_MAX;
+                goal.file = dest->position.file;
+                std::cout <<"publish command:" << goal.command << std::endl;
                 action_client.sendGoal(goal);
                 actionlib::SimpleClientGoalState client_state = action_client.getState();
                 while(client_state !=actionlib::SimpleClientGoalState::SUCCEEDED){
-                getRobotPosGL();
-                  client_state = action_client.getState();
-                  if (client_state == actionlib::SimpleClientGoalState::PREEMPTED
-                    || client_state == actionlib::SimpleClientGoalState::ABORTED){
-                    ROS_WARN("failed %d times\n", i+1);
-                    state = false;
-                    break;
-                  }
-                  ros::Duration(0.1).sleep();
-                }
-                if(state){
-                    // if(goal.command =="charge"){
-                    if(goal.command =="stop"){ //after all the experiment is done, then change the topic name to "charge" 
-                        ros::Duration(2).sleep();
-                        if (_insert_result){
-                            ROS_INFO("Waiting for the battery is fully charged");
-                            while(battery_<charge_threshold_higher_){
-                                ros::Duration(5).sleep();
-                            }
-                            ROS_INFO("Chagrging is done");
-
-                            //remvoe the hand from the outlet
-                            charge_reset_srv.call(req,res);
-                            //sleep 10 seconds
-                            ros::Duration(10).sleep();
-
-                            callRotateClient();
-                            has_activate_ = true;
-                        }else if (i==4){
-                            
-                            ROS_WARN("Failed the whole process 5 times so please call the operator to fix this");
-                            stopNavigationCallback(req, res);
-                            charge_reset_srv.call(req,res);
-                            ros::Duration(10).sleep();
-                            break;
-                        }else{
-                            charge_reset_srv.call(req,res);
-                            ros::Duration(10).sleep();
-                            ROS_WARN("Failed %d  times", i+1);
-                        }
-                    }else{
-                        has_activate_ = true;
+                    getRobotPosGL();
+                    client_state = action_client.getState();
+                    if (client_state == actionlib::SimpleClientGoalState::PREEMPTED
+                        || client_state == actionlib::SimpleClientGoalState::ABORTED){
+                        ROS_WARN("failed %d times\n", i+1);
+                        state = false;
                         break;
                     }
+                ros::Duration(0.1).sleep();
                 }
+            }else{
+                break;
             }
 
-            if((goal.wp.position.x != 0 && goal.wp.position.y != 0) && (goal.wp.orientation.x != 0 && goal.wp.orientation.y != 0))
-                actionServiceCall(makeQueue("next"));
-            printf("Action finished\n");
-        }   
+            if(state){
+                // if(goal.command =="charge"){
+                if(dest->position.action == "stop"){ //after all the experiment is done, then change the topic name to "charge" 
+                    ros::Duration(2).sleep();
+                    ROS_INFO("Waiting for the battery is fully charged");
+                    //here I need to call the battery check service 
+                    battery_check();
+                    ROS_INFO("Chagrging is done");
+
+                    //remvoe the hand from the outlet
+                    charge_reset_srv.call(req,res);
+                    //sleep 10 seconds
+                    ros::Duration(5).sleep();
+
+                    callRotateClient();
+                }
+                has_activate_ = true;
+                break;
+            }else if (i==4){
+                ROS_WARN("Failed the whole process 5 times so please call the operator to fix this");
+                stopNavigationCallback(req, res);
+                charge_reset_srv.call(req,res);
+                ros::Duration(10).sleep();
+                has_activate_ = false;
+                break;
+            }else{
+                ROS_WARN("You Failed %d times\n ", i+1);
+                continue;
+            }
         rate_.sleep();
+        }  
+        if((dest->position.x != 0 && dest->position.y != 0) && (dest->orientation.x != 0 && dest->orientation.y != 0)){
+            actionServiceCall(makeQueue("next"));
+            printf("Action finished\n");
+        }
     }
 
     void location_update(const tf::StampedTransform& robot_gl){
@@ -734,6 +752,7 @@ public:
                         actionServiceCall(makeQueue(rname));
                         _initial=false;
                     }
+                    
                     if(current_waypoint_->position.action == "charge" && CHARGING_STATION){
                         if(_reached && REVERSE){
                             current_waypoint_--;
@@ -824,7 +843,6 @@ public:
                             
                         }
                     }
-                    
                     if(_reached && REVERSE){
                         current_waypoint_--;
                     }else{
@@ -879,6 +897,7 @@ private:
     actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> move_base_action_;
     actionlib::SimpleActionClient<fulanghua_action::special_moveAction> action_client;
     actionlib::SimpleActionClient<fulanghua_action::special_moveAction> rotate_client;
+    actionlib::SimpleActionClient<fulanghua_action::special_moveAction> battery_check_client;
     std::string amcl_filename_;
     // geometry_msgs::PoseArray waypoints_;
     orne_waypoints_msgs::WaypointArray waypoints_, charging_waypoints_ ;
@@ -898,7 +917,7 @@ private:
     ros::Rate rate_;
     ros::ServiceServer start_server_, pause_server_, unpause_server_, stop_server_, suspend_server_, 
     resume_server_ ,search_server_, loop_start_server, loop_stop_server, roundtrip_on_server_, roundtrip_off_server_, command_server;
-    ros::Subscriber cmd_vel_sub_, charge_sub,insert_result_sub;
+    ros::Subscriber cmd_vel_sub_, charge_sub;
     ros::Publisher wp_pub_, cmd_vel_pub_, robot_coordinate_pub;
     ros::ServiceClient clear_costmaps_srv_, action_cmd_srv;
     ros::ServiceClient charge_reset_srv;
@@ -913,7 +932,6 @@ private:
     bool _reached = false;
     bool p2p_flag =false;
     bool _initial=true;
-    bool _insert_result = false;
 };
 
 int main(int argc, char *argv[]){

@@ -153,6 +153,7 @@ include_directories(
 
 add_executable(adv_action_server src/adv_action_server.cpp)
 add_executable(rotate_action_server src/rotate_action_server.cpp)
+add_executable(battery_check_server src/battery_check_server.cpp)
 
 add_executable(aruco_detect_server src/aruco_detect_action_server.cpp)
 target_compile_options(aruco_detect_server PRIVATE ${OpenMP_FLAGS})
@@ -181,6 +182,10 @@ target_link_libraries(adv_action_server
   ${catkin_LIBRARIES}
 )
 target_link_libraries(rotate_action_server
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(battery_check_server
   ${catkin_LIBRARIES}
 )
 

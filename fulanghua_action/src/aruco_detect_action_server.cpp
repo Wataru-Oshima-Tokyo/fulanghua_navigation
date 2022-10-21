@@ -257,11 +257,12 @@ int main(int argc, char** argv){
           adj.start_time = ros::Time::now();
           adj._counter=0;
           visualize = true;
+          adj.Done_z=false;
       }
       if(adj.server.isActive()){
         if(adj.server.isPreemptRequested()){
           adj.server.setPreempted(); // cancel the goal
-          ROS_WARN("Preemmpt Goal\n");
+          ROS_WARN("AR detect: Preemmpt Goal\n");
         }else{
           if(adj.start_time + ros::Duration(adj.current_goal->duration) < ros::Time::now()){
             adj.server.setAborted(); // abort it
@@ -279,7 +280,7 @@ int main(int argc, char** argv){
                   if(adj.edgeScreen(3,1,2)){
                     if(adj.adjustPosition(tvecs[0](0), tvecs[0](1), tvecs[0](2), _angle)){ //adjusting the positiion of the mobile robot
                       adj.server.setSucceeded();
-                      ROS_INFO("Succeeded it!");
+                      ROS_INFO("AR detect: Succeeded!");
                       visualize = false;
                     }
                   }

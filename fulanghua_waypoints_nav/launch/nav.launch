@@ -65,6 +65,11 @@
     <param name="calibration_path" value="$(arg calibration_path)/camera_ext.yaml" />
 </node>
 
+<node name="battery_check_server" pkg="fulanghua_action" type="battery_check_server" output="screen">
+    <param name="robot_name" value="$(arg robot_name)"/>
+    <param name="charge_threshold_higher"  value="$(arg charge_threshold_higher)" />
+  </node>
+
 <include file="$(find sound_play)/soundplay_node.launch"></include>
 
 </launch>
