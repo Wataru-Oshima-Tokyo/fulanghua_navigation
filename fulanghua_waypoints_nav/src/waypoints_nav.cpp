@@ -360,13 +360,14 @@ public:
     void callRotateClient(){
         if (rotate_client.isServerConnected()){
               bool state =true;
-              actionlib::SimpleClientGoalState client_state = rotate_client.getState();
+              
               fulanghua_action::special_moveGoal current_goal;
               current_goal.duration = 20;
               current_goal.angle = -90;
               for (int i = 0; i < 5; i++)
               {
                 rotate_client.sendGoal(current_goal);
+                actionlib::SimpleClientGoalState client_state = rotate_client.getState();
                 while(client_state !=actionlib::SimpleClientGoalState::SUCCEEDED){
                   client_state = rotate_client.getState();
                   if (client_state == actionlib::SimpleClientGoalState::PREEMPTED
@@ -377,8 +378,10 @@ public:
                   }
                   ros::Duration(0.1).sleep();
                 }
-                if (state)
-                  break;
+                if (state){
+                //    rotate_client.cancelAllGoals();
+                   break;
+                }
               }
               ros::Duration(1).sleep();
             }
@@ -387,12 +390,12 @@ public:
     void battery_check(){
         if(battery_check_client.isServerConnected()){
               bool state =true;
-              actionlib::SimpleClientGoalState client_state = battery_check_client.getState();
               fulanghua_action::special_moveGoal current_goal;
               current_goal.duration = INT_MAX-1;
               for (int i = 0; i < 5; i++)
               {
                 battery_check_client.sendGoal(current_goal);
+                actionlib::SimpleClientGoalState client_state = battery_check_client.getState();
                 while(client_state !=actionlib::SimpleClientGoalState::SUCCEEDED){
                   client_state = battery_check_client.getState();
                   if (client_state == actionlib::SimpleClientGoalState::PREEMPTED
@@ -403,8 +406,11 @@ public:
                   }
                   ros::Duration(0.1).sleep();
                 }
-                if (state)
-                  break;
+                if (state){
+                    // battery_check_client.cancelAllGoals();
+                    break;
+                }
+
               }
               ros::Duration(1).sleep();
         }

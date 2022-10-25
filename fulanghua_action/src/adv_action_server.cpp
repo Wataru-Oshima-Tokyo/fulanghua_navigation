@@ -104,13 +104,13 @@ class SpecialMove{
           //ar marker detection to approach the charging station
           
           if (ar_detect_client.isServerConnected() && state){
-            actionlib::SimpleClientGoalState client_state = ar_detect_client.getState();
             fulanghua_action::special_moveGoal current_goal;
             current_goal.duration = 120;
             for (int i = 0; i < 5; i++)
             {
               state = true;
               ar_detect_client.sendGoal(current_goal);
+              actionlib::SimpleClientGoalState client_state = ar_detect_client.getState();
               while(client_state !=actionlib::SimpleClientGoalState::SUCCEEDED){
                 client_state = ar_detect_client.getState();
                 if (client_state == actionlib::SimpleClientGoalState::PREEMPTED
@@ -121,8 +121,11 @@ class SpecialMove{
                 }
                 ros::Duration(0.1).sleep();
               }
-              if (state)
+              if (state){
+                // ar_detect_client.cancelAllGoals();
                 break;
+              }
+                
             }
             
 
@@ -131,7 +134,7 @@ class SpecialMove{
           //rotate the robot so that realsense can see it
           if (!holonomic_){
             if (rotate_client.isServerConnected() && state){
-              actionlib::SimpleClientGoalState client_state = rotate_client.getState();
+              
               fulanghua_action::special_moveGoal current_goal;
               current_goal.duration = 20;
               current_goal.angle = -90;
@@ -139,6 +142,7 @@ class SpecialMove{
               {
                 state = true;
                 rotate_client.sendGoal(current_goal);
+                actionlib::SimpleClientGoalState client_state = rotate_client.getState();
                 while(client_state !=actionlib::SimpleClientGoalState::SUCCEEDED){
                   client_state = rotate_client.getState();
                   if (client_state == actionlib::SimpleClientGoalState::PREEMPTED
@@ -149,8 +153,10 @@ class SpecialMove{
                   }
                   ros::Duration(0.1).sleep();
                 }
-                if (state)
+                if (state){
+                  // rotate_client.cancelAllGoals();
                   break;
+                }
               }
               ros::Duration(1).sleep();
             }
@@ -159,7 +165,6 @@ class SpecialMove{
 
           //chaging station action server here
           if (charging_station_client.isServerConnected() && state){
-            actionlib::SimpleClientGoalState client_state = charging_station_client.getState();
             camera_action::camera_pkgGoal current_goal;
             current_goal.duration = 120;
             
@@ -167,6 +172,7 @@ class SpecialMove{
             {
               state = true;
               charging_station_client.sendGoal(current_goal);
+              actionlib::SimpleClientGoalState client_state = charging_station_client.getState();
               while(client_state !=actionlib::SimpleClientGoalState::SUCCEEDED){
                 client_state = charging_station_client.getState();
                 if (client_state == actionlib::SimpleClientGoalState::PREEMPTED
@@ -178,23 +184,24 @@ class SpecialMove{
                 ros::Duration(0.1).sleep();
               }
               if (state){
-                break;
+                  // charging_station_client.cancelAllGoals();
+                  break;
               }
-              ros::Duration(1).sleep();
             }
+            ros::Duration(1).sleep();
           }
 
           //check everything is fine.
           if(!state){
               charge_reset_srv.call(req,res);
               ros::Duration(5).sleep();
+              charging = false;
               server.setPreempted();
-              charging = false;
-              ROS_INFO("Preempted Goal");
+              ROS_INFO("A whole charging process is preempted");
           }else{
-              server.setSucceeded();
               charging = false;
-              ROS_INFO("Succeeded it");
+              server.setSucceeded();
+              ROS_INFO("A whole charging process is Done");
           }
 
     }
@@ -394,7 +401,6 @@ int main(int argc, char** argv)
           }
           else if (current_goal->command == "speak"){
             printf("speak\n");
-            SpM.voice_path = SpM._voice_path + "speeches/";
             if(initial_goal){
               SpM.isPosAvailable = SpM.isPostureAvailable(current_goal);
               initial_goal = false;
