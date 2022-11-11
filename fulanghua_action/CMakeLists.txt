@@ -22,6 +22,7 @@ find_package(catkin REQUIRED COMPONENTS
   image_transport
   camera_action
   fulanghua_msg
+  fulanghua_srvs
 )
 
 find_package(OpenCV 4  REQUIRED)
