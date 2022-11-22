@@ -17,8 +17,8 @@
 <arg name="offset_fixed_x" default="0.009"/>
 <arg name="offset_fixed_y" default="0.02"/>
 <arg name="offset_fixed_z" default="0.285"/>
-<arg name="holonomic" default="true"/>
-<arg name="image_topic" default="/usb_cam2/image_raw"/>
+<arg name="holonomic" default="false"/>
+<arg name="image_topic" default="/usb_cam/image_raw"/>
 <arg name="calibration_path" default="$(find camera_pkg)/param"/> 
 
 <node name="waypoints_nav" pkg="fulanghua_waypoints_nav" type="waypoints_nav" output="screen">

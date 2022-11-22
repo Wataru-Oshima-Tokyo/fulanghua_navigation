@@ -160,7 +160,6 @@ add_executable(aruco_detect_server src/aruco_detect_action_server.cpp)
 target_compile_options(aruco_detect_server PRIVATE ${OpenMP_FLAGS})
 add_dependencies(aruco_detect_server ${catkin_EXPORTED_TARGETS})
 
-
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use

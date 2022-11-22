@@ -217,6 +217,36 @@ class SpecialMove{
           ROS_INFO("Succeeded it\n");
       }
     }
+    
+    //Align the robot with aruco marker.
+    void AlignmentFunction(){
+      bool state = true;
+      if (ar_detect_client.isServerConnected() && state){
+        fulanghua_action::special_moveGoal current_goal;
+        current_goal.duration = 120;
+        ROS_INFO("alignment started");
+        for (int i = 0; i < 5; i++)
+        {
+          state = true;
+          ar_detect_client.sendGoal(current_goal);
+          actionlib::SimpleClientGoalState client_state = ar_detect_client.getState();
+          while(client_state !=actionlib::SimpleClientGoalState::SUCCEEDED){
+            client_state = ar_detect_client.getState();
+            if (client_state == actionlib::SimpleClientGoalState::PREEMPTED
+              || client_state == actionlib::SimpleClientGoalState::ABORTED){
+              ROS_WARN("failed %d times\n", i+1);
+              state = false;
+              break;
+            }
+            ros::Duration(0.1).sleep();
+          }
+          if (state){
+            // ar_detect_client.cancelAllGoals();
+            break;
+          }
+        }
+      }
+    }
 
     bool onNavigationPoint(const orne_waypoints_msgs::Pose &dest){
         const double wx = dest.position.x;
@@ -303,12 +333,6 @@ class SpecialMove{
     std::string voice_path;
     const std::string ARUCO_DETECT_SERVICE_RESET = "/arucodetect/reset";
     bool charging = false;
-
-
-
-
-
-
 
 
   private:
@@ -446,6 +470,9 @@ int main(int argc, char** argv)
           }
           else if (current_goal->command =="videostream"){
             printf(" watch video\n");
+          }
+          else if (current_goal->command == "align"){
+            SpM.AlignmentFunction();
           }
         }
       }
