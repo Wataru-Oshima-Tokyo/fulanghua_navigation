@@ -88,21 +88,24 @@ class ADJUST_POSITION{
             offset_y = (double)fixed_y - y;
             offset_z = (double)fixed_z - z;
             ROS_INFO("start approching");
-            double move_y = Kp*offset_y;
-            double move_z = Kp*offset_z;
-            // twist.linear.x = -move_z; // depth
+            double move_x = Kp*offset_x;
+            double rotate_z = Kp*offset_y;
+            // twist.linear.x = -move_z; // depthx
             if(holonomic_)
-              twist.linear.y = move_z;
+              twist.linear.y = rotate_z;
             else
-              twist.linear.x = -move_z;
-              twist.angular.z = move_y*15; // horizontal
+              twist.linear.x = move_x;
+              twist.angular.z = rotate_z*15; // horizontal
             // twist.linear.y = move_x; // horizontal 
             // twist.linear.z = move_y; // vertical
             clock_gettime(CLOCK_MONOTONIC, &timer_start); fstart=(double)timer_start.tv_sec + ((double)timer_start.tv_nsec/1000000000.0);
-
+            
+            //if offset is smaller than threshold, position adjastment has done
             if(std::abs(offset_z)<=threshold_z){
                   Done_z = true;
             }
+
+            //getting the angle after position adjastment has done
             if(Done_z){
               // Done_z = false;
               //move it to the center
