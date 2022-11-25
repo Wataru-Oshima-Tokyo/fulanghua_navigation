@@ -3,51 +3,27 @@
 #include <fulanghua_action/special_moveAction.h>
 #include <camera_action/camera_pkgAction.h>
 #include <actionlib/server/simple_action_server.h>
-#include <geometry_msgs/Twist.h>
-#include <geometry_msgs/Point.h>
+
 #include <nav_msgs/Odometry.h>
 #include <tf/tf.h>
 #include <tf/transform_listener.h>
-#include "orne_waypoints_msgs/Pose.h"
-#include <sound_play/SoundRequest.h>
 #include "std_msgs/Bool.h"
 #include "std_srvs/Empty.h"
-#include "unitree_ros_msgs/HighCmd.h"
+#include <unitree_legged_msgs/HighCmd.h>
 
-class Command{
-    public:
-        Command():
-        server(nh, "go1_command", false);
-        {
-            ros::NodeHandle private_nh("~"); 
-            go1_ros_cmd_pub=nh.advertise<geometry_msgs::Twist>("high_cmd", 10);
-        }
-
-    //Server
-    Server server; //make a server
-
-
-    //Publishers
-    ros::NodeHandle nh;
-    ros::Publisher go1_ros_cmd_pub; 
-    //Subscribers
-
-    //Services
-
-    //Topics
-
-    //Variables
-    unitree_ros_msgs::Highcmd go1_cmd;
-    double target; // target angle(radian)
-    std::string cmd[3] = {"standup", "sitdown", "sidestep"}
-
-};
+typedef actionlib::SimpleActionServer<fulanghua_action::special_moveAction> Server;
 
 int main(int argc, char** argv){
   ros::init(argc, argv, "my_tf_listener");
-  Command go1_cmd;
+  ros::NodeHandle nh;
   ros::Rate rate(10.0); // set the rate 
+  ros::Publisher go1_ros_cmd_pub; 
+  Server server(nh, "go1_command", false); //make a server
+  unitree_legged_msgs::HighCmd high_cmd_ros;
+  std::string cmd[3] = {"standup", "sitdown", "sidestep"};
   ros::Time start_time;
+  ros::NodeHandle private_nh("~"); 
+  go1_ros_cmd_pub=nh.advertise<unitree_legged_msgs::HighCmd>("high_cmd", 10);
   fulanghua_action::special_moveGoalConstPtr current_goal; // instance of a goal
   server.start(); //start the server
   while (ros::ok()){
@@ -68,12 +44,36 @@ int main(int argc, char** argv){
             fulanghua_action::special_moveFeedback feedback; // set the feeback
             feedback.rate = (ros::Time::now() - start_time).toSec() / current_goal->duration; // decide the rate of feedback
             server.publishFeedback(feedback); //publish the feedback
-            if (current_goal->commnd == go1_cmd.cmd[0]){
+            //initialize high cmd
+            high_cmd_ros.head[0] = 0xFE;
+            high_cmd_ros.head[1] = 0xEF;
+            high_cmd_ros.levelFlag = 0x00;
+            high_cmd_ros.mode = 0;
+            high_cmd_ros.gaitType = 0;
+            high_cmd_ros.speedLevel = 0;
+            high_cmd_ros.footRaiseHeight = 0;
+            high_cmd_ros.bodyHeight = 0;
+            high_cmd_ros.euler[0] = 0;
+            high_cmd_ros.euler[1] = 0;
+            high_cmd_ros.euler[2] = 0;
+            high_cmd_ros.velocity[0] = 0.0f;
+            high_cmd_ros.velocity[1] = 0.0f;
+            high_cmd_ros.yawSpeed = 0.0f;
+            high_cmd_ros.reserve = 0;
+            
+            if (current_goal->command == cmd[0]){
                 ROS_INFO("Go1 standing up");
-            }else if (current_goal->commnd == go1_cmd.cmd[1]){
+                high_cmd_ros.mode = 6;
+            }else if (current_goal->command == cmd[1]){
                 ROS_INFO("Go1 sitting down");
-            }else if (current_goal->commnd == go1_cmd.cmd[2]){
+                high_cmd_ros.mode = 5;
+            }else if (current_goal->command == cmd[2]){
                 ROS_INFO("Go1 side stepping");
+                high_cmd_ros.velocity[1] = 0.112f;
+            }
+            while(start_time + ros::Duration(2) > ros::Time::now()){
+              go1_ros_cmd_pub.publish(high_cmd_ros);
+              rate.sleep();
             }
           }
         }
