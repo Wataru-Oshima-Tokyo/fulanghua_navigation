@@ -21,9 +21,11 @@ int main(int argc, char** argv){
   Server server(nh, "go1_command", false); //make a server
   unitree_legged_msgs::HighCmd high_cmd_ros;
   std::string cmd[3] = {"standup", "sitdown", "sidestep"};
+  std::string _high_cmd;
   ros::Time start_time;
   ros::NodeHandle private_nh("~"); 
-  go1_ros_cmd_pub=nh.advertise<unitree_legged_msgs::HighCmd>("high_cmd", 10);
+  private_nh.param("high_cmd", _high_cmd, std::string("high_cmd"));
+  go1_ros_cmd_pub=nh.advertise<unitree_legged_msgs::HighCmd>(_high_cmd, 10);
   fulanghua_action::special_moveGoalConstPtr current_goal; // instance of a goal
   server.start(); //start the server
   while (ros::ok()){
@@ -71,7 +73,8 @@ int main(int argc, char** argv){
                 ROS_INFO("Go1 side stepping");
                 high_cmd_ros.velocity[1] = 0.112f;
             }
-            while(start_time + ros::Duration(2) > ros::Time::now()){
+
+            while(start_time + ros::Duration(current_goal->duration) -ros::Duration(0.5) > ros::Time::now()){
               go1_ros_cmd_pub.publish(high_cmd_ros);
               rate.sleep();
             }

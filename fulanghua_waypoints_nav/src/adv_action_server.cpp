@@ -25,6 +25,7 @@ class SpecialMove{
       sound_client("sound_play", true),
       rotate_client("rotate", true),
       ar_detect_client("ar_detect", true),
+      go1_cmd_client("go1_command", true),
       charging_station_client("charging_station", true),
       rate_(2)
     {
@@ -162,6 +163,33 @@ class SpecialMove{
             }
           }
 
+          if (robot_name_ == "go1"){
+              if (go1_cmd_client.isServerConnected() && state){
+                fulanghua_action::special_moveGoal current_goal;
+                current_goal.duration = 2;
+                for (int i = 0; i < 5; i++)
+                {
+                  state = true;
+                  go1_cmd_client.sendGoal(current_goal);
+                  actionlib::SimpleClientGoalState client_state = go1_cmd_client.getState();
+                  while(client_state !=actionlib::SimpleClientGoalState::SUCCEEDED){
+                    client_state = go1_cmd_client.getState();
+                    if (client_state == actionlib::SimpleClientGoalState::PREEMPTED
+                      || client_state == actionlib::SimpleClientGoalState::ABORTED){
+                      ROS_WARN("failed %d times\n", i+1);
+                      state = false;
+                      break;
+                    }
+                    ros::Duration(0.1).sleep();
+                  }
+                  if (state){
+                    // rotate_client.cancelAllGoals();
+                    break;
+                  }
+                }
+                ros::Duration(1).sleep();
+            }
+          }
 
           //chaging station action server here
           if (charging_station_client.isServerConnected() && state){
@@ -289,6 +317,7 @@ class SpecialMove{
     actionlib::SimpleActionClient<sound_play::SoundRequestAction> sound_client;
     actionlib::SimpleActionClient<fulanghua_action::special_moveAction> rotate_client;
     actionlib::SimpleActionClient<fulanghua_action::special_moveAction> ar_detect_client;
+    actionlib::SimpleActionClient<fulanghua_action::special_moveAction> go1_cmd_client;
     actionlib::SimpleActionClient<camera_action::camera_pkgAction> charging_station_client;
 
     //service client
