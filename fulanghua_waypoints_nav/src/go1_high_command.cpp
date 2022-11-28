@@ -14,13 +14,13 @@
 typedef actionlib::SimpleActionServer<fulanghua_action::special_moveAction> Server;
 
 int main(int argc, char** argv){
-  ros::init(argc, argv, "my_tf_listener");
+  ros::init(argc, argv, "go1_high_command");
   ros::NodeHandle nh;
   ros::Rate rate(10.0); // set the rate 
   ros::Publisher go1_ros_cmd_pub; 
   Server server(nh, "go1_command", false); //make a server
   unitree_legged_msgs::HighCmd high_cmd_ros;
-  std::string cmd[3] = {"standup", "sitdown", "sidestep"};
+  std::string cmd[4] = {"standup", "sitdown", "rightsidestep", "leftsidestep"};
   std::string _high_cmd;
   ros::Time start_time;
   ros::NodeHandle private_nh("~"); 
@@ -70,8 +70,11 @@ int main(int argc, char** argv){
                 ROS_INFO("Go1 sitting down");
                 high_cmd_ros.mode = 5;
             }else if (current_goal->command == cmd[2]){
-                ROS_INFO("Go1 side stepping");
+                ROS_INFO("Go1 right side stepping");
                 high_cmd_ros.velocity[1] = 0.112f;
+            }else if (current_goal->command == cmd[3]){
+                ROS_INFO("Go1 left side stepping");
+                high_cmd_ros.velocity[1] = -0.112f;
             }
 
             while(start_time + ros::Duration(current_goal->duration) -ros::Duration(0.5) > ros::Time::now()){

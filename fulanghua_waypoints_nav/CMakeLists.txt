@@ -24,7 +24,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 find_package(PkgConfig)
-find_package(OpenCV 4  REQUIRED)
+find_package(OpenCV 3  REQUIRED)
 pkg_search_module(yaml-cpp REQUIRED yaml-cpp)
 
 if(NOT ${yaml-cpp_VERSION} VERSION_LESS "0.5")
