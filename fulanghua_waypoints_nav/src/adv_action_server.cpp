@@ -26,6 +26,7 @@ class SpecialMove{
       rotate_client("rotate", true),
       ar_detect_client("ar_detect", true),
       go1_cmd_client("go1_command", true),
+      ar_align_client("ar_align", true),
       charging_station_client("charging_station", true),
       rate_(2)
     {
@@ -245,6 +246,36 @@ class SpecialMove{
           ROS_INFO("Succeeded it\n");
       }
     }
+
+    void AlignmentFunction(){
+      bool state = true;
+      if (ar_align_client.isServerConnected() && state){
+        fulanghua_action::special_moveGoal current_goal;
+        current_goal.duration = 30;
+        ROS_INFO("Alignment started");
+        for (int i = 0; i < 5; i++)
+        {
+          state = true;
+          ar_align_client.sendGoal(current_goal);
+          actionlib::SimpleClientGoalState client_state = ar_align_client.getState();
+          while(client_state !=actionlib::SimpleClientGoalState::SUCCEEDED){
+            client_state = ar_align_client.getState();
+            if (client_state == actionlib::SimpleClientGoalState::PREEMPTED
+              || client_state == actionlib::SimpleClientGoalState::ABORTED){
+              ROS_WARN("failed %d times\n", i+1);
+              state = false;
+              break;
+            }
+            ros::Duration(0.1).sleep();
+          }
+          if (state){
+            // ar_align_client.cancelAllGoals();
+            break;
+          }
+        }
+      }
+    }
+
 
     bool onNavigationPoint(const orne_waypoints_msgs::Pose &dest){
         const double wx = dest.position.x;
@@ -475,6 +506,9 @@ int main(int argc, char** argv)
           }
           else if (current_goal->command =="videostream"){
             printf(" watch video\n");
+          }
+          else if (current_goal->command == "align"){
+            SpM.AlignmentFunction();
           }
         }
       }
