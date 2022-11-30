@@ -26,17 +26,18 @@ class ADJUST_POSITION{
     public:
         ADJUST_POSITION():
         rate(10),
-        server(nh, "ar_detect", false),
+        server(nh, "ar_align", false),
         rotate_client("rotate", true)
         {
             ros::NodeHandle private_nh("~"); 
-            private_nh.param("Kp", Kp, 5.0);
+            private_nh.param("Kp", Kp, 0.03);
+            private_nh.param("Kpang", Kpang, 1.5);
             private_nh.param("image_topic", IMAGE_TOPIC, std::string("/usb_cam/image_raw"));
             private_nh.param("cmd_vel", CMD_VEL_TOPIC, std::string("/cmd_vel"));
-            private_nh.param("adjust_speed", adjust_speed, 0.1);
+            private_nh.param("adjust_speed", adjust_speed, 0.01);
             private_nh.param("holonomic", holonomic_, false);
-            private_nh.param("offset_fixed_x", fixed_x, -0.075);
-            private_nh.param("offset_fixed_y", fixed_y, -0.04);
+            private_nh.param("offset_fixed_x", fixed_x, 0.35);
+            private_nh.param("offset_fixed_y", fixed_y, 0.00);
             private_nh.param("offset_fixed_z", fixed_z, 0.37);
             private_nh.param("calibration_path", CALIBRATION, std::string(""));
             image_sub = nh.subscribe(IMAGE_TOPIC, 1000, &ADJUST_POSITION::image_callback,this);
@@ -52,8 +53,8 @@ class ADJUST_POSITION{
             std::cout << "camera_matrix\n" << camera_matrix << std::endl;
             std::cout << "\ndist coeffs\n" << dist_coeffs << std::endl;
 
-                    server.start(); //start the server
-                }
+            server.start(); //start the server
+        }
 
         void image_callback(const sensor_msgs::ImageConstPtr& msg){
             std_msgs::Header msg_header = msg->header;
@@ -63,12 +64,12 @@ class ADJUST_POSITION{
             cv_bridge::CvImagePtr cv_ptr;
             try
             {
-                cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
+              cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
             }
             catch (cv_bridge::Exception& e)
             {
-                ROS_ERROR("cv_bridge exception: %s", e.what());
-                return;
+              ROS_ERROR("cv_bridge exception: %s", e.what());
+              return;
             }
 
             src = cv_ptr->image;
@@ -79,62 +80,46 @@ class ADJUST_POSITION{
         }
 
 
-
         bool adjustPosition(double &x, double &y, double &z, double &ang){
             double t = (ros::Time::now() - start_time).toSec();
-            threshold_z = (2 + t*0.05)*0.001;//0.002;
+            threshold_x = (2 + t*0.05)*0.001;//0.002;
 
-            offset_x = (double)fixed_x - x;
-            offset_y = (double)fixed_y - y;
-            offset_z = (double)fixed_z - z;
+            //robot(x, y, z) <-> aruco(z, x, y)
+            offset_x = z - (double)fixed_x;
+            offset_y = (double)fixed_y - x;
+            offset_z = (double)fixed_z - y;
             ROS_INFO("start approching");
-            double move_y = Kp*offset_y;
-            double move_z = Kp*offset_z;
-            // twist.linear.x = -move_z; // depth
-            if(holonomic_)
-              twist.linear.y = move_z;
-            else
-              twist.linear.x = -move_z;
-              twist.angular.z = move_y*15; // horizontal
-            // twist.linear.y = move_x; // horizontal 
-            // twist.linear.z = move_y; // vertical
+            double move_x = Kp * offset_x;
+            double rotate_z = Kpang * offset_y;
+            ROS_INFO("move x: %lf,\n", move_x);
+            twist.linear.x = move_x;
+            twist.angular.z = rotate_z; // horizontal
             clock_gettime(CLOCK_MONOTONIC, &timer_start); fstart=(double)timer_start.tv_sec + ((double)timer_start.tv_nsec/1000000000.0);
-
-            if(std::abs(offset_z)<=threshold_z){
-                  Done_z = true;
+            
+            //if offset is smaller than threshold, position adjastment has done
+            if(std::abs(offset_x)<=threshold_x){
+              Done_x = true;
             }
-            if(Done_z){
+
+            //getting the angle after position adjastment has done
+            if(Done_x){
               // Done_z = false;
               //move it to the center
               double angle=0;
-              if(holonomic_){
-                if (edgeScreen(3,1,2)){
-                  //get the angle here
-                  if (_counter>40){
-                      std::sort(angle_array.begin(), angle_array.end());
-                      angle = angle_array[angle_array.size()/2-1] * 0.6; // because it is too much              
-                      _counter = -1;
-                    }else if (_counter>=0){
-                      ROS_INFO("getting an angle");
-                      angle_array.push_back(ang);
-                      _counter++;
-                      return false;
-                    }
-                    //pass the angle to the rotation server
-                    rotate_action(angle);
-                    return true;
-                }else{
-                  return false;
-                }
-              }else{
-                return true;
-              }
+              return true;
             }else{
-              ROS_INFO("Offset_z: %lf,\n", offset_z);
-              ROS_INFO("Linear_y: %lf,\n", twist.linear.y);
-              ROS_INFO("threshold: %lf,\n", threshold_z);
-              ROS_INFO("Agnle: %lf,\n", ang);
-              cmd_vel_pub.publish(twist);
+              if(holonomic_){
+                ROS_INFO("Offset_z: %lf,\n", offset_z);
+                ROS_INFO("Linear_y: %lf,\n", twist.linear.y);
+                ROS_INFO("threshold: %lf,\n", threshold_z);
+                ROS_INFO("Agnle: %lf,\n", ang);
+              }else{
+                ROS_INFO("Offset_x: %lf,\n", offset_x);
+                ROS_INFO("linear x: %lf,\n", twist.linear.x);
+                ROS_INFO("threshold: %lf,\n", threshold_z);
+                ROS_INFO("Agnle: %lf,\n", ang);
+              }
+                cmd_vel_pub.publish(twist);
               return false;
             }
               
@@ -152,7 +137,7 @@ class ADJUST_POSITION{
             }else{
               return true;
             }
-            cmd_vel_pub.publish(twist);
+            //cmd_vel_pub.publish(twist);
             return false;
         }
 
@@ -212,7 +197,8 @@ class ADJUST_POSITION{
     actionlib::SimpleActionServer<fulanghua_action::special_moveAction> server;//make a server
     actionlib::SimpleActionClient<fulanghua_action::special_moveAction> rotate_client; //for rotation client
     cv::Mat src,camera_matrix, dist_coeffs;
-    double Kp; // proportional coefficient
+    double Kp = 0; // proportional coefficient
+    double Kpang = 0;
     double Kv; // derivative coefficient
     double target; // target angle(radian)
     double offset_x =0; double offset_y=0; double offset_z=0;
@@ -231,7 +217,7 @@ class ADJUST_POSITION{
     ros::Time start_time;
     
     fulanghua_action::special_moveGoalConstPtr current_goal; // instance of a goal
-    cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_50); 
+    cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_5X5_250); 
     std::vector<std::vector<cv::Point2f> > corners;
     std::vector<int> ids;
     std::ostringstream vector_to_marker;
@@ -248,7 +234,7 @@ class ADJUST_POSITION{
 
 
 int main(int argc, char** argv){
-  ros::init(argc, argv, "aruco_detect_server");
+  ros::init(argc, argv, "aruco_align_server");
   ADJUST_POSITION adj;
   bool visualize = true;
   while (ros::ok()){
@@ -262,7 +248,7 @@ int main(int argc, char** argv){
       if(adj.server.isActive()){
         if(adj.server.isPreemptRequested()){
           adj.server.setPreempted(); // cancel the goal
-          ROS_WARN("AR detect: Preemmpt Goal\n");
+          ROS_WARN("AR align: Preemmpt Goal\n");
         }else{
           if(adj.start_time + ros::Duration(adj.current_goal->duration) < ros::Time::now()){
             adj.server.setAborted(); // abort it
@@ -280,7 +266,7 @@ int main(int argc, char** argv){
                   if(adj.edgeScreen(3,1,2)){
                     if(adj.adjustPosition(tvecs[0](0), tvecs[0](1), tvecs[0](2), _angle)){ //adjusting the positiion of the mobile robot
                       adj.server.setSucceeded();
-                      ROS_INFO("AR detect: Succeeded!");
+                      ROS_INFO("AR align: Succeeded!");
                       visualize = false;
                     }
                   }

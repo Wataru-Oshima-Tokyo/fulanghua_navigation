@@ -160,6 +160,10 @@ add_executable(aruco_detect_server src/aruco_detect_action_server.cpp)
 target_compile_options(aruco_detect_server PRIVATE ${OpenMP_FLAGS})
 add_dependencies(aruco_detect_server ${catkin_EXPORTED_TARGETS})
 
+add_executable(aruco_align_server src/aruco_align_action_server.cpp)
+target_compile_options(aruco_align_server PRIVATE ${OpenMP_FLAGS})
+add_dependencies(aruco_align_server ${catkin_EXPORTED_TARGETS})
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -190,6 +194,11 @@ target_link_libraries(battery_check_server
 )
 
 target_link_libraries(aruco_detect_server 
+${OpenCV_LIBRARIES} ${catkin_LIBRARIES} 
+${CMAKE_THREAD_LIBS_INIT} ${OpenMP_LIBS}
+)
+
+target_link_libraries(aruco_align_server 
 ${OpenCV_LIBRARIES} ${catkin_LIBRARIES} 
 ${CMAKE_THREAD_LIBS_INIT} ${OpenMP_LIBS}
 )

@@ -25,6 +25,7 @@ class SpecialMove{
       sound_client("sound_play", true),
       rotate_client("rotate", true),
       ar_detect_client("ar_detect", true),
+      ar_align_client("ar_align", true),
       charging_station_client("charging_station", true),
       rate_(2)
     {
@@ -221,17 +222,17 @@ class SpecialMove{
     //Align the robot with aruco marker.
     void AlignmentFunction(){
       bool state = true;
-      if (ar_detect_client.isServerConnected() && state){
+      if (ar_align_client.isServerConnected() && state){
         fulanghua_action::special_moveGoal current_goal;
-        current_goal.duration = 120;
-        ROS_INFO("alignment started");
+        current_goal.duration = 30;
+        ROS_INFO("Alignment started");
         for (int i = 0; i < 5; i++)
         {
           state = true;
-          ar_detect_client.sendGoal(current_goal);
-          actionlib::SimpleClientGoalState client_state = ar_detect_client.getState();
+          ar_align_client.sendGoal(current_goal);
+          actionlib::SimpleClientGoalState client_state = ar_align_client.getState();
           while(client_state !=actionlib::SimpleClientGoalState::SUCCEEDED){
-            client_state = ar_detect_client.getState();
+            client_state = ar_align_client.getState();
             if (client_state == actionlib::SimpleClientGoalState::PREEMPTED
               || client_state == actionlib::SimpleClientGoalState::ABORTED){
               ROS_WARN("failed %d times\n", i+1);
@@ -241,7 +242,7 @@ class SpecialMove{
             ros::Duration(0.1).sleep();
           }
           if (state){
-            // ar_detect_client.cancelAllGoals();
+            // ar_align_client.cancelAllGoals();
             break;
           }
         }
@@ -319,6 +320,7 @@ class SpecialMove{
     actionlib::SimpleActionClient<sound_play::SoundRequestAction> sound_client;
     actionlib::SimpleActionClient<fulanghua_action::special_moveAction> rotate_client;
     actionlib::SimpleActionClient<fulanghua_action::special_moveAction> ar_detect_client;
+    actionlib::SimpleActionClient<fulanghua_action::special_moveAction> ar_align_client;
     actionlib::SimpleActionClient<camera_action::camera_pkgAction> charging_station_client;
 
     //service client

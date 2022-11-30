@@ -13,7 +13,7 @@
 <arg name="max_vel"         default="0.4"/>
 <arg name="min_vel"         default="0.1"/>
 <arg name="volume"         default="2.0"/>
-<arg name="Kp"       default="2.0"/> 
+<arg name="Kp"       default="0.03"/> 
 <arg name="offset_fixed_x" default="0.009"/>
 <arg name="offset_fixed_y" default="0.02"/>
 <arg name="offset_fixed_z" default="0.285"/>
@@ -62,6 +62,18 @@
     <param name="offset_fixed_y" value="$(arg offset_fixed_y)"/>
     <param name="offset_fixed_z" value="$(arg offset_fixed_z)"/>
     <param name="holonomic" value="$(arg holonomic)" />
+    <param name="calibration_path" value="$(arg calibration_path)/camera_ext.yaml" />
+</node>
+
+<node name="ar_align_server" pkg="fulanghua_action" type="aruco_align_server" output="screen">
+    <param name="cmd_vel"  value="$(arg cmd_vel)" />
+    <param name="image_topic" value="$(arg image_topic)"/>
+    <param name="Kp"  value="0.5" />
+    <param name="Kpang" value="3.0" />
+    <param name="adjust_speed" value="$(arg min_vel)"/>
+    <param name="offset_fixed_x" value="0.35"/>
+    <param name="offset_fixed_y" value="0.00"/>
+    <param name="offset_fixed_z" value="$(arg offset_fixed_z)"/>
     <param name="calibration_path" value="$(arg calibration_path)/camera_ext.yaml" />
 </node>
 
