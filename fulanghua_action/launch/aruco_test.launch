@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-<launch>
-    <node pkg="fulanghua_action" type="aruco_detect_action_server" name="aruco_detect" output="screen">
-        <param name="calibration_path" type="string" value="$(find camera_pkg)/param/camera.yaml" />
-    </node>
-</launch>

@@ -13,7 +13,7 @@
 <arg name="max_vel"         default="0.4"/>
 <arg name="min_vel"         default="0.1"/>
 <arg name="volume"         default="2.0"/>
-<arg name="Kp"       default="0.03"/> 
+<arg name="Kp"       default="2.0"/> 
 <arg name="offset_fixed_x" default="0.009"/>
 <arg name="offset_fixed_y" default="0.02"/>
 <arg name="offset_fixed_z" default="0.285"/>
@@ -31,7 +31,7 @@
   <param name="charge_threshold_higher"  value="$(arg charge_threshold_higher)" />
 </node>
   
-<node name="action_server" pkg="fulanghua_action" type="adv_action_server" output="screen">
+<node name="action_server" pkg="fulanghua_waypoints_nav" type="adv_action_server" output="screen">
     <param name="robot_name" value="$(arg robot_name)"/>
     <param name="dist_err" value="$(arg dist_err)"/> 
     <param name="cmd_vel"  value="$(arg cmd_vel)" />
@@ -43,7 +43,7 @@
     <param name="charge_threshold_higher"  value="$(arg charge_threshold_higher)" />
 </node>
 
-<node name="rotate_server" pkg="fulanghua_action" type="rotate_action_server" output="screen">
+<node name="rotate_server" pkg="fulanghua_waypoints_nav" type="rotate_action_server" output="screen">
     <param name="dist_err" value="$(arg dist_err)"/> 
     <param name="cmd_vel"  value="$(arg cmd_vel)" />
     <param name="max_vel"  value="$(arg max_vel)" />
@@ -53,7 +53,7 @@
     <param name="Kp"  value="$(arg Kp)" />
 </node>
   
-<node name="ar_detect_server" pkg="fulanghua_action" type="aruco_detect_server" output="screen">
+<node name="ar_detect_server" pkg="fulanghua_waypoints_nav" type="aruco_detect_server" output="screen">
     <param name="cmd_vel"  value="$(arg cmd_vel)" />
     <param name="image_topic" value="$(arg image_topic)"/>
     <param name="Kp"  value="$(arg Kp)" />
@@ -65,7 +65,7 @@
     <param name="calibration_path" value="$(arg calibration_path)/camera_ext.yaml" />
 </node>
 
-<node name="ar_align_server" pkg="fulanghua_action" type="aruco_align_server" output="screen">
+<node name="ar_align_server" pkg="fulanghua_waypoints_nav" type="aruco_align_server" output="screen">
     <param name="cmd_vel"  value="$(arg cmd_vel)" />
     <param name="image_topic" value="$(arg image_topic)"/>
     <param name="Kp"  value="0.5" />
@@ -77,7 +77,8 @@
     <param name="calibration_path" value="$(arg calibration_path)/camera_ext.yaml" />
 </node>
 
-<node name="battery_check_server" pkg="fulanghua_action" type="battery_check_server" output="screen">
+
+<node name="battery_check_server" pkg="fulanghua_waypoints_nav" type="battery_check_server" output="screen">
     <param name="robot_name" value="$(arg robot_name)"/>
     <param name="charge_threshold_higher"  value="$(arg charge_threshold_higher)" />
   </node>

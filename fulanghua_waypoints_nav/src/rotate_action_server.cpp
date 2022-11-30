@@ -70,19 +70,13 @@ int main(int argc, char** argv){
               printf("diff_from target to current_position: %lf\n",diff);
 
               vel_msg.angular.z =  -Kp* (target - current);
-              // vel_msg.linear.x = 0.5 * sqrt(pow(transform.getOrigin().x(), 2) +
-              //                               pow(transform.getOrigin().y(), 2));
-              //adjusting position bysending twist commands
-              // if (std::abs(diff)<5)
                 turtle_vel.publish(vel_msg);
               if(std::abs(diff)<0.1 ){
+                geometry_msgs::Twist finish;
+                turtle_vel.publish(finish);
                 server.setSucceeded();
                 ROS_INFO("Succeeded it!");
               }
-              // else if (std::abs(diff)>5){
-              //   server.setPreempted();
-              //   ROS_WARN("failed it...");
-              // }
             }
             catch (tf::TransformException &ex) {
               ROS_ERROR("%s",ex.what());

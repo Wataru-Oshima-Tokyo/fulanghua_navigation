@@ -31,10 +31,10 @@ class ADJUST_POSITION{
         {
             ros::NodeHandle private_nh("~"); 
             private_nh.param("Kp", Kp, 5.0);
-            private_nh.param("image_topic", IMAGE_TOPIC, std::string("/usb_cam/image_raw"));
+            private_nh.param("image_topic", IMAGE_TOPIC, std::string("/camera/color/image_raw"));
             private_nh.param("cmd_vel", CMD_VEL_TOPIC, std::string("/cmd_vel"));
             private_nh.param("adjust_speed", adjust_speed, 0.1);
-            private_nh.param("holonomic", holonomic_, false);
+            private_nh.param("holonomic", holonomic_, true);
             private_nh.param("offset_fixed_x", fixed_x, -0.075);
             private_nh.param("offset_fixed_y", fixed_y, -0.04);
             private_nh.param("offset_fixed_z", fixed_z, 0.37);
@@ -95,7 +95,7 @@ class ADJUST_POSITION{
               twist.linear.y = move_z;
             else
               twist.linear.x = -move_z;
-              twist.angular.z = move_y*15; // horizontal
+            // twist.angular.z = move_y*15; // horizontal
             // twist.linear.y = move_x; // horizontal 
             // twist.linear.z = move_y; // vertical
             clock_gettime(CLOCK_MONOTONIC, &timer_start); fstart=(double)timer_start.tv_sec + ((double)timer_start.tv_nsec/1000000000.0);
