@@ -350,6 +350,7 @@ class SpecialMove{
     actionlib::SimpleActionClient<fulanghua_action::special_moveAction> ar_detect_client;
     actionlib::SimpleActionClient<fulanghua_action::special_moveAction> go1_cmd_client;
     actionlib::SimpleActionClient<camera_action::camera_pkgAction> charging_station_client;
+    actionlib::SimpleActionClient<fulanghua_action::special_moveAction> ar_align_client;
 
     //service client
     ros::ServiceClient charge_reset_srv;
