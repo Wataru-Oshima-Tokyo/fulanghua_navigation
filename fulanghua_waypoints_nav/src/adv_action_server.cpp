@@ -273,6 +273,14 @@ class SpecialMove{
             break;
           }
         }
+        if(!state){
+              ros::Duration(5).sleep();
+              server.setPreempted();
+              ROS_INFO("An alignment process is preempted");
+          }else{
+              server.setSucceeded();
+              ROS_INFO("An alignment process is Done");
+          }
       }
     }
 

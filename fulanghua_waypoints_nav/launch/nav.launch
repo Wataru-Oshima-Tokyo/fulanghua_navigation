@@ -69,7 +69,8 @@
     <param name="cmd_vel"  value="$(arg cmd_vel)" />
     <param name="image_topic" value="$(arg image_topic)"/>
     <param name="Kp"  value="0.5" />
-    <param name="Kpang" value="3.0" />
+    <param name="Ki" value="0.001" />
+    <param name="Kpang" value="3.5" />
     <param name="adjust_speed" value="$(arg min_vel)"/>
     <param name="offset_fixed_x" value="0.35"/>
     <param name="offset_fixed_y" value="0.00"/>

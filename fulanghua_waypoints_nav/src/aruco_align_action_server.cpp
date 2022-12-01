@@ -31,8 +31,9 @@ class ADJUST_POSITION{
         {
             ros::NodeHandle private_nh("~"); 
             private_nh.param("Kp", Kp, 0.03);
+            private_nh.param("Ki", Ki, 0.003);
             private_nh.param("Kpang", Kpang, 1.5);
-            private_nh.param("image_topic", IMAGE_TOPIC, std::string("/usb_cam/image_raw"));
+            private_nh.param("image_topic", IMAGE_TOPIC, std::string("/camera/rgb/image_raw"));
             private_nh.param("cmd_vel", CMD_VEL_TOPIC, std::string("/cmd_vel"));
             private_nh.param("adjust_speed", adjust_speed, 0.01);
             private_nh.param("holonomic", holonomic_, false);
@@ -81,15 +82,17 @@ class ADJUST_POSITION{
 
 
         bool adjustPosition(double &x, double &y, double &z, double &ang){
+            Done_x = false;
             double t = (ros::Time::now() - start_time).toSec();
-            threshold_x = (2 + t*0.05)*0.001;//0.002;
+            threshold_x = (2 + 0.05*t) * 0.01;//0.002;
 
             //robot(x, y, z) <-> aruco(z, x, y)
             offset_x = z - (double)fixed_x;
             offset_y = (double)fixed_y - x;
             offset_z = (double)fixed_z - y;
             ROS_INFO("start approching");
-            double move_x = Kp * offset_x;
+            offset_I += offset_x;
+            double move_x = Kp * offset_x + Ki * offset_I;
             double rotate_z = Kpang * offset_y;
             ROS_INFO("move x: %lf,\n", move_x);
             twist.linear.x = move_x;
@@ -106,6 +109,7 @@ class ADJUST_POSITION{
               // Done_z = false;
               //move it to the center
               double angle=0;
+              offset_I = 0;
               return true;
             }else{
               if(holonomic_){
@@ -197,7 +201,9 @@ class ADJUST_POSITION{
     actionlib::SimpleActionServer<fulanghua_action::special_moveAction> server;//make a server
     actionlib::SimpleActionClient<fulanghua_action::special_moveAction> rotate_client; //for rotation client
     cv::Mat src,camera_matrix, dist_coeffs;
+    double offset_I = 0;
     double Kp = 0; // proportional coefficient
+    double Ki = 0;
     double Kpang = 0;
     double Kv; // derivative coefficient
     double target; // target angle(radian)
