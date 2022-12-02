@@ -84,7 +84,7 @@ class ADJUST_POSITION{
         bool adjustPosition(double &x, double &y, double &z, double &ang){
             Done_x = false;
             double t = (ros::Time::now() - start_time).toSec();
-            threshold_x = (2 + 0.05*t) * 0.01;//0.002;
+            threshold_x = (2 + 0.05*t) * 0.001;//0.002;
 
             //robot(x, y, z) <-> aruco(z, x, y)
             offset_x = z - (double)fixed_x;
