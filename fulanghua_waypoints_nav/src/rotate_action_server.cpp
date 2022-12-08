@@ -4,6 +4,7 @@
 #include <fulanghua_action/special_moveAction.h>
 #include <actionlib/server/simple_action_server.h>
 typedef actionlib::SimpleActionServer<fulanghua_action::special_moveAction> Server;
+
 int main(int argc, char** argv){
   ros::init(argc, argv, "my_tf_listener");
 
@@ -69,7 +70,7 @@ int main(int argc, char** argv){
               printf("current: %lf\n",current);
               printf("diff_from target to current_position: %lf\n",diff);
 
-              vel_msg.angular.z =  -Kp* (target - current);
+              vel_msg.angular.z =  -0.05*Kp* (target - current);
                 turtle_vel.publish(vel_msg);
               if(std::abs(diff)<0.1 ){
                 geometry_msgs::Twist finish;
