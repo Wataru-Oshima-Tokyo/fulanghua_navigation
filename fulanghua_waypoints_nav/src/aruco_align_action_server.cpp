@@ -267,8 +267,7 @@ int main(int argc, char** argv){
               if (adj.ids.size()>0){
                   cv::drawFrameAxes(adj.src, adj.camera_matrix, adj.dist_coeffs, rvecs[0], tvecs[0], 0.1); //drawing them on the marker
                   double _angle = rvecs[0](2)*180/M_PI;
-                  //putting texst on src
-                  adj.put_commnets(tvecs[0](0), tvecs[0](1), tvecs[0](2), _angle);
+                  adj.put_commnets(tvecs[0](0), tvecs[0](1), tvecs[0](2), _angle);//putting texst on src
                   if(adj.edgeScreen(3,1,2)){
                     if(adj.adjustPosition(tvecs[0](0), tvecs[0](1), tvecs[0](2), _angle)){ //adjusting the positiion of the mobile robot
                       adj.server.setSucceeded();
