@@ -13,11 +13,13 @@ int main(int argc, char** argv){
 
   double Kp; // proportional coefficient
   double target; // target angle(radian)
+  double rotate_speed; //limit of rotation speed
   std::string cmd_vel_; // target cmd_vel
   ros::Rate rate(10.0); // set the rate 
   ros::NodeHandle private_nh("~"); 
-  private_nh.param("Kp", Kp, 0.5);
   private_nh.param("cmd_vel", cmd_vel_, std::string("/cmd_vel"));
+  private_nh.param("Kp", Kp, 0.8);
+  private_nh.param("rotate_speed", rotate_speed, 1.0);
   ros::Publisher turtle_vel =nh.advertise<geometry_msgs::Twist>(cmd_vel_, 10);
   ros::Time start_time;
   tf::TransformListener listener;
@@ -40,8 +42,8 @@ int main(int argc, char** argv){
             }
          }
           //get the target angle (rotate left)
-          target = current_goal->angle*3.14/180 + atan2(target_transform.getOrigin().y(),
-                                  target_transform.getOrigin().x());
+          target = current_goal->angle*3.14/180 + atan2(target_transform.getOrigin().y(), target_transform.getOrigin().x());
+          ROS_INFO("target_angle: %0.3f", target);
       }
       if(server.isActive()){
         if(server.isPreemptRequested()){
@@ -56,12 +58,11 @@ int main(int argc, char** argv){
             fulanghua_action::special_moveFeedback feedback; // set the feeback
             feedback.rate = (ros::Time::now() - start_time).toSec() / current_goal->duration; // decide the rate of feedback
             server.publishFeedback(feedback); //publish the feedback
-             tf::StampedTransform current_transform;
-             geometry_msgs::Point pt;
-             geometry_msgs::Twist vel_msg;
+            tf::StampedTransform current_transform;
+            geometry_msgs::Point pt;
+            geometry_msgs::Twist vel_msg;
             try{
-              listener.lookupTransform("/base_link", "/odom",
-                            ros::Time(0), current_transform);
+              listener.lookupTransform("/base_link", "/odom", ros::Time(0), current_transform);
               pt.x = current_transform.getOrigin().x();
               pt.y = current_transform.getOrigin().y();
               double current = atan2(pt.y,pt.x);
@@ -70,7 +71,7 @@ int main(int argc, char** argv){
               printf("current: %lf\n",current);
               printf("diff_from target to current_position: %lf\n",diff);
 
-              vel_msg.angular.z =  -0.05*Kp* (target - current);
+              vel_msg.angular.z =  -Kp* (target - current);
                 turtle_vel.publish(vel_msg);
               if(std::abs(diff)<0.1 ){
                 geometry_msgs::Twist finish;
@@ -78,12 +79,16 @@ int main(int argc, char** argv){
                 server.setSucceeded();
                 ROS_INFO("Succeeded it!");
               }
+              if(std::abs(diff) > 5){
+                server.setAborted();//if diff is fucked, abort it
+              }
             }
             catch (tf::TransformException &ex) {
               ROS_ERROR("%s",ex.what());
               ros::Duration(1.0).sleep();
               continue;
             }
+            
           }
         }
       }

@@ -101,6 +101,8 @@ class ADJUST_POSITION{
             
             //if offset is smaller than threshold, position adjastment has done
             if(std::abs(offset_x)<=threshold_x){
+              double target = 180;
+              rotate_action(target);
               Done_x = true;
             }
 
@@ -129,32 +131,39 @@ class ADJUST_POSITION{
               
         }
 
-        bool edgeScreen(const double &denominator, const double &numerator_1, const double &numerator_2){
-            c_x = (corners[0][0].x + corners[0][1].x)/2;
-            c_y = (corners[0][0].y + corners[0][3].y)/2;
-            // cv::circle(src, cv::Point(c_x,c_y),30, cv::Scalar(0, 255, 0), thickness);//Using circle()function to draw the line//
-            geometry_msgs::Twist twist;
-            if(c_x <(numerator_1*w/denominator)){
-              twist.linear.x = adjust_speed*0.5;
-            }else if (c_x> (numerator_2*w/denominator)){
-              twist.linear.x = -adjust_speed*0.5;
-            }else{
-              return true;
-            }
-            //cmd_vel_pub.publish(twist);
-            return false;
+        void findMarker(double &y){
+          if(y >0){
+            twist.angular.z = 0.3;
+          }else{
+            twist.angular.z = -0.3;
+          }
+          cmd_vel_pub.publish(twist);
         }
 
-
         bool rotate_action(double &angle_){
+          bool state = true;
           //rotate the robot so that realsense can see it (best effort)
           if (rotate_client.isServerConnected()){
             fulanghua_action::special_moveGoal current_goal;
             current_goal.duration = 20;
             current_goal.angle = angle_;
-            rotate_client.sendGoal(current_goal);
-            rotate_client.waitForResult();
-            ros::Duration(1).sleep();
+            for (int i=0;i<5;i++){
+              state = true;  
+              rotate_client.sendGoal(current_goal);
+              actionlib::SimpleClientGoalState client_state = rotate_client.getState();
+              while(client_state !=actionlib::SimpleClientGoalState::SUCCEEDED){
+                client_state = rotate_client.getState();
+                if (client_state == actionlib::SimpleClientGoalState::PREEMPTED || client_state == actionlib::SimpleClientGoalState::ABORTED){
+                  ROS_WARN("failed %d times\n", i+1);
+                  state = false;
+                  break;
+                }
+                ros::Duration(0.1).sleep();
+              }
+              if (state){
+                break;
+              }
+            }
           }
         }
 
@@ -243,6 +252,7 @@ int main(int argc, char** argv){
   ros::init(argc, argv, "aruco_align_server");
   ADJUST_POSITION adj;
   bool visualize = true;
+  double y = 0;
   while (ros::ok()){
       if(adj.server.isNewGoalAvailable()){
           adj.current_goal = adj.server.acceptNewGoal();
@@ -264,18 +274,20 @@ int main(int argc, char** argv){
               cv::aruco::detectMarkers(adj.src, adj.dictionary, adj.corners, adj.ids); //detecting a marker
               std::vector<cv::Vec3d> rvecs, tvecs;
               cv::aruco::estimatePoseSingleMarkers(adj.corners, 0.05, adj.camera_matrix, adj.dist_coeffs, rvecs, tvecs); //gettting x,y,z and angle
-              if (adj.ids.size()>0){
+              if (adj.ids.size()>0 && adj.ids[0] == 119){
+                  y = tvecs[0](1);
                   cv::drawFrameAxes(adj.src, adj.camera_matrix, adj.dist_coeffs, rvecs[0], tvecs[0], 0.1); //drawing them on the marker
                   double _angle = rvecs[0](2)*180/M_PI;
                   adj.put_commnets(tvecs[0](0), tvecs[0](1), tvecs[0](2), _angle);//putting texst on src
-                  if(adj.edgeScreen(3,1,2)){
-                    if(adj.adjustPosition(tvecs[0](0), tvecs[0](1), tvecs[0](2), _angle)){ //adjusting the positiion of the mobile robot
-                      adj.server.setSucceeded();
-                      ROS_INFO("AR align: Succeeded!");
-                      visualize = false;
+                 
+                  if(adj.adjustPosition(tvecs[0](0), tvecs[0](1), tvecs[0](2), _angle)){ //adjusting the positiion of the mobile robot
+                    adj.server.setSucceeded();
+                    ROS_INFO("AR align: Succeeded!");
+                    visualize = false;
                     }
+                  }else{
+                    adj.findMarker(y);
                   }
-              }
               cv::imshow("src", adj.src);
               cv::waitKey(3); 
               if (!visualize)
