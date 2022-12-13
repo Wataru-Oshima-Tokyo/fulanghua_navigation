@@ -17,6 +17,8 @@
 #include <fulanghua_action/special_moveAction.h>
 #include <actionlib/server/simple_action_server.h>
 #include <actionlib/client/simple_action_client.h>
+#include <unitree_legged_msgs/HighCmd.h>
+#include <unitree_legged_msgs/HighState.h>
 
 typedef actionlib::SimpleActionServer<fulanghua_action::special_moveAction> Server;
 struct timespec timer_start, timer_stop;
@@ -41,6 +43,7 @@ class ADJUST_POSITION{
             private_nh.param("calibration_path", CALIBRATION, std::string(""));
             image_sub = nh.subscribe(IMAGE_TOPIC, 1000, &ADJUST_POSITION::image_callback,this);
             cmd_vel_pub =nh.advertise<geometry_msgs::Twist>(CMD_VEL_TOPIC, 10);
+            high_cmd_pub = nh.advertise<unitree_legged_msgs::HighCmd>("high_cmd", 1000);
             cv::FileStorage fs;
             fs.open(CALIBRATION, cv::FileStorage::READ); 
             if (!fs.isOpened())
@@ -82,7 +85,7 @@ class ADJUST_POSITION{
 
         bool adjustPosition(double &x, double &y, double &z, double &ang){
             double t = (ros::Time::now() - start_time).toSec();
-            threshold_z = (2 + t*0.05)*0.001;//0.002;
+            threshold_z = (8 + t*0.05)*0.001;//0.008;
 
             offset_x = (double)fixed_x - x;
             offset_y = (double)fixed_y - y;
@@ -102,30 +105,29 @@ class ADJUST_POSITION{
 
             if(std::abs(offset_z)<=threshold_z){
                   Done_z = true;
+                  denominator = 8;
+                  numerator_1 = 1;
+                  numerator_2 = 3;
             }
             if(Done_z){
               // Done_z = false;
               //move it to the center
               double angle=0;
               if(holonomic_){
-                if (edgeScreen(3,1,2)){
-                  //get the angle here
-                  if (_counter>40){
-                      std::sort(angle_array.begin(), angle_array.end());
-                      angle = angle_array[angle_array.size()/2-1] * 0.6; // because it is too much              
-                      _counter = -1;
-                    }else if (_counter>=0){
-                      ROS_INFO("getting an angle");
-                      angle_array.push_back(ang);
-                      _counter++;
-                      return false;
-                    }
-                    //pass the angle to the rotation server
-                    rotate_action(angle);
-                    return true;
-                }else{
-                  return false;
-                }
+                //get the angle here
+                if (_counter>40){
+                    std::sort(angle_array.begin(), angle_array.end());
+                    angle = angle_array[angle_array.size()/2-1] * 0.6; // because it is too much              
+                    _counter = -1;
+                  }else if (_counter>=0){
+                    ROS_INFO("getting an angle");
+                    angle_array.push_back(ang);
+                    _counter++;
+                    return false;
+                  }
+                  //pass the angle to the rotation server
+                  // rotate_action(angle);
+                  return true;
               }else{
                 return true;
               }
@@ -134,24 +136,51 @@ class ADJUST_POSITION{
               ROS_INFO("Linear_y: %lf,\n", twist.linear.y);
               ROS_INFO("threshold: %lf,\n", threshold_z);
               ROS_INFO("Agnle: %lf,\n", ang);
+              // high_cmd_ros.head[0] = 0xFE;
+              // high_cmd_ros.head[1] = 0xEF;
+              // high_cmd_ros.levelFlag = 0xee;
+              // high_cmd_ros.mode = 2;
+              // high_cmd_ros.gaitType = 2;
+              // // high_cmd_ros.bodyHeight = -0.2;
+              // if (std::abs(twist.linear.y) >0.1){
+              //   high_cmd_ros.velocity[1] = 0.1f; // -1  ~ +1
+              //   if (twist.linear.y<0)
+              //     high_cmd_ros.velocity[1] *=-1;
+              // }else{
+              //   high_cmd_ros.velocity[1] = 0.0f; // -1  ~ +1
+              // }
+              // high_cmd_pub.publish(high_cmd_ros);
+              if (std::abs(offset_z) >0.015){
+                twist.linear.y = 0.112; // -1  ~ +1
+                if (twist.linear.y>0)
+                  twist.linear.y  *=-1;
+              }else{
+                twist.linear.y = 0.0; // -1  ~ +1
+              }
               cmd_vel_pub.publish(twist);
+              
+              
               return false;
             }
               
         }
 
-        bool edgeScreen(const double &denominator, const double &numerator_1, const double &numerator_2){
+        bool edgeScreen(const double &_denominator, const double &_numerator_1, const double &_numerator_2){
             c_x = (corners[0][0].x + corners[0][1].x)/2;
             c_y = (corners[0][0].y + corners[0][3].y)/2;
             // cv::circle(src, cv::Point(c_x,c_y),30, cv::Scalar(0, 255, 0), thickness);//Using circle()function to draw the line//
             geometry_msgs::Twist twist;
-            if(c_x <(numerator_1*w/denominator)){
-              twist.linear.x = adjust_speed*0.5;
-            }else if (c_x> (numerator_2*w/denominator)){
-              twist.linear.x = -adjust_speed*0.5;
+            if(c_x <(_numerator_1*w/_denominator)){
+              twist.linear.x = 0.112;
+            }else if (c_x> (_numerator_2*w/_denominator)){
+              twist.linear.x = -0.112;
             }else{
+              twist.linear.x = 0.0;
+              cmd_vel_pub.publish(twist);
               return true;
             }
+            // high_cmd_ros.bodyHeight = -0.2;
+            // high_cmd_pub.publish(high_cmd_ros);
             cmd_vel_pub.publish(twist);
             return false;
         }
@@ -222,12 +251,13 @@ class ADJUST_POSITION{
     double c_x= 0.0; double c_y=0.0; double w=0.0; double h=0.0; //in case the marker is on the edge
     double adjust_speed;
     double _counter=0; std::vector<double> angle_array; //for rotation
-    
+    double denominator=3; double numerator_1=1; double numerator_2=2;
     int thickness =2;
     std::string CMD_VEL_TOPIC; // target cmd_vel
     std::string IMAGE_TOPIC; // image topic 
     ros::Rate rate; // set the rate 
     geometry_msgs::Twist twist; 
+    unitree_legged_msgs::HighCmd high_cmd_ros;
     ros::Time start_time;
     
     fulanghua_action::special_moveGoalConstPtr current_goal; // instance of a goal
@@ -239,6 +269,7 @@ class ADJUST_POSITION{
 
   private:
       ros::Publisher cmd_vel_pub;
+      ros::Publisher high_cmd_pub;
       ros::Subscriber image_sub;
       std::string CALIBRATION;
       bool holonomic_;
@@ -277,7 +308,7 @@ int main(int argc, char** argv){
                   double _angle = rvecs[0](2)*180/M_PI;
                   //putting texst on src
                   adj.put_commnets(tvecs[0](0), tvecs[0](1), tvecs[0](2), _angle);
-                  if(adj.edgeScreen(3,1,2)){
+                  if(adj.edgeScreen(adj.denominator,adj.numerator_1,adj.numerator_2)){
                     if(adj.adjustPosition(tvecs[0](0), tvecs[0](1), tvecs[0](2), _angle)){ //adjusting the positiion of the mobile robot
                       adj.server.setSucceeded();
                       ROS_INFO("AR detect: Succeeded!");
