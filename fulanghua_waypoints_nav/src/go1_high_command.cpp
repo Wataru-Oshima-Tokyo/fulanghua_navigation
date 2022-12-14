@@ -20,7 +20,7 @@ int main(int argc, char** argv){
   ros::Publisher go1_ros_cmd_pub; 
   Server server(nh, "go1_command", false); //make a server
   unitree_legged_msgs::HighCmd high_cmd_ros;
-  std::string cmd[4] = {"standup", "sitdown", "rightsidestep", "leftsidestep", "dump"};
+  std::string cmd[5] = {"standup", "sitdown", "rightsidestep", "leftsidestep", "dump"};
   std::string _high_cmd;
   ros::Time start_time;
   ros::NodeHandle private_nh("~"); 
