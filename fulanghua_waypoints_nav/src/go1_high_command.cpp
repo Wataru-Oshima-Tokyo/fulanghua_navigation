@@ -16,7 +16,7 @@
 typedef actionlib::SimpleActionServer<fulanghua_action::special_moveAction> Server;
 
 
-void initialize(unitree_legged_msgs::HighCmd high_cmd_ros &cmd){
+void initialize(unitree_legged_msgs::HighCmd &cmd){
             cmd.head[0] = 0xFE;
             cmd.head[1] = 0xEF;
             cmd.levelFlag = 0x00;
