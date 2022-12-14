@@ -57,7 +57,26 @@ class ADJUST_POSITION{
 
                     server.start(); //start the server
                 }
-
+       
+       void initialize(unitree_legged_msgs::HighCmd &cmd){
+            cmd.head[0] = 0xFE;
+            cmd.head[1] = 0xEF;
+            cmd.levelFlag = 0x00;
+            cmd.mode = 0;
+            cmd.gaitType = 0;
+            cmd.speedLevel = 0;
+            cmd.footRaiseHeight = 0;
+            cmd.bodyHeight = 0;
+            cmd.euler[0] = 0;
+            cmd.euler[1] = 0;
+            cmd.euler[2] = 0;
+            cmd.velocity[0] = 0.0f;
+            cmd.velocity[1] = 0.0f;
+            cmd.yawSpeed = 0.0f;
+            cmd.reserve = 0;
+        }
+ 
+ 
         void image_callback(const sensor_msgs::ImageConstPtr& msg){
             std_msgs::Header msg_header = msg->header;
             std::string frame_id = msg_header.frame_id.c_str();
@@ -86,7 +105,7 @@ class ADJUST_POSITION{
         bool adjustPosition(double &x, double &y, double &z, double &ang){
             double t = (ros::Time::now() - start_time).toSec();
             threshold_z = (8 + t*0.05)*0.001;//0.008;
-
+            initialize(high_cmd_ros);
             offset_x = (double)fixed_x - x;
             offset_y = (double)fixed_y - y;
             offset_z = (double)fixed_z - z;
@@ -110,6 +129,7 @@ class ADJUST_POSITION{
                   numerator_2 = 3;
             }
             if(Done_z){
+              high_cmd_pub.publish(high_cmd_ros);
               // Done_z = false;
               //move it to the center
               double angle=0;
@@ -136,30 +156,13 @@ class ADJUST_POSITION{
               ROS_INFO("Linear_y: %lf,\n", twist.linear.y);
               ROS_INFO("threshold: %lf,\n", threshold_z);
               ROS_INFO("Agnle: %lf,\n", ang);
-              // high_cmd_ros.head[0] = 0xFE;
-              // high_cmd_ros.head[1] = 0xEF;
-              // high_cmd_ros.levelFlag = 0xee;
-              // high_cmd_ros.mode = 2;
-              // high_cmd_ros.gaitType = 2;
-              // // high_cmd_ros.bodyHeight = -0.2;
-              // if (std::abs(twist.linear.y) >0.1){
-              //   high_cmd_ros.velocity[1] = 0.1f; // -1  ~ +1
-              //   if (twist.linear.y<0)
-              //     high_cmd_ros.velocity[1] *=-1;
-              // }else{
-              //   high_cmd_ros.velocity[1] = 0.0f; // -1  ~ +1
-              // }
-              // high_cmd_pub.publish(high_cmd_ros);
-              if (std::abs(offset_z) >0.015){
-                twist.linear.y = 0.112; // -1  ~ +1
-                if (twist.linear.y>0)
-                  twist.linear.y  *=-1;
-              }else{
-                twist.linear.y = 0.0; // -1  ~ +1
-              }
-              cmd_vel_pub.publish(twist);
-              
-              
+              high_cmd_ros.mode = 2;
+              high_cmd_ros.gaitType = 1;
+              // high_cmd_ros.bodyHeight = -0.2;
+               high_cmd_ros.velocity[1] = -0.112f; 
+               if (move_z>0)
+                  high_cmd_ros.velocity[1] *= -1;
+              high_cmd_pub.publish(high_cmd_ros);
               return false;
             }
               
