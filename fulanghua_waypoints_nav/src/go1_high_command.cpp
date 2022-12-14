@@ -72,10 +72,12 @@ int main(int argc, char** argv){
             }else if (current_goal->command == cmd[2]){
                 ROS_INFO("Go1 right side stepping");
                 high_cmd_ros.mode = 2;
+                high_cmd_ros.gaitType = 1;
                 high_cmd_ros.velocity[1] = 0.112f;
             }else if (current_goal->command == cmd[3]){
                 ROS_INFO("Go1 left side stepping");
                 high_cmd_ros.mode = 2;
+                high_cmd_ros.gaitType = 1;
                 high_cmd_ros.velocity[1] = -0.112f;
             }else if (current_goal->command == cmd[4]){
                 ROS_INFO("Go1 dumping");
