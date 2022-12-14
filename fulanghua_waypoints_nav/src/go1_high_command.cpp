@@ -11,7 +11,27 @@
 #include "std_srvs/Empty.h"
 #include <unitree_legged_msgs/HighCmd.h>
 
+
+
 typedef actionlib::SimpleActionServer<fulanghua_action::special_moveAction> Server;
+void initialize(unitree_legged_msgs::HighCmd high_cmd_ros &cmd){
+            cmd.head[0] = 0xFE;
+            cmd.head[1] = 0xEF;
+            cmd.levelFlag = 0x00;
+            cmd.mode = 0;
+            cmd.gaitType = 0;
+            cmd.speedLevel = 0;
+            cmd.footRaiseHeight = 0;
+            cmd.bodyHeight = 0;
+            cmd.euler[0] = 0;
+            cmd.euler[1] = 0;
+            cmd.euler[2] = 0;
+            cmd.velocity[0] = 0.0f;
+            cmd.velocity[1] = 0.0f;
+            cmd.yawSpeed = 0.0f;
+            cmd.reserve = 0;
+}
+
 
 int main(int argc, char** argv){
   ros::init(argc, argv, "go1_high_command");
@@ -88,6 +108,8 @@ int main(int argc, char** argv){
               go1_ros_cmd_pub.publish(high_cmd_ros);
               rate.sleep();
             }
+            server.setSucceeded();
+            ROS_INFO("Go1 command finished");
           }
         }
       }
