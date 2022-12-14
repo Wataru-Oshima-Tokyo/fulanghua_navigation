@@ -167,6 +167,7 @@ class SpecialMove{
           if (robot_name_ == "go1"){
               if (go1_cmd_client.isServerConnected() && state){
                 fulanghua_action::special_moveGoal current_goal;
+                current_goal.command = "sitdown";
                 current_goal.duration = 2;
                 for (int i = 0; i < 5; i++)
                 {
