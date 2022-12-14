@@ -20,7 +20,7 @@ int main(int argc, char** argv){
   ros::Publisher go1_ros_cmd_pub; 
   Server server(nh, "go1_command", false); //make a server
   unitree_legged_msgs::HighCmd high_cmd_ros;
-  std::string cmd[4] = {"standup", "sitdown", "rightsidestep", "leftsidestep"};
+  std::string cmd[4] = {"standup", "sitdown", "rightsidestep", "leftsidestep", "dump"};
   std::string _high_cmd;
   ros::Time start_time;
   ros::NodeHandle private_nh("~"); 
@@ -71,10 +71,15 @@ int main(int argc, char** argv){
                 high_cmd_ros.mode = 5;
             }else if (current_goal->command == cmd[2]){
                 ROS_INFO("Go1 right side stepping");
+                cmd.mode = 2;
                 high_cmd_ros.velocity[1] = 0.112f;
             }else if (current_goal->command == cmd[3]){
                 ROS_INFO("Go1 left side stepping");
+                cmd.mode = 2;
                 high_cmd_ros.velocity[1] = -0.112f;
+            }else if (current_goal->command == cmd[4]){
+                ROS_INFO("Go1 dumping");
+                high_cmd_ros.mode = 7;
             }
 
             while(start_time + ros::Duration(current_goal->duration) -ros::Duration(0.5) > ros::Time::now()){
