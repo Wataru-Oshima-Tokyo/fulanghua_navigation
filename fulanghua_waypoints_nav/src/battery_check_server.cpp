@@ -31,18 +31,16 @@ int main(int argc, char** argv){
   private_nh.param("charge_threshold_higher", charge_threshold_higher_, 12.0);
   private_nh.param("robot_name", robot_name_, std::string("go1"));
     if (robot_name_ !="go1"){
-        #define LIMO
         CHARGE_TOPIC = "/limo_status";
     }else{
         CHARGE_TOPIC = "/high_state";
     }
   ros::Time start_time;
   fulanghua_action::special_moveGoalConstPtr current_goal; // instance of a goal
-    #ifdef LIMO
+    if (robot_name_ !="go1")
         charge_sub = nh.subscribe(CHARGE_TOPIC, 100, limo_batteryCallback);
-    #else
+    else
         charge_sub = nh.subscribe(CHARGE_TOPIC, 100, go1_batteryCallback);
-    #endif
   server.start(); //start the server
   while (ros::ok()){
       if(server.isNewGoalAvailable()){
