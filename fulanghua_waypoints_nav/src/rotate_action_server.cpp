@@ -71,7 +71,8 @@ int main(int argc, char** argv){
               printf("current: %lf\n",current);
               printf("diff_from target to current_position: %lf\n",diff);
 
-              vel_msg.angular.z =  -Kp* (target - current);
+              double ang_v = -Kp* (target - current);
+              vel_msg.angular.z =  abs(ang_v) > rotate_speed ? rotate_speed*ang_v/abs(ang_v) : ang_v;
                 turtle_vel.publish(vel_msg);
               if(std::abs(diff)<0.1 ){
                 geometry_msgs::Twist finish;

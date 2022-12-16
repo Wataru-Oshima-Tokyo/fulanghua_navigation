@@ -51,6 +51,11 @@
     <param name="Kp"  value="0.5" />
     <param name="rotate_speed" value="2.0" />
 </node>
+
+<node name="go_straight_server" pkg="fulanghua_waypoints_nav" type="go_straight_action_server" output="screen">
+    <param name="cmd_vel"  value="$(arg cmd_vel)" />
+    <param name="Kp"  value="0.6" />
+</node>
   
 <node name="ar_detect_server" pkg="fulanghua_waypoints_nav" type="aruco_detect_server" output="screen">
     <param name="cmd_vel"  value="$(arg cmd_vel)" />
