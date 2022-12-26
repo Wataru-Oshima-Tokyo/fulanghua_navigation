@@ -753,12 +753,13 @@ public:
             getRobotPosGL();
             try {
                 if(has_activate_) {
+                    //send guide_{robot name} action to action server when started
                     if(_initial){
                         std::string rname = "guide_" + robot_name_;
                         actionServiceCall(makeQueue(rname));
                         _initial=false;
                     }
-                    
+                    //if reached charging station and CHARGING_STATION is true
                     if(current_waypoint_->position.action == "charge" && CHARGING_STATION){
                         if(_reached && REVERSE){
                             current_waypoint_--;
@@ -766,6 +767,7 @@ public:
                             current_waypoint_++;
                         }
                     }
+                    //ROS_INFOs
                     if(current_waypoint_ == last_waypoint_ && !REVERSE) {
                         ROS_INFO("prepare finish pose");
                     } else if (current_waypoint_ == first_waypoint_+1 && REVERSE && _reached){
@@ -781,7 +783,8 @@ public:
                         ROS_INFO_STREAM("current_waypoint_" << current_waypoint_->position.y);
                     }
 
-                    startNavigationGL(*current_waypoint_);
+
+                    startNavigationGL(*current_waypoint_);//Go to the waypoint
                     int resend_goal = 0;
                     double start_nav_time = ros::Time::now().toSec();
                     while(!onNavigationPoint(current_waypoint_->position, dist_err_)) {
@@ -856,14 +859,16 @@ public:
                     }
                     if(has_activate_){
                         if(current_waypoint_ == finish_pose_ && !REVERSE) {
-                            startNavigationGL(*current_waypoint_);
-                            while(!navigationFinished() && ros::ok()) sleep();
                             has_activate_ = false;
                             if(LOOP){
+                                 ROS_INFO_STREAM("LOOP start!");
                                 actionServiceCall(makeQueue("loop"));
                                 has_activate_ = true;
                                 current_waypoint_ = waypoints_.poses.begin();
+                                _reached = true;
                             }else{
+                                //startNavigationGL(*current_waypoint_);
+                                //while(!navigationFinished() && ros::ok()) sleep();
                                 actionServiceCall(makeQueue("finish"));
                             }
                         }else if (current_waypoint_ == finish_pose_ && REVERSE){

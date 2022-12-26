@@ -76,8 +76,8 @@ class SpecialMove{
             sound_client.waitForResult();
             ros::Duration(1).sleep();
             if(posture){
-              twist.linear.x = 0;
-              twist.angular.z = 0;
+              //twist.linear.x = 0;
+              //twist.angular.z = 0;
               double start_send_time = ros::Time::now().toSec();
               double end_send_time = ros::Time::now().toSec();
               while((end_send_time-start_send_time)<0.5){
