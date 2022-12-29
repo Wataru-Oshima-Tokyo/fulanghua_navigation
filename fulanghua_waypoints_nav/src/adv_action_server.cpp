@@ -14,6 +14,7 @@
 #include <sound_play/SoundRequest.h>
 #include "std_msgs/Bool.h"
 #include "std_srvs/Empty.h"
+#include <ros_central_server_action/Send_commandAction.h>
 typedef actionlib::SimpleActionServer<fulanghua_action::special_moveAction> Server;
 
 class SpecialMove{
@@ -28,6 +29,7 @@ class SpecialMove{
       go1_cmd_client("go1_command", true),
       ar_align_client("ar_align", true),
       charging_station_client("charging_station", true),
+      ros_server_client("msg_command", true),
       rate_(2)
     {
           ros::NodeHandle private_nh("~");
@@ -217,12 +219,40 @@ class SpecialMove{
                 }
                 ros::Duration(1).sleep();
             }
-          }
 
-          //chaging station action server here
-          if (charging_station_client.isServerConnected() && state){
-            camera_action::camera_pkgGoal current_goal;
-            current_goal.duration = 120;
+            //send message client here
+            if (ros_server_client.isServerConnected() && state){
+              ros_central_server_action::Send_commandGoal current_goal;
+              current_goal.command = "CHARGING";
+              current_goal.duration = 120;
+              current_goal.to = "TK-MG400-001";
+
+              for (int i = 0; i < 5; i++)
+              {
+                state = true;
+                ros_server_client.sendGoal(current_goal);
+                actionlib::SimpleClientGoalState client_state = ros_server_client.getState();
+                while(client_state !=actionlib::SimpleClientGoalState::SUCCEEDED){
+                  client_state = ros_server_client.getState();
+                  if (client_state == actionlib::SimpleClientGoalState::PREEMPTED
+                  || client_state == actionlib::SimpleClientGoalState::ABORTED){
+                    ROS_WARN("failed %d times\n", i+1);
+                    state = false;
+                    break;
+                  }
+                  ros::Duration(0.1).sleep();
+                }
+                if (state){
+                    // charging_station_client.cancelAllGoals();
+                    break;
+                }
+              }
+              ros::Duration(1).sleep();
+            }
+          }else{
+            if (charging_station_client.isServerConnected() && state){
+             camera_action::camera_pkgGoal current_goal;
+             current_goal.duration = 120;
             
             for (int i = 0; i < 5; i++)
             {
@@ -246,6 +276,11 @@ class SpecialMove{
             }
             ros::Duration(1).sleep();
           }
+          }
+
+          //chaging station action server here
+          
+
 
           //check everything is fine.
           if(!state){
@@ -378,6 +413,7 @@ class SpecialMove{
     actionlib::SimpleActionClient<fulanghua_action::special_moveAction> go1_cmd_client;
     actionlib::SimpleActionClient<camera_action::camera_pkgAction> charging_station_client;
     actionlib::SimpleActionClient<fulanghua_action::special_moveAction> ar_align_client;
+    actionlib::SimpleActionClient<ros_central_server_action::Send_commandAction> ros_server_client;
 
     //service client
     ros::ServiceClient charge_reset_srv;

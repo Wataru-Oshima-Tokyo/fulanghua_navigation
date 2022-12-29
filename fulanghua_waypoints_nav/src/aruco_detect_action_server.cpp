@@ -76,7 +76,11 @@ class ADJUST_POSITION{
             cmd.reserve = 0;
         }
  
- 
+        void stopGo1(){
+          initialize(high_cmd_ros);
+          high_cmd_pub.publish(high_cmd_ros);
+        }
+
         void image_callback(const sensor_msgs::ImageConstPtr& msg){
             std_msgs::Header msg_header = msg->header;
             std::string frame_id = msg_header.frame_id.c_str();
@@ -318,6 +322,8 @@ int main(int argc, char** argv){
                       visualize = false;
                     }
                   }
+              }else{
+                adj.stopGo1();
               }
               cv::imshow("src", adj.src);
               cv::waitKey(3); 

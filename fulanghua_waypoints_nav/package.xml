@@ -29,6 +29,7 @@
   <depend>camera_action</depend>
   <depend>fulanghua_msg</depend>
   <depend>fulanghua_srvs</depend>
+  <depend>ros_central_server_action</depend>
   <depend>unitree_legged_msgs</depend>
   
   

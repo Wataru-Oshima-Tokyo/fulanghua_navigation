@@ -48,6 +48,7 @@ int main(int argc, char** argv){
   fulanghua_action::special_moveGoalConstPtr current_goal; // instance of a goal
   double previous = 0.0;
   bool inverseAngle = false;
+  bool initial_flag = true;
   server.start(); //start the server
   while (ros::ok()){
       if(server.isNewGoalAvailable()){
@@ -74,6 +75,7 @@ int main(int argc, char** argv){
             inverseAngle = true;
             target += 6.28;
           }
+          previous = 0.0;
       }
       if(server.isActive()){
         if(server.isPreemptRequested()){
@@ -98,6 +100,7 @@ int main(int argc, char** argv){
              geometry_msgs::Point pt;
              geometry_msgs::Twist vel_msg;
             try{
+
               listener.lookupTransform("/base_link", "/odom", ros::Time(0), current_transform);
               pt.x = current_transform.getOrigin().x();
               pt.y = current_transform.getOrigin().y();
@@ -112,19 +115,34 @@ int main(int argc, char** argv){
               */
               if(std::abs(current - previous)>6){
                 printf("Overshoot!");
-                current *=-1;
                 inverseAngle = false;
               }
-              double diff = target -current;
-              printf("diff_from target to current_position: %lf\n",diff);
+              double diff = target - current;
+              double diff_prev = target - previous;
+              double kp = 0.04777; //6.28*0.0477 = 0.3 (possible max value)
+              double velocity = std::abs(0.112 + std::abs(diff*kp)); 
               high_cmd_ros.mode = 2;
-              high_cmd_ros.gaitType = 1;
-              high_cmd_ros.yawSpeed = 0.112f;
-              if (diff > 0){
-                high_cmd_ros.yawSpeed *= -1;
+              high_cmd_ros.gaitType = 1;                        
+              if(current_goal->angle >0){
+                high_cmd_ros.yawSpeed = -velocity; //rotate right
+              }else{
+                high_cmd_ros.yawSpeed = velocity; //rotate left
               }
-              if (std::abs(diff)>5)
-                high_cmd_ros.yawSpeed *= -1;
+
+              printf("diff_from target to current_position: %lf\n",diff);
+              if (!initial_flag){
+                if (!inverseAngle && ( (diff < 0 && diff_prev >0) || (diff > 0 && diff_prev <0)) ){
+                  high_cmd_ros.yawSpeed *=-1;
+                }
+              }else{
+                initial_flag = false;
+              }
+
+              if(high_cmd_ros.yawSpeed>0.4){
+                high_cmd_ros.yawSpeed =0.4;
+              }else if(high_cmd_ros.yawSpeed<-0.4){
+                high_cmd_ros.yawSpeed = -0.4;
+              }
 
               go1_ros_cmd_pub.publish(high_cmd_ros);
               if(std::abs(diff)<0.05 ){
