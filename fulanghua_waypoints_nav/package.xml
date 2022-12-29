@@ -28,8 +28,7 @@
   <depend>image_transport</depend>
   <depend>camera_action</depend>
   <depend>fulanghua_msg</depend>
-  <depend>fulanghua_srvs</depend>
-  <depend>unitree_legged_msgs</depend>
+  
   
   
   <!-- <run_depend>fulanghua_srvs</run_depend> -->

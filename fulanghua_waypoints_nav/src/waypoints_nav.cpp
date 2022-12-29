@@ -37,6 +37,7 @@
 #include <geometry_msgs/Twist.h>
 #include "orne_waypoints_msgs/Waypoint.h"
 #include "orne_waypoints_msgs/WaypointArray.h"
+#include "orne_waypoints_msgs/Pose.h"
 #include "std_msgs/Bool.h"
 #include <move_base_msgs/MoveBaseAction.h>
 #include <actionlib/client/simple_action_client.h>
@@ -138,6 +139,7 @@ public:
         cmd_vel_sub_ = nh.subscribe(cmd_vel_, 1, &WaypointsNavigation::cmdVelCallback, this);
         cmd_vel_pub_ = nh.advertise<geometry_msgs::Twist>(cmd_vel_,100);
         robot_coordinate_pub = nh.advertise<geometry_msgs::Point>("robot_coordinate",100);
+        current_waypoint_pub = nh.advertise<orne_waypoints_msgs::Pose>("next_waypoint", 100);//publish next waypoint
         
         #ifdef LIMO
             charge_sub = nh.subscribe(CHARGE_TOPIC, 100, &WaypointsNavigation::limo_batteryCallback, this);
@@ -616,6 +618,7 @@ public:
         rate_.sleep();
         ros::spinOnce();
         publishPoseArray();
+        current_waypoint_pub.publish(*current_waypoint_);//publish next waypoint
     }
     
     
@@ -762,7 +765,7 @@ public:
                     //if reached charging station and CHARGING_STATION is true
                     if(current_waypoint_->position.action == "charge" && CHARGING_STATION){
                         if(_reached && REVERSE){
-                            current_waypoint_--;
+                            current_waypoint_--;//return to previous waypoint
                         }else{
                             current_waypoint_++;
                         }
@@ -782,8 +785,6 @@ public:
                         }
                         ROS_INFO_STREAM("current_waypoint_" << current_waypoint_->position.y);
                     }
-
-
                     startNavigationGL(*current_waypoint_);//Go to the waypoint
                     int resend_goal = 0;
                     double start_nav_time = ros::Time::now().toSec();
@@ -929,7 +930,7 @@ private:
     ros::ServiceServer start_server_, pause_server_, unpause_server_, stop_server_, suspend_server_, 
     resume_server_ ,search_server_, loop_start_server, loop_stop_server, roundtrip_on_server_, roundtrip_off_server_, command_server;
     ros::Subscriber cmd_vel_sub_, charge_sub;
-    ros::Publisher wp_pub_, cmd_vel_pub_, robot_coordinate_pub;
+    ros::Publisher wp_pub_, cmd_vel_pub_, robot_coordinate_pub, current_waypoint_pub;
     ros::ServiceClient clear_costmaps_srv_, action_cmd_srv;
     ros::ServiceClient charge_reset_srv;
     double last_moved_time_, dist_err_,charge_threshold_lower_,charge_threshold_higher_;
