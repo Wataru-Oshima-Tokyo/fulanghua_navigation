@@ -28,6 +28,7 @@
   <depend>image_transport</depend>
   <depend>camera_action</depend>
   <depend>fulanghua_msg</depend>
+  <depend>sensor_msgs</depend>
   
   
   

@@ -1,3 +1,0 @@
-geometry_msgs/Pose currentCoordinate
-geometry_msgs/Pose nextWaypoint
-int8 robotStatus

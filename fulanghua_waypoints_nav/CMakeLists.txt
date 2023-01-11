@@ -20,6 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
   camera_action
   fulanghua_msg
   fulanghua_srvs
+  sensor_msgs
   # unitree_legged_msgs
 )
 
@@ -49,7 +50,6 @@ add_executable(waypoints_nav src/waypoints_nav.cpp)
 add_executable(adv_action_server src/adv_action_server.cpp)
 add_executable(rotate_action_server src/rotate_action_server.cpp)
 add_executable(battery_check_server src/battery_check_server.cpp)
-add_executable(wp_robot_status_pub src/wp_robot_status_pub.cpp)
 # add_executable(go1_cmd_server src/go1_high_command.cpp)
 add_dependencies(waypoints_nav ${fulanghua_srvs_EXPORTED_TARGETS})
 
@@ -62,7 +62,6 @@ target_compile_options(aruco_align_server PRIVATE ${OpenMP_FLAGS})
 add_dependencies(aruco_align_server ${catkin_EXPORTED_TARGETS})
 add_dependencies(aruco_detect_server ${catkin_EXPORTED_TARGETS})
 add_dependencies(adv_action_server ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(wp_robot_status_pub ${catkin_EXPORTED_TARGETS})
 
 
 
@@ -99,9 +98,6 @@ ${OpenCV_LIBRARIES} ${catkin_LIBRARIES}
 ${CMAKE_THREAD_LIBS_INIT} ${OpenMP_LIBS}
 )
 
-target_link_libraries(wp_robot_status_pub
-  ${catkin_LIBRARIES}
-)
 
 # target_link_libraries(go1_cmd_server
 #   ${catkin_LIBRARIES}

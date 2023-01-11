@@ -57,6 +57,7 @@
 #include <limits>
 #include <fulanghua_msg/_LimoStatus.h>
 #include "std_msgs/Bool.h"
+#include <sensor_msgs/LaserScan.h>
 
 #ifdef NEW_YAMLCPP
 template<typename T>
@@ -137,6 +138,7 @@ public:
         resume_server_ = nh.advertiseService("resume_wp_pose", &WaypointsNavigation::resumePoseCallback, this);
         search_server_ = nh.advertiseService("near_wp_nav",&WaypointsNavigation::searchPoseCallback, this);
         cmd_vel_sub_ = nh.subscribe(cmd_vel_, 1, &WaypointsNavigation::cmdVelCallback, this);
+        scan_sub_ = nh.subscribe("/scan", 100, &WaypointsNavigation::scanCallback, this);
         cmd_vel_pub_ = nh.advertise<geometry_msgs::Twist>(cmd_vel_,100);
         robot_coordinate_pub = nh.advertise<geometry_msgs::Point>("robot_coordinate",100);
         current_waypoint_pub = nh.advertise<orne_waypoints_msgs::Pose>("next_waypoint", 100);//publish next waypoint
@@ -212,6 +214,21 @@ public:
         pose.orientation.w =0;
         dummy_array.poses.push_back(pose);
         return dummy_array.poses.begin();
+    }
+
+    void scanCallback(const sensor_msgs::LaserScan &msg){
+        auto ranges = msg.ranges;
+        int obs_num = 0;
+        for (int i = 0; i < ranges.size(); i++) {
+            if (ranges[i] > 0.05 && ranges[i] < 0.25) {
+                obs_num++;
+            }
+        }
+        if (obs_num > 1) {
+            stop ++;
+        }else{
+            stop = 0;
+        }
     }
 
     bool startNavigationCallback(std_srvs::Trigger::Request &request, std_srvs::Trigger::Response &response) {
@@ -618,13 +635,23 @@ public:
         rate_.sleep();
         ros::spinOnce();
         publishPoseArray();
-        current_waypoint_pub.publish(*current_waypoint_);//publish next waypoint
+        current_waypoint_pub.publish(*current_waypoint_);//publish next waypoint to central server
+        if(stop == 1){
+            ros::Time t_stop = ros::Time::now();
+            while ((ros::Time::now() - t_stop).toSec() < 3) {
+                geometry_msgs::Twist twist;
+                twist.linear.x = 0;
+                twist.angular.z = 0;
+                cmd_vel_pub_.publish(twist);
+                ROS_INFO("stopped to avoid collision for %lf seconds", (ros::Time::now() - t_stop).toSec());
+            }
+        }
     }
     
     
     void actionServiceCall(const std::vector<orne_waypoints_msgs::Pose>::iterator &dest){
         bool initial_goal = false;
-        for (int i = 0; i < 5; i++){
+        for (int i = 0; i < 1; i++){
             bool state = true;
             if (action_client.isServerConnected())
             {
@@ -672,7 +699,7 @@ public:
                 }
                 has_activate_ = true;
                 break;
-            }else if (i==4){
+            }else if (i==0){
                 ROS_WARN("Failed the whole process 5 times so please call the operator to fix this");
                 stopNavigationCallback(req, res);
                 charge_reset_srv.call(req,res);
@@ -929,7 +956,7 @@ private:
     ros::Rate rate_;
     ros::ServiceServer start_server_, pause_server_, unpause_server_, stop_server_, suspend_server_, 
     resume_server_ ,search_server_, loop_start_server, loop_stop_server, roundtrip_on_server_, roundtrip_off_server_, command_server;
-    ros::Subscriber cmd_vel_sub_, charge_sub;
+    ros::Subscriber cmd_vel_sub_, charge_sub, scan_sub_;
     ros::Publisher wp_pub_, cmd_vel_pub_, robot_coordinate_pub, current_waypoint_pub;
     ros::ServiceClient clear_costmaps_srv_, action_cmd_srv;
     ros::ServiceClient charge_reset_srv;
@@ -944,6 +971,7 @@ private:
     bool _reached = false;
     bool p2p_flag =false;
     bool _initial=true;
+    int stop = 0;
 };
 
 int main(int argc, char *argv[]){
