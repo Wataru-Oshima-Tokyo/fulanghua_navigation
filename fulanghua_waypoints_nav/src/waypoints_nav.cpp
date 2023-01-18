@@ -93,6 +93,7 @@ public:
         private_nh.param("robot_name", robot_name_, std::string("go1"));
         private_nh.param("charge_threshold_lower", charge_threshold_lower_, 10.0);
         private_nh.param("charge_threshold_higher", charge_threshold_higher_, 12.0);
+        private_nh.param("speech", speech_, false);
         if (robot_name_ !="go1"){
             #define LIMO
             CHARGE_TOPIC = "/limo_status";
@@ -137,6 +138,7 @@ public:
         search_server_ = nh.advertiseService("near_wp_nav",&WaypointsNavigation::searchPoseCallback, this);
         cmd_vel_sub_ = nh.subscribe(cmd_vel_, 1, &WaypointsNavigation::cmdVelCallback, this);
         cmd_vel_pub_ = nh.advertise<geometry_msgs::Twist>(cmd_vel_,100);
+        current_waypoint_pub_ = nh.advertise<orne_waypoints_msgs::Pose>("next_waypoint", 100);
         robot_coordinate_pub = nh.advertise<geometry_msgs::Point>("robot_coordinate",100);
         
         #ifdef LIMO
@@ -616,6 +618,7 @@ public:
         rate_.sleep();
         ros::spinOnce();
         publishPoseArray();
+        current_waypoint_pub_.publish(*current_waypoint_);
     }
     
     
@@ -682,7 +685,7 @@ public:
             }
         rate_.sleep();
         }  
-        if((dest->position.x != 0 && dest->position.y != 0) && (dest->orientation.x != 0 && dest->orientation.y != 0)){
+        if(speech_ && (dest->position.x != 0 && dest->position.y != 0) && (dest->orientation.x != 0 && dest->orientation.y != 0)){
             actionServiceCall(makeQueue("next"));
             printf("Action finished\n");
         }
@@ -755,7 +758,8 @@ public:
                 if(has_activate_) {
                     if(_initial){
                         std::string rname = "guide_" + robot_name_;
-                        actionServiceCall(makeQueue(rname));
+                        if (speech_)
+                            actionServiceCall(makeQueue(rname));
                         _initial=false;
                     }
                     
@@ -797,7 +801,8 @@ public:
                             resend_goal++;
                             if(resend_goal == 3) {
                                 ROS_WARN("Skip waypoint.");
-                                actionServiceCall(makeQueue("skip"));
+                                if (speech_)
+                                    actionServiceCall(makeQueue("skip"));
                                 if(REVERSE && _reached)
                                     current_waypoint_--;
                                 else
@@ -860,17 +865,20 @@ public:
                             while(!navigationFinished() && ros::ok()) sleep();
                             has_activate_ = false;
                             if(LOOP){
-                                actionServiceCall(makeQueue("loop"));
+                                if (speech_)
+                                    actionServiceCall(makeQueue("loop"));
                                 has_activate_ = true;
                                 current_waypoint_ = waypoints_.poses.begin();
                             }else{
-                                actionServiceCall(makeQueue("finish"));
+                                if (speech_)
+                                    actionServiceCall(makeQueue("finish"));
                             }
                         }else if (current_waypoint_ == finish_pose_ && REVERSE){
                             // startNavigationGL(*current_waypoint_);
                             // while(!navigationFinished() && ros::ok()) sleep();
                             ROS_INFO_STREAM("REVERSE start!");
-                            actionServiceCall(makeQueue("reverse"));
+                            if (speech_)
+                                actionServiceCall(makeQueue("reverse"));
                             computeWpOrientationReverse();
                             current_waypoint_--;
                             _reached = true;
@@ -917,6 +925,7 @@ private:
     std_srvs::Empty::Response res;
     bool has_activate_;
     std::string robot_frame_, world_frame_, cmd_vel_, CHARGE_TOPIC, robot_name_;
+    bool speech_;
     //MG400
     const std::string ARUCO_DETECT_SERVICE_RESET = "/arucodetect/reset";
     tf::TransformListener tf_listener_;
@@ -924,7 +933,7 @@ private:
     ros::ServiceServer start_server_, pause_server_, unpause_server_, stop_server_, suspend_server_, 
     resume_server_ ,search_server_, loop_start_server, loop_stop_server, roundtrip_on_server_, roundtrip_off_server_, command_server;
     ros::Subscriber cmd_vel_sub_, charge_sub;
-    ros::Publisher wp_pub_, cmd_vel_pub_, robot_coordinate_pub;
+    ros::Publisher wp_pub_, cmd_vel_pub_, robot_coordinate_pub, current_waypoint_pub_;
     ros::ServiceClient clear_costmaps_srv_, action_cmd_srv;
     ros::ServiceClient charge_reset_srv;
     double last_moved_time_, dist_err_,charge_threshold_lower_,charge_threshold_higher_;

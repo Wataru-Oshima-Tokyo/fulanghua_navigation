@@ -20,6 +20,7 @@
 <arg name="holonomic" default="false"/>
 <arg name="image_topic" default="/usb_cam/image_raw"/>
 <arg name="calibration_path" default="$(find camera_pkg)/param"/> 
+<arg name="speech"          default="true"/>
 
 <node name="waypoints_nav" pkg="fulanghua_waypoints_nav" type="waypoints_nav" output="screen">
   <param name="world_frame" value="$(arg world_frame)"/>
@@ -29,6 +30,7 @@
   <param name="robot_name"  value="$(arg robot_name)" />
   <param name="charge_threshold_lower"  value="$(arg charge_threshold_lower)" />
   <param name="charge_threshold_higher"  value="$(arg charge_threshold_higher)" />
+  <param name="speech"  value="$(arg speech)" />
 </node>
   
 <node name="action_server" pkg="fulanghua_waypoints_nav" type="adv_action_server" output="screen">
@@ -53,7 +55,7 @@
     <param name="Kp"  value="$(arg Kp)" />
 </node>
   
-<node name="ar_detect_server" pkg="fulanghua_waypoints_nav" type="aruco_detect_server" output="screen">
+<!-- <node name="ar_detect_server" pkg="fulanghua_waypoints_nav" type="aruco_detect_server" output="screen">
     <param name="cmd_vel"  value="$(arg cmd_vel)" />
     <param name="image_topic" value="$(arg image_topic)"/>
     <param name="Kp"  value="$(arg Kp)" />
@@ -63,7 +65,7 @@
     <param name="offset_fixed_z" value="$(arg offset_fixed_z)"/>
     <param name="holonomic" value="$(arg holonomic)" />
     <param name="calibration_path" value="$(arg calibration_path)/camera_ext.yaml" />
-</node>
+</node> -->
 
 <node name="battery_check_server" pkg="fulanghua_waypoints_nav" type="battery_check_server" output="screen">
     <param name="robot_name" value="$(arg robot_name)"/>

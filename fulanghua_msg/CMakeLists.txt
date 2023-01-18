@@ -11,6 +11,8 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   roscpp
   rospy
+  geometry_msgs
+  sensor_msgs
   std_msgs
 )
 
@@ -51,11 +53,14 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
 	FILES
 	_LimoStatus.msg
+  WpRobotStatus.msg
 )
 
 generate_messages(
 	DEPENDENCIES
       std_msgs
+      geometry_msgs
+      sensor_msgs
 )
 
 
@@ -120,7 +125,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES fulanghua_msg
-#  CATKIN_DEPENDS roscpp rospy std_msgs
+ CATKIN_DEPENDS geometry_msgs roscpp rospy sensor_msgs std_msgs message_runtime
 #  DEPENDS system_lib
 )
 
