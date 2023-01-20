@@ -11,7 +11,29 @@
 #include "std_srvs/Empty.h"
 #include <unitree_legged_msgs/HighCmd.h>
 
+
+
 typedef actionlib::SimpleActionServer<fulanghua_action::special_moveAction> Server;
+
+
+void initialize(unitree_legged_msgs::HighCmd &cmd){
+            cmd.head[0] = 0xFE;
+            cmd.head[1] = 0xEF;
+            cmd.levelFlag = 0x00;
+            cmd.mode = 0;
+            cmd.gaitType = 0;
+            cmd.speedLevel = 0;
+            cmd.footRaiseHeight = 0;
+            cmd.bodyHeight = 0;
+            cmd.euler[0] = 0;
+            cmd.euler[1] = 0;
+            cmd.euler[2] = 0;
+            cmd.velocity[0] = 0.0f;
+            cmd.velocity[1] = 0.0f;
+            cmd.yawSpeed = 0.0f;
+            cmd.reserve = 0;
+}
+
 
 int main(int argc, char** argv){
   ros::init(argc, argv, "go1_high_command");
@@ -20,7 +42,7 @@ int main(int argc, char** argv){
   ros::Publisher go1_ros_cmd_pub; 
   Server server(nh, "go1_command", false); //make a server
   unitree_legged_msgs::HighCmd high_cmd_ros;
-  std::string cmd[4] = {"standup", "sitdown", "rightsidestep", "leftsidestep"};
+  std::string cmd[7] = {"standup", "sitdown", "rightsidestep", "leftsidestep", "dump", "moveforward", "movebackward"};
   std::string _high_cmd;
   ros::Time start_time;
   ros::NodeHandle private_nh("~"); 
@@ -47,21 +69,8 @@ int main(int argc, char** argv){
             feedback.rate = (ros::Time::now() - start_time).toSec() / current_goal->duration; // decide the rate of feedback
             server.publishFeedback(feedback); //publish the feedback
             //initialize high cmd
-            high_cmd_ros.head[0] = 0xFE;
-            high_cmd_ros.head[1] = 0xEF;
-            high_cmd_ros.levelFlag = 0x00;
-            high_cmd_ros.mode = 0;
-            high_cmd_ros.gaitType = 0;
-            high_cmd_ros.speedLevel = 0;
-            high_cmd_ros.footRaiseHeight = 0;
-            high_cmd_ros.bodyHeight = 0;
-            high_cmd_ros.euler[0] = 0;
-            high_cmd_ros.euler[1] = 0;
-            high_cmd_ros.euler[2] = 0;
-            high_cmd_ros.velocity[0] = 0.0f;
-            high_cmd_ros.velocity[1] = 0.0f;
-            high_cmd_ros.yawSpeed = 0.0f;
-            high_cmd_ros.reserve = 0;
+            initialize(high_cmd_ros);
+
             
             if (current_goal->command == cmd[0]){
                 ROS_INFO("Go1 standing up");
@@ -71,16 +80,37 @@ int main(int argc, char** argv){
                 high_cmd_ros.mode = 5;
             }else if (current_goal->command == cmd[2]){
                 ROS_INFO("Go1 right side stepping");
-                high_cmd_ros.velocity[1] = 0.112f;
+                high_cmd_ros.mode = 2;
+                high_cmd_ros.gaitType = 1;
+                high_cmd_ros.velocity[1] = -0.112f;
             }else if (current_goal->command == cmd[3]){
                 ROS_INFO("Go1 left side stepping");
-                high_cmd_ros.velocity[1] = -0.112f;
+                high_cmd_ros.mode = 2;
+                high_cmd_ros.gaitType = 1;
+                high_cmd_ros.velocity[1] = 0.112f;
+            }else if (current_goal->command == cmd[4]){
+                ROS_INFO("Go1 dumping");
+                high_cmd_ros.mode = 7;
+            }else if (current_goal->command == cmd[5]){
+                ROS_INFO("Go1 left moves forward");
+                high_cmd_ros.mode = 2;
+                high_cmd_ros.gaitType = 1;
+                high_cmd_ros.velocity[0] = 0.112f;
+            }else if (current_goal->command == cmd[6]){
+                ROS_INFO("Go1 left moves forward");
+                high_cmd_ros.mode = 2;
+                high_cmd_ros.gaitType = 1;
+                high_cmd_ros.velocity[0] = -0.112f;
             }
 
             while(start_time + ros::Duration(current_goal->duration) -ros::Duration(0.5) > ros::Time::now()){
               go1_ros_cmd_pub.publish(high_cmd_ros);
               rate.sleep();
             }
+            initialize(high_cmd_ros);
+            go1_ros_cmd_pub.publish(high_cmd_ros);
+            server.setSucceeded();
+            ROS_INFO("Go1 command finished");
           }
         }
       }

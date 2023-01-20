@@ -21,6 +21,7 @@ find_package(catkin REQUIRED COMPONENTS
   fulanghua_msg
   fulanghua_srvs
   unitree_legged_msgs
+  ros_central_server_action
 )
 
 find_package(PkgConfig)
