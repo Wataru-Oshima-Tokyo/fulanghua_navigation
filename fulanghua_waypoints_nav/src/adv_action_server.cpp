@@ -47,7 +47,6 @@ class SpecialMove{
           
           twist_postgure_pub = nh.advertise<geometry_msgs::Twist>(cmd_vel_posture,100);
           twist_move_pub = nh.advertise<geometry_msgs::Twist>(cmd_vel_,100);
-          charge_reset_srv = nh.serviceClient<std_srvs::Empty>(ARUCO_DETECT_SERVICE_RESET);
           robot_coordinate_sub = nh.subscribe("robot_coordinate", 100, &SpecialMove::coordinate_callback, this);
           odom_sub = nh.subscribe("odom", 100, &SpecialMove::odom_callback, this);
           server.start();
@@ -201,7 +200,7 @@ class SpecialMove{
               current_goal.duration = 120;
               current_goal.to = "TK-MG400-001";
 
-              for (int i = 0; i < 5; i++)
+              for (int i = 0; i < 2; i++)
               {
                 state = true;
                 ros_server_client.sendGoal(current_goal);
@@ -226,7 +225,7 @@ class SpecialMove{
           }else{
             if (charging_station_client.isServerConnected() && state){
              camera_action::camera_pkgGoal current_goal;
-             current_goal.duration = 120;
+             current_goal.duration = 60;
             
             for (int i = 0; i < 5; i++)
             {
@@ -258,8 +257,6 @@ class SpecialMove{
 
           //check everything is fine.
           if(!state){
-              charge_reset_srv.call(req,res);
-              ros::Duration(5).sleep();
               charging = false;
               server.setPreempted();
               ROS_INFO("A whole charging process is preempted");
@@ -399,7 +396,6 @@ class SpecialMove{
     bool posture = false;
     std::string _voice_path;
     std::string voice_path;
-    const std::string ARUCO_DETECT_SERVICE_RESET = "/arucodetect/reset";
     bool charging = false;
 
 

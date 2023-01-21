@@ -1,0 +1,8 @@
+<launch>
+  <!-- Arguments -->
+  <node pkg="unitree_remote_inspection" type="wp_manager2.py" name="wp_manager" output="screen">
+    <param name="init_pose_setting" type="bool" value="true"/>
+    <param name="enable_wall" type="bool" value="false"/>	
+    <param name="debug" type="bool" value="true" />
+  </node>  
+</launch>

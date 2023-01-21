@@ -137,24 +137,25 @@ class ADJUST_POSITION{
               // Done_z = false;
               //move it to the center
               double angle=0;
-              if(holonomic_){
-                //get the angle here
-                if (_counter>40){
-                    std::sort(angle_array.begin(), angle_array.end());
-                    angle = angle_array[angle_array.size()/2-1] * 0.6; // because it is too much              
-                    _counter = -1;
-                  }else if (_counter>=0){
-                    ROS_INFO("getting an angle");
-                    angle_array.push_back(ang);
-                    _counter++;
-                    return false;
-                  }
-                  //pass the angle to the rotation server
-                  // rotate_action(angle);
-                  return true;
-              }else{
-                return true;
-              }
+              return true;
+              // if(holonomic_){
+              //   //get the angle here
+              //   if (_counter>40){
+              //       std::sort(angle_array.begin(), angle_array.end());
+              //       angle = angle_array[angle_array.size()/2-1] * 0.6; // because it is too much              
+              //       _counter = -1;
+              //     }else if (_counter>=0){
+              //       ROS_INFO("getting an angle");
+              //       angle_array.push_back(ang);
+              //       _counter++;
+              //       return false;
+              //     }
+              //     //pass the angle to the rotation server
+              //     // rotate_action(angle);
+              //     return true;
+              // }else{
+              //   return true;
+              // }
             }else{
               ROS_INFO("Offset_z: %lf,\n", offset_z);
               ROS_INFO("Linear_y: %lf,\n", twist.linear.y);
