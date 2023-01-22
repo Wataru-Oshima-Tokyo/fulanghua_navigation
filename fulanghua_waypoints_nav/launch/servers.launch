@@ -19,7 +19,7 @@
     <arg name="image_topic" default="/usb_cam2/image_raw"/>
     <arg name="calibration_path" default="$(find camera_pkg)/param"/> 
     <arg name="high_cmd" default="high_cmd"/> 
-    <arg name="id" default="TK-Go1-002"/>
+    <arg name="id" default="TK-GO1-002"/>
     <arg name="lan_port" default="eth0"/>
     <arg name="port1" default="2100"/>
     <arg name="port2" default="2200"/>
@@ -88,12 +88,6 @@
         <param name="charge_threshold_higher"  value="$(arg charge_threshold_higher)" />
     </node>
 
-    <node name="msg_command_server" pkg="ros_central_server" type="client.py" output="screen">
-        <param name="id" value="$(arg id)"/> 
-        <param name="lan_port"  value="$(arg lan_port)" />
-        <param name="port1"  value="$(arg port1)" />
-        <param name="port2"  value="$(arg port2)" />
-        <param name="multicast_group"  value="$(arg multicast_group)" />
-    </node>
+    <include file="$(find ros_central_server)/launch/TK-GO1-002.launch"/>
 
 </launch>
