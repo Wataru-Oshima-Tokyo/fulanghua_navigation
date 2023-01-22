@@ -108,8 +108,8 @@ class SpecialMove{
           
           if (ar_detect_client.isServerConnected() && state){
             fulanghua_action::special_moveGoal current_goal;
-            current_goal.duration = 120;
-            for (int i = 0; i < 5; i++)
+            current_goal.duration = 40;
+            for (int i = 0; i < 2; i++)
             {
               state = true;
               ar_detect_client.sendGoal(current_goal);
@@ -170,7 +170,7 @@ class SpecialMove{
                 fulanghua_action::special_moveGoal current_goal;
                 current_goal.command = "sitdown";
                 current_goal.duration = 2;
-                for (int i = 0; i < 5; i++)
+                for (int i = 0; i < 2; i++)
                 {
                   state = true;
                   go1_cmd_client.sendGoal(current_goal);

@@ -307,6 +307,9 @@ int main(int argc, char** argv){
             adj.server.setAborted(); // abort it
           }
           else{
+            fulanghua_action::special_moveFeedback feedback;
+            feedback.rate = (ros::Time::now() - adj.start_time).toSec() / adj.current_goal->duration;
+            adj.server.publishFeedback(feedback);
             if (!adj.src.empty()){        
               cv::aruco::detectMarkers(adj.src, adj.dictionary, adj.corners, adj.ids); //detecting a marker
               std::vector<cv::Vec3d> rvecs, tvecs;
