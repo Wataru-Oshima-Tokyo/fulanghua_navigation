@@ -64,7 +64,7 @@ int main(int argc, char** argv){
             server.setAborted(); // abort it
           }
           else{
-            ROS_INFO("go1 starts move");
+            ROS_INFO("Go1 starts move");
             fulanghua_action::special_moveFeedback feedback; // set the feeback
             feedback.rate = (ros::Time::now() - start_time).toSec() / current_goal->duration; // decide the rate of feedback
             server.publishFeedback(feedback); //publish the feedback
@@ -92,12 +92,12 @@ int main(int argc, char** argv){
                 ROS_INFO("Go1 dumping");
                 high_cmd_ros.mode = 7;
             }else if (current_goal->command == cmd[5]){
-                ROS_INFO("Go1 left moves forward");
+                ROS_INFO("Go1 moving forward");
                 high_cmd_ros.mode = 2;
                 high_cmd_ros.gaitType = 1;
                 high_cmd_ros.velocity[0] = 0.112f;
             }else if (current_goal->command == cmd[6]){
-                ROS_INFO("Go1 left moves forward");
+                ROS_INFO("Go1 moving backword");
                 high_cmd_ros.mode = 2;
                 high_cmd_ros.gaitType = 1;
                 high_cmd_ros.velocity[0] = -0.112f;

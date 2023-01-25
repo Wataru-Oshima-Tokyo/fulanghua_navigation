@@ -197,7 +197,7 @@ class SpecialMove{
             if (ros_server_client.isServerConnected() && state){
               ros_central_server_action::Send_commandGoal current_goal;
               current_goal.command = "CHARGING";
-              current_goal.duration = 120;
+              current_goal.duration = 60;
               current_goal.to = "TK-MG400-001";
 
               for (int i = 0; i < 2; i++)
