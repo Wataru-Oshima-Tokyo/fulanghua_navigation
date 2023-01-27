@@ -267,7 +267,7 @@ class ADJUST_POSITION{
     geometry_msgs::Twist twist; 
     unitree_legged_msgs::HighCmd high_cmd_ros;
     ros::Time start_time;
-    
+    ros::Time detect_time;
     fulanghua_action::special_moveGoalConstPtr current_goal; // instance of a goal
     cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_4X4_50); 
     std::vector<std::vector<cv::Point2f> > corners;
@@ -297,6 +297,7 @@ int main(int argc, char** argv){
           adj._counter=0;
           visualize = true;
           adj.Done_z=false;
+          adj.detect_time = ros::Time::now();
       }
       if(adj.server.isActive()){
         if(adj.server.isPreemptRequested()){
@@ -315,6 +316,7 @@ int main(int argc, char** argv){
               std::vector<cv::Vec3d> rvecs, tvecs;
               cv::aruco::estimatePoseSingleMarkers(adj.corners, 0.05, adj.camera_matrix, adj.dist_coeffs, rvecs, tvecs); //gettting x,y,z and angle
               if (adj.ids.size()>0){
+                  adj.detect_time = ros::Time::now();
                   cv::drawFrameAxes(adj.src, adj.camera_matrix, adj.dist_coeffs, rvecs[0], tvecs[0], 0.1); //drawing them on the marker
                   double _angle = rvecs[0](2)*180/M_PI;
                   //putting texst on src
@@ -328,6 +330,11 @@ int main(int argc, char** argv){
                   }
               }else{
                 adj.stopGo1();
+                if (adj.detect_time + ros::Duration(5) < ros::Time::now()){
+                  ROS_WARN("TIME OUT for detecting a marker");
+                  adj.server.setPreempted();
+                  visualize = false;
+                }
               }
               cv::imshow("src", adj.src);
               cv::waitKey(3); 
