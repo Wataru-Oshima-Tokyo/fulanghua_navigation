@@ -102,6 +102,7 @@ class SpecialMove{
     void chargingFunction(){
           charging = true;
           bool state = true;
+          bool no_approach = false;
           int counter_=0;
           printf("charging action here\n");
           //ar marker detection to approach the charging station
@@ -133,6 +134,7 @@ class SpecialMove{
             ros::Duration(1).sleep();
           }else{
             state = false;
+            no_approach = true;
           }
           //rotate the robot so that realsense can see it
           if (!holonomic_){
@@ -256,7 +258,11 @@ class SpecialMove{
 
 
           //check everything is fine.
-          if(!state){
+          if (no_approach){
+              charging = false;
+              server.setAborted();
+              ROS_INFO("Camera device might be down");
+          }else if(!state){
               charging = false;
               server.setPreempted();
               ROS_INFO("A whole charging process is preempted");
