@@ -106,7 +106,7 @@ class SpecialMove{
           printf("charging action here\n");
           //ar marker detection to approach the charging station
           
-          if (ar_detect_client.isServerConnected() && state){
+          if (ar_detect_client.isServerConnected()){
             fulanghua_action::special_moveGoal current_goal;
             current_goal.duration = 40;
             for (int i = 0; i < 2; i++)
@@ -130,9 +130,9 @@ class SpecialMove{
               }
                 
             }
-            
-
             ros::Duration(1).sleep();
+          }else{
+            state = false;
           }
           //rotate the robot so that realsense can see it
           if (!holonomic_){
