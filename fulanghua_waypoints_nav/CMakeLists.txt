@@ -25,7 +25,16 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 find_package(PkgConfig)
-find_package(OpenCV 4  REQUIRED)
+set(_opencv_version 4)
+
+find_package(OpenCV 4 QUIET)
+if(NOT OpenCV_FOUND)
+    message(STATUS "Did not find OpenCV 4, trying OpenCV 3")
+    set(_opencv_version 3)
+endif()
+
+find_package(OpenCV ${_opencv_version} REQUIRED)
+
 pkg_search_module(yaml-cpp REQUIRED yaml-cpp)
 
 if(NOT ${yaml-cpp_VERSION} VERSION_LESS "0.5")

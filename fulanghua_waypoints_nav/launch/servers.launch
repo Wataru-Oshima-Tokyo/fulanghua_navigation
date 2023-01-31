@@ -88,6 +88,6 @@
         <param name="charge_threshold_higher"  value="$(arg charge_threshold_higher)" />
     </node>
 
-    <include file="$(find ros_central_server)/launch/TK-GO1-002.launch"/>
+    <!-- <include file="$(find ros_central_server)/launch/TK-GO1-002.launch"/>-->
 
 </launch>
