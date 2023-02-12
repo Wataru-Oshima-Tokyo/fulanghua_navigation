@@ -4,8 +4,8 @@
   <arg name="map_file" default="$(find turtlebot3_navigation)/maps/map.yaml"/>
   <arg name="open_rviz" default="true"/>
   <arg name="move_forward_only" default="false"/>
-  <arg name="name" default="amcl_wp_manager" />
   <arg name="root_dir" default="$(find aws_voice_pkg)/certificates/"/>
+  <arg name="name" default="amcl_wp_manager" />
 
   <!-- Turtlebot3 -->
   <include file="$(find turtlebot3_bringup)/launch/turtlebot3_remote.launch">
@@ -42,9 +42,17 @@
           args="-d $(find turtlebot3_navigation)/rviz/turtlebot3_navigation.rviz"/>
   </group>
 
+<<<<<<< HEAD
       <node name="ros_aws_bridge" pkg="aws_voice_pkg" type="voice_nav.py" output="screen">
         <param name="root_dir" value="$(arg root_dir)"/> 
     </node>
 
 
+=======
+    <node name="ros_aws_bridge" pkg="aws_voice_pkg" type="voice_nav.py" output="screen">
+        <param name="root_dir" value="$(arg root_dir)"/> 
+        <param name="group_name" value="$(arg name)" />
+    </node>
+  
+>>>>>>> a54af5fd3a943fdb978417d6406163f39b8120c7
 </launch>
