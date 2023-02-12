@@ -42,17 +42,8 @@
           args="-d $(find turtlebot3_navigation)/rviz/turtlebot3_navigation.rviz"/>
   </group>
 
-<<<<<<< HEAD
-      <node name="ros_aws_bridge" pkg="aws_voice_pkg" type="voice_nav.py" output="screen">
-        <param name="root_dir" value="$(arg root_dir)"/> 
-    </node>
-
-
-=======
     <node name="ros_aws_bridge" pkg="aws_voice_pkg" type="voice_nav.py" output="screen">
         <param name="root_dir" value="$(arg root_dir)"/> 
         <param name="group_name" value="$(arg name)" />
     </node>
-  
->>>>>>> a54af5fd3a943fdb978417d6406163f39b8120c7
 </launch>
