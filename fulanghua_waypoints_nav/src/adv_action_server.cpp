@@ -133,40 +133,10 @@ class SpecialMove{
             }
             ros::Duration(1).sleep();
           }else{
-            state = false;
+            state = false;//false;
             no_approach = true;
           }
           //rotate the robot so that realsense can see it
-          if (!holonomic_){
-            if (rotate_client.isServerConnected() && state){
-              
-              fulanghua_action::special_moveGoal current_goal;
-              current_goal.duration = 20;
-              current_goal.angle = -90;
-              for (int i = 0; i < 5; i++)
-              {
-                state = true;
-                rotate_client.sendGoal(current_goal);
-                actionlib::SimpleClientGoalState client_state = rotate_client.getState();
-                while(client_state !=actionlib::SimpleClientGoalState::SUCCEEDED){
-                  client_state = rotate_client.getState();
-                  if (client_state == actionlib::SimpleClientGoalState::PREEMPTED
-                    || client_state == actionlib::SimpleClientGoalState::ABORTED){
-                    ROS_WARN("failed %d times\n", i+1);
-                    state = false;
-                    break;
-                  }
-                  ros::Duration(0.1).sleep();
-                }
-                if (state){
-                  // rotate_client.cancelAllGoals();
-                  break;
-                }
-              }
-              ros::Duration(1).sleep();
-            }
-          }
-
           if (robot_name_ == "go1"){
               if (go1_cmd_client.isServerConnected() && state){
                 fulanghua_action::special_moveGoal current_goal;
@@ -200,7 +170,7 @@ class SpecialMove{
               ros_central_server_action::Send_commandGoal current_goal;
               current_goal.command = "CHARGING";
               current_goal.duration = 60;
-              current_goal.to = "TK-MG400-001";
+              current_goal.to = "TK_MG400_001";
 
               for (int i = 0; i < 2; i++)
               {
@@ -211,7 +181,7 @@ class SpecialMove{
                   client_state = ros_server_client.getState();
                   if (client_state == actionlib::SimpleClientGoalState::PREEMPTED
                   || client_state == actionlib::SimpleClientGoalState::ABORTED){
-                    ROS_WARN("failed %d times\n", i+1);
+                    ROS_WARN("ros_server_client failed %d times\n", i+1);
                     state = false;
                     break;
                   }

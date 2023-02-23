@@ -29,7 +29,7 @@
   <node pkg="unitree_remote_inspection" type="wp_manager2.py" name="$(arg name)" output="screen">
     <param name="init_pose_setting" type="bool" value="true"/>
     <param name="enable_wall" type="bool" value="false"/>	
-    <param name="debug" type="bool" value="false" />
+    <param name="debug" type="bool" value="true" />
     <param name="doghouse" type="bool" value="true"/>
   </node>  
 
@@ -46,4 +46,10 @@
         <param name="root_dir" value="$(arg root_dir)"/> 
         <param name="group_name" value="$(arg name)" />
     </node>
+
+    <node pkg="cs_signal" name="wp_robot_status" type="wp_robot_status_pub" />
+
+    
+    <node pkg="rcs_client" name="rcs_client" type="rcs_client.py" output="screen" />
+
 </launch>
