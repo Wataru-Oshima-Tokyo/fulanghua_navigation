@@ -3,7 +3,7 @@
   <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
   <arg name="map_file" default="$(find turtlebot3_navigation)/maps/map.yaml"/>
   <arg name="open_rviz" default="true"/>
-  <arg name="move_forward_only" default="false"/>
+  <arg name="move_forward_only" default="true"/>
   <arg name="root_dir" default="$(find aws_voice_pkg)/certificates/"/>
   <arg name="name" default="amcl_wp_manager" />
 
@@ -42,4 +42,9 @@
         <param name="root_dir" value="$(arg root_dir)"/> 
         <param name="group_name" value="$(arg name)" />
     </node>
+
+    <node name="rcs_client" pkg="rcs_client" type="rcs_client.py" output="screen">
+        <param name="group_name" value="$(arg name)" />
+    </node>
+
 </launch>
