@@ -42,11 +42,16 @@ int main(int argc, char** argv){
   ros::Publisher go1_ros_cmd_pub; 
   Server server(nh, "go1_command", false); //make a server
   unitree_legged_msgs::HighCmd high_cmd_ros;
-  std::string cmd[7] = {"standup", "sitdown", "rightsidestep", "leftsidestep", "dump", "moveforward", "movebackward"};
+  std::string cmd[11] = {"standup", "sitdown", "rightsidestep", 
+  "leftsidestep", "dump", "moveforward", "movebackward", 
+  "lookleft", "lookright", "lookup", "lookdown"};
   std::string _high_cmd;
+  double yaw_value,picth_value;
   ros::Time start_time;
   ros::NodeHandle private_nh("~"); 
   private_nh.param("high_cmd", _high_cmd, std::string("high_cmd"));
+  private_nh.param("yaw_value", yaw_value, 0.3);
+  private_nh.param("high_cmd", picth_value, 0.4);
   go1_ros_cmd_pub=nh.advertise<unitree_legged_msgs::HighCmd>(_high_cmd, 10);
   fulanghua_action::special_moveGoalConstPtr current_goal; // instance of a goal
   server.start(); //start the server
@@ -101,7 +106,26 @@ int main(int argc, char** argv){
                 high_cmd_ros.mode = 2;
                 high_cmd_ros.gaitType = 1;
                 high_cmd_ros.velocity[0] = -0.112f;
+            }else if (current_goal->command == cmd[7]){
+                ROS_INFO("Go1 looking right");
+                high_cmd_ros.mode = 1;
+                high_cmd_ros.euler[2] = yaw_value;
+            }else if (current_goal->command == cmd[8]){
+                ROS_INFO("Go1 looking left");
+                high_cmd_ros.mode = 1;
+                high_cmd_ros.euler[2] = -yaw_value;
+            }else if (current_goal->command == cmd[9]){
+                ROS_INFO("Go1 looking up");
+                high_cmd_ros.mode = 1;
+                high_cmd_ros.gaitType = 1;
+                high_cmd_ros.euler[1] = picth_value;
+            }else if (current_goal->command == cmd[10]){
+                ROS_INFO("Go1 looking down");
+                high_cmd_ros.mode = 1;
+                high_cmd_ros.gaitType = 1;
+                high_cmd_ros.velocity[1] = -picth_value;
             }
+
 
             while(start_time + ros::Duration(current_goal->duration) -ros::Duration(0.5) > ros::Time::now()){
               go1_ros_cmd_pub.publish(high_cmd_ros);

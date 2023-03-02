@@ -99,6 +99,64 @@ class SpecialMove{
         speaking = msg.data;
     }
 
+    void cancelAllClients(){
+        actionlib::SimpleClientGoalState client_state = ar_detect_client.getState();
+        if (client_state == actionlib::SimpleClientGoalState::ACTIVE){
+          sound_client.cancelAllGoals();
+          ROS_INFO("sound_client canceled");
+        }else{
+          ROS_INFO("sound_client is not running");
+        }
+        client_state = rotate_client.getState();
+        if (client_state == actionlib::SimpleClientGoalState::ACTIVE){
+          rotate_client.cancelAllGoals();
+          ROS_INFO("rotate_client canceled");
+        }else{
+          ROS_INFO("rotate_client is not running");
+        }
+
+        client_state = ar_detect_client.getState();
+        if (client_state == actionlib::SimpleClientGoalState::ACTIVE){
+          ar_detect_client.cancelAllGoals();
+          ROS_INFO("ar_detect_client canceled");
+        }else{
+          ROS_INFO("ar_detect_client is not running");
+        }
+        
+        client_state = go1_cmd_client.getState();
+        if (client_state == actionlib::SimpleClientGoalState::ACTIVE){
+          go1_cmd_client.cancelAllGoals();
+          ROS_INFO("go1_cmd_client canceled");
+        }else{
+          ROS_INFO("go1_cmd_client is not running");
+        }
+
+        client_state = ar_align_client.getState();
+        if (client_state == actionlib::SimpleClientGoalState::ACTIVE){
+          ar_align_client.cancelAllGoals();
+          ROS_INFO("ar_align_client canceled");
+        }else{
+          ROS_INFO("ar_align_client is not running");
+        }
+
+        client_state = charging_station_client.getState();
+        if (client_state == actionlib::SimpleClientGoalState::ACTIVE){
+          charging_station_client.cancelAllGoals();
+          ROS_INFO("charging_station_client canceled");
+        }else{
+          ROS_INFO("charging_station_client is not running");
+        }
+
+        client_state = ros_server_client.getState();
+        if (client_state == actionlib::SimpleClientGoalState::ACTIVE){
+          ros_server_client.cancelAllGoals();
+          ROS_INFO("ros_server_client canceled");
+        }else{
+          ROS_INFO("ros_server_client is not running");
+        }
+
+    }
+
     void chargingFunction(){
           charging = true;
           bool state = true;
@@ -352,8 +410,10 @@ class SpecialMove{
     ros::Publisher twist_move_pub, twist_postgure_pub; 
     ros::Subscriber robot_coordinate_sub, odom_sub, speaking_sub,charge_sub;
     geometry_msgs::Twist twist;
-    nav_msgs::Odometry _odom, initial_odom;;
+    nav_msgs::Odometry _odom, initial_odom;
     actionlib::SimpleActionServer<fulanghua_action::special_moveAction> server;
+
+    //clients
     actionlib::SimpleActionClient<sound_play::SoundRequestAction> sound_client;
     actionlib::SimpleActionClient<fulanghua_action::special_moveAction> rotate_client;
     actionlib::SimpleActionClient<fulanghua_action::special_moveAction> ar_detect_client;
@@ -440,6 +500,7 @@ int main(int argc, char** argv)
     {
       if (SpM.server.isPreemptRequested())
       {
+        SpM.cancelAllClients();
         SpM.server.setPreempted();
         printf("Preempt Goal\n");
       }
