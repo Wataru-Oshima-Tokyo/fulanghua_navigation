@@ -100,6 +100,7 @@ class SpecialMove{
     }
 
     void cancelAllClients(){
+        allCancel_flag = true;
         actionlib::SimpleClientGoalState client_state = ar_detect_client.getState();
         if (client_state == actionlib::SimpleClientGoalState::ACTIVE){
           sound_client.cancelAllGoals();
@@ -154,7 +155,7 @@ class SpecialMove{
         }else{
           ROS_INFO("ros_server_client is not running");
         }
-
+        allCancel_flag = false;
     }
 
     void chargingFunction(){
@@ -183,8 +184,7 @@ class SpecialMove{
                 }
                 ros::Duration(0.1).sleep();
               }
-              if (state){
-                // ar_detect_client.cancelAllGoals();
+              if (state || allCancel_flag){
                 break;
               }
                 
@@ -194,9 +194,10 @@ class SpecialMove{
             state = false;//false;
             no_approach = true;
           }
+
           //rotate the robot so that realsense can see it
           if (robot_name_ == "go1"){
-              if (go1_cmd_client.isServerConnected() && state){
+              if (go1_cmd_client.isServerConnected() && state && !allCancel_flag){
                 fulanghua_action::special_moveGoal current_goal;
                 current_goal.command = "sitdown";
                 current_goal.duration = 2;
@@ -215,8 +216,7 @@ class SpecialMove{
                     }
                     ros::Duration(0.1).sleep();
                   }
-                  if (state){
-                    // rotate_client.cancelAllGoals();
+                  if (state || allCancel_flag){
                     break;
                   }
                 }
@@ -224,7 +224,7 @@ class SpecialMove{
             }
 
             //send message client here
-            if (ros_server_client.isServerConnected() && state){
+            if (ros_server_client.isServerConnected() && state && !allCancel_flag){
               ros_central_server_action::Send_commandGoal current_goal;
               current_goal.command = "CHARGING";
               current_goal.duration = 60;
@@ -245,15 +245,14 @@ class SpecialMove{
                   }
                   ros::Duration(0.1).sleep();
                 }
-                if (state){
-                    // charging_station_client.cancelAllGoals();
+                if (state || allCancel_flag){
                     break;
                 }
               }
               ros::Duration(1).sleep();
             }
           }else{
-            if (charging_station_client.isServerConnected() && state){
+            if (charging_station_client.isServerConnected() && state && !allCancel_flag){
              camera_action::camera_pkgGoal current_goal;
              current_goal.duration = 60;
             
@@ -272,8 +271,7 @@ class SpecialMove{
                 }
                 ros::Duration(0.1).sleep();
               }
-              if (state){
-                  // charging_station_client.cancelAllGoals();
+              if (state || allCancel_flag){
                   break;
               }
             }
@@ -286,19 +284,22 @@ class SpecialMove{
 
 
           //check everything is fine.
-          if (no_approach){
-              charging = false;
-              server.setAborted();
-              ROS_INFO("Camera device might be down");
-          }else if(!state){
-              charging = false;
-              server.setPreempted();
-              ROS_INFO("A whole charging process is preempted");
-          }else{
-              charging = false;
-              server.setSucceeded();
-              ROS_INFO("A whole charging process is Done");
+          if (!allCancel_flag){
+            if (no_approach){
+                charging = false;
+                server.setAborted();
+                ROS_INFO("Camera device might be down");
+            }else if(!state){
+                charging = false;
+                server.setPreempted();
+                ROS_INFO("A whole charging process is preempted");
+            }else{
+                charging = false;
+                server.setSucceeded();
+                ROS_INFO("A whole charging process is Done");
+            }
           }
+
 
     }
 
@@ -467,6 +468,7 @@ class SpecialMove{
     double t =0;
     double prev_diff=0;
     double voice_volume;
+    bool allCancel_flag = false; //this is the flag when the all cancel command is called
     std_srvs::Empty::Request req;
     std_srvs::Empty::Response res;
     
