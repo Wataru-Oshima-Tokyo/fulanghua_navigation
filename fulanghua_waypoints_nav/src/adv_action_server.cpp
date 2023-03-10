@@ -14,7 +14,7 @@
 #include <sound_play/SoundRequest.h>
 #include "std_msgs/Bool.h"
 #include "std_srvs/Empty.h"
-#include <ros_central_server_action/Send_commandAction.h>
+#include <rcs_client/Send_commandAction.h>
 typedef actionlib::SimpleActionServer<fulanghua_action::special_moveAction> Server;
 
 class SpecialMove{
@@ -225,7 +225,7 @@ class SpecialMove{
 
             //send message client here
             if (ros_server_client.isServerConnected() && state && !allCancel_flag){
-              ros_central_server_action::Send_commandGoal current_goal;
+              rcs_client::Send_commandGoal current_goal;
               current_goal.command = "CHARGING";
               current_goal.duration = 60;
               current_goal.to = "TK_MG400_001";
@@ -421,7 +421,7 @@ class SpecialMove{
     actionlib::SimpleActionClient<fulanghua_action::special_moveAction> go1_cmd_client;
     actionlib::SimpleActionClient<camera_action::camera_pkgAction> charging_station_client;
     actionlib::SimpleActionClient<fulanghua_action::special_moveAction> ar_align_client;
-    actionlib::SimpleActionClient<ros_central_server_action::Send_commandAction> ros_server_client;
+    actionlib::SimpleActionClient<rcs_client::Send_commandAction> ros_server_client;
 
     //service client
     ros::ServiceClient charge_reset_srv;
