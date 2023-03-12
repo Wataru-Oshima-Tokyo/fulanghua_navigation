@@ -35,17 +35,17 @@
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/PoseArray.h>
 #include <geometry_msgs/Twist.h>
-#include "orne_waypoints_msgs/Waypoint.h"
-#include "orne_waypoints_msgs/WaypointArray.h"
+#include "techshare_ros_pkg/Waypoint.h"
+#include "techshare_ros_pkg/WaypointArray.h"
 #include "std_msgs/Bool.h"
 #include <move_base_msgs/MoveBaseAction.h>
 #include <actionlib/client/simple_action_client.h>
 #include <tf/tf.h>
 #include <tf/transform_listener.h>
 #include <visualization_msgs/MarkerArray.h>
-#include <fulanghua_srvs/_Pose.h>
-#include <fulanghua_srvs/actions.h>
-#include <fulanghua_action/special_moveAction.h>
+#include <techshare_ros_pkg/fulanghua_pose.h>
+#include <techshare_ros_pkg/fulanghua_action.h>
+#include <techshare_ros_pkg/special_moveAction.h>
 #include <yaml-cpp/yaml.h>
 
 #include <vector>
@@ -138,7 +138,7 @@ public:
         search_server_ = nh.advertiseService("near_wp_nav",&WaypointsNavigation::searchPoseCallback, this);
         cmd_vel_sub_ = nh.subscribe(cmd_vel_, 1, &WaypointsNavigation::cmdVelCallback, this);
         cmd_vel_pub_ = nh.advertise<geometry_msgs::Twist>(cmd_vel_,100);
-        current_waypoint_pub_ = nh.advertise<orne_waypoints_msgs::Pose>("next_waypoint", 100);
+        current_waypoint_pub_ = nh.advertise<techshare_ros_pkg::Pose>("next_waypoint", 100);
         robot_coordinate_pub = nh.advertise<geometry_msgs::Point>("robot_coordinate",100);
         
         #ifdef LIMO
@@ -146,10 +146,10 @@ public:
         #else
             charge_sub = nh.subscribe(CHARGE_TOPIC, 100, &WaypointsNavigation::go1_batteryCallback, this);
         #endif
-        wp_pub_ = nh.advertise<orne_waypoints_msgs::WaypointArray>("waypoints", 10);
+        wp_pub_ = nh.advertise<techshare_ros_pkg::WaypointArray>("waypoints", 10);
         clear_costmaps_srv_ = nh.serviceClient<std_srvs::Empty>("/move_base/clear_costmaps");
         charge_reset_srv = nh.serviceClient<std_srvs::Empty>(ARUCO_DETECT_SERVICE_RESET);
-        action_cmd_srv = nh.serviceClient<fulanghua_srvs::actions>("/action/start");
+        action_cmd_srv = nh.serviceClient<techshare_ros_pkg::fulanghua_action>("/action/start");
         //added below
         loop_start_server = nh.advertiseService("loop_start_wp_nav", &WaypointsNavigation::loopStartCallback, this);
         loop_stop_server = nh.advertiseService("loop_stop_wp_nav", &WaypointsNavigation::loopStopCallback, this);
@@ -180,10 +180,10 @@ public:
         LOOP = false;
     }
 
-    const std::vector<orne_waypoints_msgs::Pose>::iterator makeQueue(const std::string& command){
+    const std::vector<techshare_ros_pkg::Pose>::iterator makeQueue(const std::string& command){
         
-        orne_waypoints_msgs::WaypointArray dummy_array;
-        orne_waypoints_msgs::Pose pose;
+        techshare_ros_pkg::WaypointArray dummy_array;
+        techshare_ros_pkg::Pose pose;
         pose.position.action = "guide";
         pose.position.file = command;
         pose.position.duration = INT_MAX;
@@ -198,9 +198,9 @@ public:
         return dummy_array.poses.begin();
     }
 
-    std::vector<orne_waypoints_msgs::Pose>::iterator makeQueue(const std::string& command, const int& duration){
-        orne_waypoints_msgs::WaypointArray dummy_array;
-        orne_waypoints_msgs::Pose pose;
+    std::vector<techshare_ros_pkg::Pose>::iterator makeQueue(const std::string& command, const int& duration){
+        techshare_ros_pkg::WaypointArray dummy_array;
+        techshare_ros_pkg::Pose pose;
         pose.position.action = command;
         pose.position.duration = duration;
         pose.position.x =0;
@@ -295,7 +295,7 @@ public:
         
         ///< @todo calculating metric with request orientation
         double min_dist = std::numeric_limits<double>::max();
-        for(std::vector<orne_waypoints_msgs::Pose>::iterator it = current_waypoint_; it != finish_pose_; it++) {
+        for(std::vector<techshare_ros_pkg::Pose>::iterator it = current_waypoint_; it != finish_pose_; it++) {
             double dist = hypot(it->position.x -robot_gl.getOrigin().x(), it->position.y - robot_gl.getOrigin().y());
             if(dist < min_dist) {
                 min_dist = dist;
@@ -309,7 +309,7 @@ public:
         return true;
     }
 
-    bool suspendPoseCallback(fulanghua_srvs::_Pose::Request &request, fulanghua_srvs::_Pose::Response &response) {
+    bool suspendPoseCallback(techshare_ros_pkg::fulanghua_pose::Request &request, techshare_ros_pkg::fulanghua_pose::Response &response) {
         if(!has_activate_) {
             response.status = false;
             return false;
@@ -346,7 +346,7 @@ public:
         clear_costmaps_srv_.call(empty);
 
         double min_dist = std::numeric_limits<double>::max();
-        for(std::vector<orne_waypoints_msgs::Pose>::iterator it = current_waypoint_; it != finish_pose_; it++) {
+        for(std::vector<techshare_ros_pkg::Pose>::iterator it = current_waypoint_; it != finish_pose_; it++) {
             double dist = hypot(it->position.x - robot_gl.getOrigin().x(), it->position.y - robot_gl.getOrigin().y());
             if(dist < min_dist) {
                 min_dist = dist;
@@ -363,7 +363,7 @@ public:
         if (rotate_client.isServerConnected()){
               bool state =true;
               
-              fulanghua_action::special_moveGoal current_goal;
+              techshare_ros_pkg::special_moveGoal current_goal;
               current_goal.duration = 20;
               current_goal.angle = -90;
               for (int i = 0; i < 5; i++)
@@ -392,7 +392,7 @@ public:
     void battery_check(){
         if(battery_check_client.isServerConnected()){
               bool state =true;
-              fulanghua_action::special_moveGoal current_goal;
+              techshare_ros_pkg::special_moveGoal current_goal;
               current_goal.duration = INT_MAX-1;
               for (int i = 0; i < 5; i++)
               {
@@ -473,7 +473,7 @@ public:
                 const YAML::Node *wp_node = node.FindValue("waypoints");
             #endif
 
-            orne_waypoints_msgs::Pose pose;
+            techshare_ros_pkg::Pose pose;
 
             if(wp_node != NULL){
                 for(int i=0; i < wp_node->size(); i++){
@@ -528,7 +528,7 @@ public:
     }
 
    void computeWpOrientation(){
-        for(std::vector<orne_waypoints_msgs::Pose>::iterator it = waypoints_.poses.begin(); it != finish_pose_; it++) {
+        for(std::vector<techshare_ros_pkg::Pose>::iterator it = waypoints_.poses.begin(); it != finish_pose_; it++) {
             if(it->position.action =="passthrough" || it->position.action =="p2p"){
                 double goal_direction = atan2((it+1)->position.y - (it)->position.y,
                                 (it+1)->position.x - (it)->position.x);
@@ -544,7 +544,7 @@ public:
              charging_waypoints_.header.frame_id = world_frame_;
     }
     void computeWpOrientationReverse(){
-        for(std::vector<orne_waypoints_msgs::Pose>::iterator it = finish_pose_; it != waypoints_.poses.begin(); it--) {
+        for(std::vector<techshare_ros_pkg::Pose>::iterator it = finish_pose_; it != waypoints_.poses.begin(); it--) {
             if(it->position.action =="passthrough" || it->position.action =="p2p"){
                 double goal_direction = atan2((it-1)->position.y -(it)->position.y,
                                  (it-1)->position.x -(it)->position.x);
@@ -586,7 +586,7 @@ public:
         return !CHARGE;
     }
 
-    bool onNavigationPoint(const orne_waypoints_msgs::Waypoint &dest, double dist_err = 0.8){
+    bool onNavigationPoint(const techshare_ros_pkg::Waypoint &dest, double dist_err = 0.8){
         tf::StampedTransform robot_gl = getRobotPosGL();
 
         const double wx = dest.x;
@@ -622,13 +622,13 @@ public:
     }
     
     
-    void actionServiceCall(const std::vector<orne_waypoints_msgs::Pose>::iterator &dest){
+    void actionServiceCall(const std::vector<techshare_ros_pkg::Pose>::iterator &dest){
         bool initial_goal = false;
         for (int i = 0; i < 5; i++){
             bool state = true;
             if (action_client.isServerConnected())
             {
-                fulanghua_action::special_moveGoal goal;
+                techshare_ros_pkg::special_moveGoal goal;
                 // goal.task_id = task_id;
                 ROS_WARN("goal setting");
                 goal.command = dest->position.action;
@@ -707,7 +707,7 @@ public:
         // printf("yaw: %f\n", yaw);
         ofs.close();
     }
-    void startNavigationGL(const orne_waypoints_msgs::Pose &dest){
+    void startNavigationGL(const techshare_ros_pkg::Pose &dest){
         move_base_msgs::MoveBaseGoal move_base_goal;
         move_base_goal.target_pose.header.stamp = ros::Time::now();
         move_base_goal.target_pose.header.frame_id = world_frame_;
@@ -719,7 +719,7 @@ public:
         move_base_action_.sendGoal(move_base_goal);
     }
 
-    bool actionConfirm(const orne_waypoints_msgs::Pose &dest){
+    bool actionConfirm(const techshare_ros_pkg::Pose &dest){
         if(dest.position.action == "passthrough") return false;
         return true;
     }
@@ -728,7 +728,7 @@ public:
         wp_pub_.publish(waypoints_);
     }
 
-    std::vector<orne_waypoints_msgs::Pose>::iterator nearestChargingStation(const std::vector<orne_waypoints_msgs::Pose>::iterator &current_waypoint_){
+    std::vector<techshare_ros_pkg::Pose>::iterator nearestChargingStation(const std::vector<techshare_ros_pkg::Pose>::iterator &current_waypoint_){
         /*calculate the distance from the current position to each charging station
             this is kind of like the simplest way to decide which station is the nearest by Pythagorean theorem
             but idealy, I think we should use the A stat algorithm to find the nearest path to reach the station since there is a possibility that the robot cannot 
@@ -740,9 +740,9 @@ public:
 
             If these requiremnets are satisfied, then the most reliable way to find the nearest chaging station will be made.
         */
-        std::vector<orne_waypoints_msgs::Pose>::iterator _charging_waypoint = charging_waypoints_.poses.begin();
+        std::vector<techshare_ros_pkg::Pose>::iterator _charging_waypoint = charging_waypoints_.poses.begin();
         double nearest = std::sqrt(std::pow(std::abs(current_waypoint_->position.x - _charging_waypoint->position.x),2) + std::pow(std::abs(current_waypoint_->position.y - _charging_waypoint->position.y),2));
-        for(std::vector<orne_waypoints_msgs::Pose>::iterator it = charging_waypoints_.poses.begin(); it != charging_waypoints_.poses.end(); it++) {
+        for(std::vector<techshare_ros_pkg::Pose>::iterator it = charging_waypoints_.poses.begin(); it != charging_waypoints_.poses.end(); it++) {
             double distance = std::sqrt(std::pow(std::abs(current_waypoint_->position.x - it->position.x),2) + std::pow(std::abs(current_waypoint_->position.y - it->position.y),2));
             if(distance < nearest){
                 nearest = distance;
@@ -829,7 +829,7 @@ public:
                         has_activate_ = false;
                         while(!chargingFinished() && ros::ok()) sleep();
                     }else{
-                        orne_waypoints_msgs::Pose temp_wp;
+                        techshare_ros_pkg::Pose temp_wp;
                         if(_reached && REVERSE){
                             if((current_waypoint_-1)->position.action =="p2p"){
                                 temp_wp.position.action = current_waypoint_->position.action;
@@ -909,18 +909,18 @@ public:
 
 private:
     actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> move_base_action_;
-    actionlib::SimpleActionClient<fulanghua_action::special_moveAction> action_client;
-    actionlib::SimpleActionClient<fulanghua_action::special_moveAction> rotate_client;
-    actionlib::SimpleActionClient<fulanghua_action::special_moveAction> battery_check_client;
+    actionlib::SimpleActionClient<techshare_ros_pkg::special_moveAction> action_client;
+    actionlib::SimpleActionClient<techshare_ros_pkg::special_moveAction> rotate_client;
+    actionlib::SimpleActionClient<techshare_ros_pkg::special_moveAction> battery_check_client;
     std::string amcl_filename_;
     // geometry_msgs::PoseArray waypoints_;
-    orne_waypoints_msgs::WaypointArray waypoints_, charging_waypoints_ ;
+    techshare_ros_pkg::WaypointArray waypoints_, charging_waypoints_ ;
     visualization_msgs::MarkerArray marker_;
-    std::vector<orne_waypoints_msgs::Pose>::iterator current_waypoint_;
-    std::vector<orne_waypoints_msgs::Pose>::iterator charging_waypoint_;
-    std::vector<orne_waypoints_msgs::Pose>::iterator last_waypoint_;
-    std::vector<orne_waypoints_msgs::Pose>::iterator first_waypoint_;
-    std::vector<orne_waypoints_msgs::Pose>::iterator finish_pose_;
+    std::vector<techshare_ros_pkg::Pose>::iterator current_waypoint_;
+    std::vector<techshare_ros_pkg::Pose>::iterator charging_waypoint_;
+    std::vector<techshare_ros_pkg::Pose>::iterator last_waypoint_;
+    std::vector<techshare_ros_pkg::Pose>::iterator first_waypoint_;
+    std::vector<techshare_ros_pkg::Pose>::iterator finish_pose_;
     std_srvs::Empty::Request req;
     std_srvs::Empty::Response res;
     bool has_activate_;

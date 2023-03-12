@@ -1,10 +1,10 @@
 #include <ros/ros.h>
 #include <tf/transform_listener.h>
 #include <geometry_msgs/Twist.h>
-#include <fulanghua_action/special_moveAction.h>
+#include <techshare_ros_pkg/special_moveAction.h>
 #include <actionlib/server/simple_action_server.h>
 #include <unitree_legged_msgs/HighCmd.h>
-typedef actionlib::SimpleActionServer<fulanghua_action::special_moveAction> Server;
+typedef actionlib::SimpleActionServer<techshare_ros_pkg::special_moveAction> Server;
 
 
 
@@ -45,7 +45,7 @@ int main(int argc, char** argv){
   ros::Time start_time;
   tf::TransformListener listener;
   tf::StampedTransform target_transform;
-  fulanghua_action::special_moveGoalConstPtr current_goal; // instance of a goal
+  techshare_ros_pkg::special_moveGoalConstPtr current_goal; // instance of a goal
   double previous = 0.0;
   bool inverseAngle = false;
   bool initial_flag = true;
@@ -93,7 +93,7 @@ int main(int argc, char** argv){
           else{
             ROS_INFO("start rotating");
             initialize(high_cmd_ros);
-            fulanghua_action::special_moveFeedback feedback; // set the feeback
+            techshare_ros_pkg::special_moveFeedback feedback; // set the feeback
             feedback.rate = (ros::Time::now() - start_time).toSec() / current_goal->duration; // decide the rate of feedback
             server.publishFeedback(feedback); //publish the feedback
              tf::StampedTransform current_transform;

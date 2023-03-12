@@ -1,21 +1,21 @@
 #include <ros/ros.h>
 #include <actionlib/client/simple_action_client.h>
-#include <fulanghua_action/special_moveAction.h>
-#include <camera_action/camera_pkgAction.h>
+#include <techshare_ros_pkg/special_moveAction.h>
+#include <techshare_ros_pkg/camera_pkgAction.h>
 #include <actionlib/server/simple_action_server.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Point.h>
 #include <nav_msgs/Odometry.h>
 #include <tf/tf.h>
 #include <tf/transform_listener.h>
-#include "orne_waypoints_msgs/Pose.h"
+#include "techshare_ros_pkg/Pose.h"
 #include <sound_play/SoundRequestAction.h>
 #include <fulanghua_msg/_LimoStatus.h>
 #include <sound_play/SoundRequest.h>
 #include "std_msgs/Bool.h"
 #include "std_srvs/Empty.h"
-#include <rcs_client/Send_commandAction.h>
-typedef actionlib::SimpleActionServer<fulanghua_action::special_moveAction> Server;
+#include <techshare_ros_pkg/send_commandAction.h>
+typedef actionlib::SimpleActionServer<techshare_ros_pkg::special_moveAction> Server;
 
 class SpecialMove{
   public:
@@ -167,7 +167,7 @@ class SpecialMove{
           //ar marker detection to approach the charging station
           
           if (ar_detect_client.isServerConnected()){
-            fulanghua_action::special_moveGoal current_goal;
+            techshare_ros_pkg::special_moveGoal current_goal;
             current_goal.duration = 40;
             for (int i = 0; i < 2; i++)
             {
@@ -198,7 +198,7 @@ class SpecialMove{
           //rotate the robot so that realsense can see it
           if (robot_name_ == "go1"){
               if (go1_cmd_client.isServerConnected() && state && !allCancel_flag){
-                fulanghua_action::special_moveGoal current_goal;
+                techshare_ros_pkg::special_moveGoal current_goal;
                 current_goal.command = "sitdown";
                 current_goal.duration = 2;
                 for (int i = 0; i < 2; i++)
@@ -225,7 +225,7 @@ class SpecialMove{
 
             //send message client here
             if (ros_server_client.isServerConnected() && state && !allCancel_flag){
-              rcs_client::Send_commandGoal current_goal;
+              techshare_ros_pkg::send_commandGoal current_goal;
               current_goal.command = "CHARGING";
               current_goal.duration = 60;
               current_goal.to = "TK_MG400_001";
@@ -253,7 +253,7 @@ class SpecialMove{
             }
           }else{
             if (charging_station_client.isServerConnected() && state && !allCancel_flag){
-             camera_action::camera_pkgGoal current_goal;
+             techshare_ros_pkg::camera_pkgGoal current_goal;
              current_goal.duration = 60;
             
             for (int i = 0; i < 5; i++)
@@ -304,7 +304,7 @@ class SpecialMove{
     }
 
 
-    void P2P_move(const orne_waypoints_msgs::Pose &dest){
+    void P2P_move(const techshare_ros_pkg::Pose &dest){
       if (!onNavigationPoint(dest)){
           twist_move_pub.publish(twist);
       }else{
@@ -318,7 +318,7 @@ class SpecialMove{
     void AlignmentFunction(){
       bool state = true;
       if (ar_align_client.isServerConnected() && state){
-        fulanghua_action::special_moveGoal current_goal;
+        techshare_ros_pkg::special_moveGoal current_goal;
         current_goal.duration = 30;
         ROS_INFO("Alignment started");
         for (int i = 0; i < 5; i++)
@@ -345,7 +345,7 @@ class SpecialMove{
     }
 
 
-    bool onNavigationPoint(const orne_waypoints_msgs::Pose &dest){
+    bool onNavigationPoint(const techshare_ros_pkg::Pose &dest){
         const double wx = dest.position.x;
         const double wy = dest.position.y;
         const double dist = std::sqrt(std::pow(wx - rx, 2) + std::pow(wy - ry, 2));
@@ -390,7 +390,7 @@ class SpecialMove{
     }
 
 
-    bool isPostureAvailable(const fulanghua_action::special_moveGoalConstPtr& current_goal){
+    bool isPostureAvailable(const techshare_ros_pkg::special_moveGoalConstPtr& current_goal){
       if(current_goal->file == "guide_go1"){
          return true;
       }else{
@@ -398,7 +398,7 @@ class SpecialMove{
       }
           
     }
-    bool posture_control(const fulanghua_action::special_moveGoalConstPtr& current_goal){
+    bool posture_control(const techshare_ros_pkg::special_moveGoalConstPtr& current_goal){
     if((current_goal->wp.position.x != 0 && current_goal->wp.position.y != 0) && (current_goal->wp.orientation.x != 0 && current_goal->wp.orientation.y != 0))
           return true;
       else
@@ -412,16 +412,16 @@ class SpecialMove{
     ros::Subscriber robot_coordinate_sub, odom_sub, speaking_sub,charge_sub;
     geometry_msgs::Twist twist;
     nav_msgs::Odometry _odom, initial_odom;
-    actionlib::SimpleActionServer<fulanghua_action::special_moveAction> server;
+    actionlib::SimpleActionServer<techshare_ros_pkg::special_moveAction> server;
 
     //clients
     actionlib::SimpleActionClient<sound_play::SoundRequestAction> sound_client;
-    actionlib::SimpleActionClient<fulanghua_action::special_moveAction> rotate_client;
-    actionlib::SimpleActionClient<fulanghua_action::special_moveAction> ar_detect_client;
-    actionlib::SimpleActionClient<fulanghua_action::special_moveAction> go1_cmd_client;
-    actionlib::SimpleActionClient<camera_action::camera_pkgAction> charging_station_client;
-    actionlib::SimpleActionClient<fulanghua_action::special_moveAction> ar_align_client;
-    actionlib::SimpleActionClient<rcs_client::Send_commandAction> ros_server_client;
+    actionlib::SimpleActionClient<techshare_ros_pkg::special_moveAction> rotate_client;
+    actionlib::SimpleActionClient<techshare_ros_pkg::special_moveAction> ar_detect_client;
+    actionlib::SimpleActionClient<techshare_ros_pkg::special_moveAction> go1_cmd_client;
+    actionlib::SimpleActionClient<techshare_ros_pkg::camera_pkgAction> charging_station_client;
+    actionlib::SimpleActionClient<techshare_ros_pkg::special_moveAction> ar_align_client;
+    actionlib::SimpleActionClient<techshare_ros_pkg::send_commandAction> ros_server_client;
 
     //service client
     ros::ServiceClient charge_reset_srv;
@@ -452,7 +452,7 @@ class SpecialMove{
     //--------
     const double Kp = 0.5;
     const double Kv = 0.2865;
-    orne_waypoints_msgs::Pose direction;
+    techshare_ros_pkg::Pose direction;
     double velocity_x;
     double rx, ry;
     double dist_err = 0;
@@ -489,7 +489,7 @@ int main(int argc, char** argv)
   // Server server;
 
   // SpM.speaking_sub = SpM.nh.subscribe("sound_play/is_speaking", 1000, &SpecialMove::speaking_callback, &SpM);
-  fulanghua_action::special_moveGoalConstPtr current_goal;
+  techshare_ros_pkg::special_moveGoalConstPtr current_goal;
   while (ros::ok())
   {
     if (SpM.server.isNewGoalAvailable())
@@ -517,7 +517,7 @@ int main(int argc, char** argv)
         }
         else
         {
-          fulanghua_action::special_moveFeedback feedback;
+          techshare_ros_pkg::special_moveFeedback feedback;
           feedback.rate = (ros::Time::now() - start_time).toSec() / current_goal->duration;
           SpM.server.publishFeedback(feedback);
           // printf("Active: publish feedback id:%i\n", current_goal->task_id);

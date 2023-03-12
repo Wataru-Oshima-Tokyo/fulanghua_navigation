@@ -1,7 +1,7 @@
 #include <ros/ros.h>
 #include <actionlib/client/simple_action_client.h>
-#include <fulanghua_action/special_moveAction.h>
-#include <camera_action/camera_pkgAction.h>
+#include <techshare_ros_pkg/special_moveAction.h>
+#include <techshare_ros_pkg/camera_pkgAction.h>
 #include <actionlib/server/simple_action_server.h>
 
 #include <nav_msgs/Odometry.h>
@@ -13,7 +13,7 @@
 
 
 
-typedef actionlib::SimpleActionServer<fulanghua_action::special_moveAction> Server;
+typedef actionlib::SimpleActionServer<techshare_ros_pkg::special_moveAction> Server;
 
 
 void initialize(unitree_legged_msgs::HighCmd &cmd){
@@ -53,7 +53,7 @@ int main(int argc, char** argv){
   private_nh.param("yaw_value", yaw_value, 0.3);
   private_nh.param("high_cmd", picth_value, 0.4);
   go1_ros_cmd_pub=nh.advertise<unitree_legged_msgs::HighCmd>(_high_cmd, 10);
-  fulanghua_action::special_moveGoalConstPtr current_goal; // instance of a goal
+  techshare_ros_pkg::special_moveGoalConstPtr current_goal; // instance of a goal
   server.start(); //start the server
   while (ros::ok()){
       if(server.isNewGoalAvailable()){
@@ -70,7 +70,7 @@ int main(int argc, char** argv){
           }
           else{
             ROS_INFO("Go1 starts move");
-            fulanghua_action::special_moveFeedback feedback; // set the feeback
+            techshare_ros_pkg::special_moveFeedback feedback; // set the feeback
             feedback.rate = (ros::Time::now() - start_time).toSec() / current_goal->duration; // decide the rate of feedback
             server.publishFeedback(feedback); //publish the feedback
             //initialize high cmd

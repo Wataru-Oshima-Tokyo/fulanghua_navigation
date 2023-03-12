@@ -1,11 +1,11 @@
 #include <ros/ros.h>
 #include <tf/transform_listener.h>
 #include <geometry_msgs/Twist.h>
-#include <fulanghua_action/special_moveAction.h>
+#include <techshare_ros_pkg/special_moveAction.h>
 #include <actionlib/server/simple_action_server.h>
 #include <fulanghua_msg/_LimoStatus.h>
 #include <unitree_legged_msgs/HighState.h>
-typedef actionlib::SimpleActionServer<fulanghua_action::special_moveAction> Server;
+typedef actionlib::SimpleActionServer<techshare_ros_pkg::special_moveAction> Server;
 
 double battery_=0.0;
 void limo_batteryCallback(const fulanghua_msg::_LimoStatus &msg){
@@ -36,7 +36,7 @@ int main(int argc, char** argv){
         CHARGE_TOPIC = "/high_state";
     }
   ros::Time start_time;
-  fulanghua_action::special_moveGoalConstPtr current_goal; // instance of a goal
+  techshare_ros_pkg::special_moveGoalConstPtr current_goal; // instance of a goal
     if (robot_name_ !="go1")
         charge_sub = nh.subscribe(CHARGE_TOPIC, 100, limo_batteryCallback);
     else
@@ -57,7 +57,7 @@ int main(int argc, char** argv){
             ROS_WARN("Battery check: Preemmpt Goal\n");
           }
           else{
-            fulanghua_action::special_moveFeedback feedback; // set the feeback
+            techshare_ros_pkg::special_moveFeedback feedback; // set the feeback
             feedback.rate = (ros::Time::now() - start_time).toSec() / current_goal->duration; // decide the rate of feedback
             server.publishFeedback(feedback); //publish the feedback
             ROS_INFO("Current battery: %lf", battery_);

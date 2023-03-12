@@ -19,17 +19,15 @@
   <depend>actionlib</depend>
   <depend>tf</depend>
   <depend>std_srvs</depend>
-  <depend>fulanghua_action</depend>
   <depend>rospy</depend>
   <depend>std_msgs</depend>
   <depend>orne_waypoints_msgs</depend>
   <depend>sound_play</depend>
   <depend>cv_bridge</depend>
   <depend>image_transport</depend>
-  <depend>camera_action</depend>
+  <depend>techshare_ros_pkg</depend>
   <depend>fulanghua_msg</depend>
   <depend>fulanghua_srvs</depend>
-  <depend>ros_central_server_action</depend>
   <depend>unitree_legged_msgs</depend>
   
   

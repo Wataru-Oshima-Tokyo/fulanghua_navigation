@@ -14,11 +14,11 @@
 
 #include <tf/transform_listener.h>
 #include <geometry_msgs/Twist.h>
-#include <fulanghua_action/special_moveAction.h>
+#include <techshare_ros_pkg/special_moveAction.h>
 #include <actionlib/server/simple_action_server.h>
 #include <actionlib/client/simple_action_client.h>
 
-typedef actionlib::SimpleActionServer<fulanghua_action::special_moveAction> Server;
+typedef actionlib::SimpleActionServer<techshare_ros_pkg::special_moveAction> Server;
 struct timespec timer_start, timer_stop;
 double fstart, fstop;
 
@@ -145,7 +145,7 @@ class ADJUST_POSITION{
         bool rotate_action(double &angle_){
           //rotate the robot so that realsense can see it (best effort)
           if (rotate_client.isServerConnected()){
-            fulanghua_action::special_moveGoal current_goal;
+            techshare_ros_pkg::special_moveGoal current_goal;
             current_goal.duration = 20;
             current_goal.angle = angle_;
             rotate_client.sendGoal(current_goal);
@@ -194,8 +194,8 @@ class ADJUST_POSITION{
 
 
 
-    actionlib::SimpleActionServer<fulanghua_action::special_moveAction> server;//make a server
-    actionlib::SimpleActionClient<fulanghua_action::special_moveAction> rotate_client; //for rotation client
+    actionlib::SimpleActionServer<techshare_ros_pkg::special_moveAction> server;//make a server
+    actionlib::SimpleActionClient<techshare_ros_pkg::special_moveAction> rotate_client; //for rotation client
     cv::Mat src,camera_matrix, dist_coeffs;
     double Kp = 0; // proportional coefficient
     double Kpang = 0;
@@ -216,7 +216,7 @@ class ADJUST_POSITION{
     geometry_msgs::Twist twist; 
     ros::Time start_time;
     
-    fulanghua_action::special_moveGoalConstPtr current_goal; // instance of a goal
+    techshare_ros_pkg::special_moveGoalConstPtr current_goal; // instance of a goal
     cv::Ptr<cv::aruco::Dictionary> dictionary = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_5X5_250); 
     std::vector<std::vector<cv::Point2f> > corners;
     std::vector<int> ids;
